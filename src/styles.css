@@ -35,6 +35,14 @@ textarea {
   font: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 .phone-page {
   position: relative;
   width: min(100%, 430px);
@@ -238,6 +246,13 @@ textarea {
   background: rgba(216, 246, 237, 0.9);
 }
 
+.hero-status {
+  margin: 12px 0 0;
+  color: #5f6b76;
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .secondary-pill {
   display: inline-flex;
   width: 130px;
@@ -342,6 +357,18 @@ textarea {
   color: #243447;
   font-size: 13px;
   font-weight: 800;
+}
+
+.recent-row--placeholder {
+  color: #61707f;
+}
+
+.recent-helper {
+  margin-top: 10px;
+  color: #6c7a87;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .status-pill {
@@ -507,6 +534,10 @@ textarea {
   line-height: 1;
 }
 
+.best-word--empty {
+  font-size: 34px;
+}
+
 .best-card p {
   margin: 10px 0 0;
   color: #627181;
@@ -616,6 +647,19 @@ textarea {
   position: relative;
 }
 
+.guess-input-shell input {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #243447;
+  outline: 0;
+}
+
+.guess-input-shell input::placeholder {
+  color: #9ba4ac;
+}
+
 .guess-input-shell::before {
   position: absolute;
   left: 14px;
@@ -639,6 +683,12 @@ textarea {
   color: #fff;
   font-size: 18px;
   font-weight: 900;
+}
+
+.guess-form button:disabled,
+.sheet-actions button:disabled,
+.primary-button:disabled {
+  opacity: 0.72;
 }
 
 .scoring-state {
@@ -720,6 +770,42 @@ textarea {
 .feedback-link {
   color: #0c9ca4;
   font-size: 12px;
+  font-weight: 800;
+}
+
+.empty-hint,
+.inline-error {
+  margin: 12px 0 0;
+  color: #5f6b76;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.inline-error {
+  color: #d95d4e;
+}
+
+.inline-error--hero {
+  max-width: 320px;
+}
+
+.inline-panel {
+  display: grid;
+  justify-items: center;
+  padding: 8px 0 4px;
+}
+
+.secondary-action {
+  min-height: 42px;
+  margin-top: 10px;
+  border: 1px solid rgba(36, 52, 71, 0.18);
+  border-radius: 999px;
+  padding: 0 18px;
+  background: #fff;
+  color: #243447;
+  font-size: 14px;
   font-weight: 800;
 }
 

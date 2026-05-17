@@ -36,7 +36,15 @@
 
 ## 页面功能与交互
 
-当前 `codex/guessword-frontend-static-flow` 分支已经按这些 normalized 原型图实现一版 React + Vite 静态主流程骨架。路由由 `src/routes/routeState.ts` 基于 `window.location` 做轻量映射；页面 mock 数据集中放在 `src/mock/game.ts`，只用于视觉和交互占位，不代表真实 API 已接通。
+当前 `codex/guessword-frontend-live-flow` 分支已在保留 image2code 页面骨架和 `data-ui-id` 的前提下，接入前半段真实 API：
+
+1. `/session` 会恢复本地 `session_token`，失效时自动重建匿名会话。
+2. 首页“开始一局”改为真实调用 `POST /api/games`。
+3. `/games/:gameId` 改为真实加载 `GET /api/games/{game_id}`。
+4. “放弃看答案”改为真实调用 `POST /api/games/{game_id}/give-up`，再跳转 `/games/:gameId/result/give-up`。
+5. `POST /api/games/{game_id}/guesses` 和反馈提交仍未接入，页面保留占位和提示文案。
+
+为兼容现有 visual QA runner，`/games/demo-playing` 和 `/games/demo/result/*` 这些旧目标 URL 仍保留。其中 `/games/demo-playing` 会尝试复用当前匿名会话的真实 active game；结果页 demo 路由仍用于视觉参考，不作为真实业务入口。
 
 已支持的本地路由：
 
@@ -44,6 +52,8 @@
 | --- | --- |
 | `/` | 首页 |
 | `/session` | 启动 / 恢复会话 |
+| `/games/:gameId` | 真实游戏页 |
+| `/games/:gameId/result/:mode` | 真实结果页 |
 | `/games/demo-playing` | 游戏进行中 |
 | `/games/demo-playing?feedback=1` | 游戏页 + 评分反馈弹层 |
 | `/games/demo/result/success` | 猜中结果 |
@@ -66,12 +76,12 @@ node /Users/loccen/.codex/skills/image2code-skill/scripts/visual-qa-runner.mjs -
 
 `ui-spec.json` 中的 high / medium `requiredNodes` 已对应到稳定的 `data-ui-id`。后续接 API 时，应替换 mock 层数据来源，不要把请求逻辑直接写进页面展示组件。
 
-1. 启动 / 恢复会话：进入 H5 后创建或恢复匿名会话；若 `GET /api/session` 返回 `active_game_id`，进入游戏页；无进行中游戏则进入首页。
+1. 启动 / 恢复会话：进入 H5 后创建或恢复匿名会话；若 `GET /api/session` 返回 `active_game_id`，进入真实游戏页；无进行中游戏则进入首页。
 2. 首页：点击“开始一局”调用 `POST /api/games`，成功后跳转 `/games/:gameId`；玩法说明进入 `07-rules-privacy` 页面。
-3. 游戏页：输入 1-20 个字符猜词；点击“提交”调用 `POST /api/games/{game_id}/guesses`；展示加载态，不清空输入；返回分数后更新最高分和历史列表。
-4. 评分反馈：点击历史行“反馈”打开底部弹层；选择“分数偏高 / 分数偏低 / 关系不对”，可填写 100 字以内备注；提交 `POST /api/games/{game_id}/feedback`。
-5. 放弃：点击“放弃看答案”调用 `POST /api/games/{game_id}/give-up`；成功后进入放弃结果页。
-6. 结果页：`success`、`give_up`、`expired` 三种结果都展示答案、统计和复盘列表；点击“再来一局”重新调用 `POST /api/games`。
+3. 游戏页：页面加载时调用 `GET /api/games/{game_id}`，展示真实有效次数、最高分、历史和结束状态；猜词提交按钮目前只保留视觉结构，等待并行分支接入 `POST /api/games/{game_id}/guesses`。
+4. 评分反馈：弹层与文案保留，提交接口仍未接入。
+5. 放弃：点击“放弃看答案”调用 `POST /api/games/{game_id}/give-up`；成功后进入真实放弃结果页。
+6. 结果页：真实 `give_up` 已可通过 `GET /api/games/{game_id}` 加载答案与统计；`success`、`expired` 页面结构已留好，等待后端猜词链路结束态接通。
 7. 玩法与隐私：只展示说明，不收集表单信息；底部“知道了”返回上一页或首页。
 
 ## 业务规则

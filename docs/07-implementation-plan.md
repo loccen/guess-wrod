@@ -249,6 +249,16 @@ T12/T13 当前完成最小前置：
 4. DeepSeek + AI Gateway adapter 位于 `src/infrastructure/adapters/deepseekAiGatewayScoringClient.ts`，只接受注入的 endpoint、apiKey、model 和 fetch，不读取 env，不暴露 Cloudflare binding 到 usecase。
 5. live adapter 当前是边界骨架和最小请求封装；尚未接入提交猜词 API、D1 cache、AI 调用日志、真实 endpoint 配置或线上密钥管理。
 
+## 12.2 前端真实 API 接入进度
+
+截至 `codex/guessword-frontend-live-flow`：
+
+1. 已接通 `POST /api/sessions`、`GET /api/session`、`POST /api/games`、`GET /api/games/{id}`、`POST /api/games/{id}/give-up`。
+2. 前端已保存并恢复本地 `session_token`，`401 unauthorized` 时会清理后自动重建匿名会话。
+3. 首页、启动页、游戏页、放弃结果页已经改为真实数据或真实请求驱动。
+4. `POST /api/games/{id}/guesses` 与反馈提交仍由并行任务负责，当前页面仅保留输入区、反馈弹层和错误/重试结构。
+5. 旧的 `/games/demo-playing` 与 `/games/demo/result/*` 路由仍保留给 visual QA；真实业务入口使用 `/games/:gameId` 与 `/games/:gameId/result/:mode`。
+
 ## 13. 当前资料基线
 
 本仓库已准备一组不依赖项目骨架的 T02/T04/T08 基础资料：

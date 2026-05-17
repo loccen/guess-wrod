@@ -1,0 +1,181 @@
+{
+  "schemaVersion": "1.0",
+  "passed": false,
+  "score": 0,
+  "targetUrl": "http://localhost:8788/games/demo-playing",
+  "thresholds": {
+    "bboxTolerancePx": 8,
+    "relationTolerancePx": 6,
+    "colorDeltaMax": 12,
+    "regionDiffMax": 0.08,
+    "pageDiffMax": 0.06,
+    "pageDiffPixelsMax": 20000
+  },
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "deviceScaleFactor": 1
+  },
+  "summary": {
+    "requiredNodes": 8,
+    "failures": 9,
+    "warnings": 1
+  },
+  "failures": [
+    {
+      "priority": "high",
+      "id": "score-ring",
+      "type": "text",
+      "message": "text expected \"76%\", actual \"0%\""
+    },
+    {
+      "priority": "high",
+      "id": "score-ring",
+      "type": "bbox",
+      "message": "bbox outside tolerance 8px",
+      "expected": {
+        "x": 218,
+        "y": 194,
+        "width": 117,
+        "height": 123,
+        "source": "02-game-playing",
+        "confidence": 0.76
+      },
+      "actual": {
+        "x": 219,
+        "y": 183.359375,
+        "width": 117,
+        "height": 123,
+        "top": 183.359375,
+        "right": 336,
+        "bottom": 306.359375,
+        "left": 219
+      },
+      "diff": {
+        "x": 1,
+        "y": 10.640625,
+        "width": 0,
+        "height": 0
+      }
+    },
+    {
+      "priority": "high",
+      "id": "guess-input",
+      "type": "text",
+      "message": "text expected \"输入一个猜词\", actual \"\""
+    },
+    {
+      "priority": "medium",
+      "id": "history-card",
+      "type": "bbox",
+      "message": "bbox outside tolerance 8px",
+      "expected": {
+        "x": 20,
+        "y": 509,
+        "width": 350,
+        "height": 236,
+        "source": "02-game-playing",
+        "confidence": 0.84
+      },
+      "actual": {
+        "x": 20,
+        "y": 503.359375,
+        "width": 350,
+        "height": 113.6875,
+        "top": 503.359375,
+        "right": 370,
+        "bottom": 617.046875,
+        "left": 20
+      },
+      "diff": {
+        "x": 0,
+        "y": 5.640625,
+        "width": 0,
+        "height": 122.3125
+      }
+    },
+    {
+      "priority": "medium",
+      "id": "give-up-button",
+      "type": "bbox",
+      "message": "bbox outside tolerance 8px",
+      "expected": {
+        "x": 75,
+        "y": 768,
+        "width": 238,
+        "height": 52,
+        "source": "02-game-playing",
+        "confidence": 0.82
+      },
+      "actual": {
+        "x": 76,
+        "y": 635.046875,
+        "width": 238,
+        "height": 52,
+        "top": 635.046875,
+        "right": 314,
+        "bottom": 687.046875,
+        "left": 76
+      },
+      "diff": {
+        "x": 1,
+        "y": 132.953125,
+        "width": 0,
+        "height": 0
+      }
+    },
+    {
+      "priority": "medium",
+      "id": "page",
+      "type": "page-diff",
+      "message": "page diff 0.1374 exceeds 0.06",
+      "diffRatio": 0.13737088346093085
+    },
+    {
+      "priority": "medium",
+      "id": "page",
+      "type": "page-diff",
+      "message": "page diff pixels 45217 exceeds 20000",
+      "diffPixels": 45217
+    },
+    {
+      "priority": "high",
+      "id": "best-card",
+      "type": "region-diff",
+      "message": "region diff 0.1977 exceeds 0.08",
+      "diffRatio": 0.19767947788252357,
+      "artifact": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow/docs/ui-prototypes/visual-qa/report/02-game-playing-live/regions/best-card-diff.png"
+    },
+    {
+      "priority": "high",
+      "id": "score-ring",
+      "type": "region-diff",
+      "message": "region diff 0.2486 exceeds 0.08",
+      "diffRatio": 0.24862761448127302,
+      "artifact": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow/docs/ui-prototypes/visual-qa/report/02-game-playing-live/regions/score-ring-diff.png"
+    }
+  ],
+  "warnings": [
+    {
+      "id": "best-guess-text",
+      "type": "bbox",
+      "message": "missing expected bbox; skipped bbox check"
+    }
+  ],
+  "artifacts": {
+    "actualScreenshot": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow/docs/ui-prototypes/visual-qa/report/02-game-playing-live/actual.png",
+    "pageDiff": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow/docs/ui-prototypes/visual-qa/report/02-game-playing-live/page-diff.png",
+    "failedRegions": [
+      "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow/docs/ui-prototypes/visual-qa/report/02-game-playing-live/regions/best-card-diff.png",
+      "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow/docs/ui-prototypes/visual-qa/report/02-game-playing-live/regions/score-ring-diff.png"
+    ],
+    "report": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow/docs/ui-prototypes/visual-qa/report/02-game-playing-live/visual-qa-report.json"
+  },
+  "pageDiff": {
+    "compared": true,
+    "diffPixels": 45217,
+    "totalPixels": 329160,
+    "diffRatio": 0.13737088346093085,
+    "diffFile": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow/docs/ui-prototypes/visual-qa/report/02-game-playing-live/page-diff.png"
+  }
+}
