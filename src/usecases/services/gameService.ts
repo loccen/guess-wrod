@@ -1,5 +1,6 @@
 import { ApiError, DEFAULT_RULE_VERSION, GAME_TTL_MS } from "../../domain/models/api";
 import type { Game, Guess, Word } from "../../domain/models/storage";
+import { ObservabilityService } from "./observabilityService";
 import type { AppServices } from "./platformPorts";
 import type { AuthenticatedSession } from "./sessionService";
 import { GameRuleService } from "./gameRuleService";
@@ -67,10 +68,15 @@ function toCreateGameResult(game: Game): CreateGameResult {
   };
 }
 
+function durationMilliseconds(startedAt: string, endedAt: string): number {
+  return Math.max(0, new Date(endedAt).getTime() - new Date(startedAt).getTime());
+}
+
 export class GameService {
   constructor(private readonly services: AppServices) {}
 
   async createGame(session: AuthenticatedSession, input: CreateGameInput): Promise<CreateGameResult> {
+    const observability = new ObservabilityService(this.services);
     const gameRuleService = new GameRuleService(this.services);
     const mode = input.mode ?? "random";
     if (mode !== "random") {
@@ -124,6 +130,21 @@ export class GameService {
     };
 
     await this.services.storage.games.createGame(game);
+    await observability.trackEvent({
+      eventName: "game_created",
+      eventTime: startedAt,
+      visitorId: session.visitorId,
+      sessionId: session.session.id,
+      page: "game",
+      gameId: game.id,
+      answerId: game.answerId,
+      modelName: game.modelName,
+      ruleVersion: game.ruleVersion,
+      payload: {
+        mode,
+        guess_count: game.guessCount
+      }
+    });
     return toCreateGameResult(game);
   }
 
@@ -168,12 +189,30 @@ export class GameService {
   }
 
   async giveUpGame(session: AuthenticatedSession, gameId: string): Promise<GiveUpGameResult> {
+    const observability = new ObservabilityService(this.services);
     const gameRuleService = new GameRuleService(this.services);
     const game = await gameRuleService.readPlayableGame(session.visitorId, gameId);
 
     const nowIso = this.services.clock.now().toISOString();
     await this.services.storage.games.finishGame(game.id, "give_up", nowIso, null);
     const answer = await gameRuleService.readAnswerWord(game.answerId);
+    const bestGuess = game.bestGuessId ? await this.services.storage.guesses.findGuessById(game.bestGuessId) : null;
+    await observability.trackEvent({
+      eventName: "game_give_up",
+      eventTime: nowIso,
+      visitorId: session.visitorId,
+      sessionId: session.session.id,
+      page: "result",
+      gameId: game.id,
+      answerId: game.answerId,
+      modelName: game.modelName,
+      ruleVersion: game.ruleVersion,
+      payload: {
+        guess_count: game.guessCount,
+        duration_ms: durationMilliseconds(game.startedAt, nowIso),
+        best_score: bestGuess?.score ?? null
+      }
+    });
 
     return {
       gameId: game.id,

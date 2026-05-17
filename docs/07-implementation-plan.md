@@ -260,6 +260,16 @@ T12/T13 当前完成最小前置：
 5. `POST /api/games/{id}/feedback` 已接入前端真实提交流程；历史列表中的反馈入口会携带 `guess_id` 打开弹层，并处理提交中、失败和成功状态。
 5. 旧的 `/games/demo-playing` 与 `/games/demo/result/*` 路由仍保留给 visual QA；真实业务入口使用 `/games/:gameId` 与 `/games/:gameId/result/:mode`。
 
+## 12.3 基础分析写入当前进度
+
+T22/T23 当前补到最小可验证边界：
+
+1. `src/usecases/ports/observability.ts` 已提供平台中立的 `AnalyticsSink` / `ArchiveSink` 接口。
+2. `SessionService`、`GameService`、`GuessService`、`FeedbackService` 已在关键路径调用分析 sink，且失败不会回滚主流程。
+3. 模型评分路径已写入 D1 `ai_call_logs` 最小镜像；事件侧已具备本地事件建模和 archive mirror 边界。
+4. 默认本地模式仍以 `ANALYTICS_MODE=noop`、`ARCHIVE_MODE=file` 为主，其中 file sink adapter 已完成并有单元测试，但 Pages 入口暂未接宿主文件 writer。
+5. 真实 Workers Analytics Engine、R2 归档任务、AI Gateway 账单字段对接仍未完成，因此 T22/T23 还不能算完全交付。
+
 ## 13. 当前资料基线
 
 本仓库已准备一组不依赖项目骨架的 T02/T04/T08 基础资料：
@@ -309,7 +319,7 @@ npx wrangler d1 execute guess-wrod-local --local --command "SELECT COUNT(*) AS c
 当前仍未覆盖：
 
 1. 真实 Turnstile 校验 adapter。
-2. AI 调用镜像、反馈与分析链路。
+2. 真实 Workers Analytics Engine、R2 归档任务和 AI Gateway token / cost 字段映射。
 3. 真实 Cron 调度和批量过期扫描；当前只做请求触发式判定。
 
 ## 15. T14 当前验收基线

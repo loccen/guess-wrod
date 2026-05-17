@@ -1,4 +1,5 @@
 import type { ThinkingMode } from "../../domain/models/storage";
+import type { AnalyticsSink, ArchiveSink } from "../ports/observability";
 import type { StorageRepositories } from "../repositories/storageRepositories";
 import type { ScoringGateway } from "../scoring/scoringGateway";
 
@@ -66,4 +67,6 @@ export interface AppServices {
   sensitiveTermChecker: SensitiveTermChecker;
   scoringGateway: ScoringGateway;
   scoringProfile: ScoringProfile;
+  analyticsSink: AnalyticsSink;
+  archiveSink: ArchiveSink;
 }
