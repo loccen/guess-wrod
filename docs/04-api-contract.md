@@ -79,6 +79,11 @@ Response:
     "runtime": {
       "version": "abcdef123456",
       "source": "cf_pages_commit_sha"
+    },
+    "aiRuntime": {
+      "hasAiGatewayEndpoint": true,
+      "hasAiGatewayApiKey": true,
+      "hasAiGatewayByokAlias": false
     }
   }
 }
@@ -88,6 +93,7 @@ Response:
 
 1. `runtime.source` 取值：`cf_pages_commit_sha`、`git_commit_sha`、`build_id`、`runtime_version`、`unknown`。
 2. `runtime.version` 会做字符与长度清洗，仅用于版本辨识，不返回密钥类信息。
+3. `aiRuntime` 只返回布尔标记，不返回 `AI_GATEWAY_ENDPOINT`、`AI_GATEWAY_API_KEY`、`AI_GATEWAY_BYOK_ALIAS` 的原始值，用于确认 production alias / preview alias 是否吃到 AI 网关配置。
 
 ## 2. 会话接口
 
