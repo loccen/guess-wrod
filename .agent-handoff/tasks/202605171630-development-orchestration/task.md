@@ -47,10 +47,10 @@
 
 - 已完成：读取 `AGENTS.md`、`docs/02-architecture.md`、`docs/04-api-contract.md`、`docs/05-scoring-spec.md`、`docs/07-implementation-plan.md`、`docs/08-analytics-and-quality.md`、`docs/ui-prototypes/README.md`。
 - 已完成：确认仓库当前只有文档和原型图，尚无实现骨架；已创建本 task bundle 和本线程 `ai-task`。
-- 已完成：创建首批独立 worktree，详见 `evidence/dispatch-plan.md`。
-- 未完成：派发子代理，等待子代理提交后验收并合入。
+- 已完成：创建首批独立 worktree，并派发四个子代理，详见 `evidence/dispatch-plan.md`。
+- 未完成：等待子代理提交后验收并合入。
 - 阻塞：T02/T03/T05/T17 等实现任务依赖 T01 的项目骨架与目录结构。
 
 ## 下一步
 
-- 派发四个子代理：T01 项目骨架、数据与词库准备、评分规则准备、前端原型规格准备。
+- 等待四个子代理完成首批任务；完成后按 worktree 读取 `ai-task show`、diff、提交、测试和运行结果，再决定是否合入。

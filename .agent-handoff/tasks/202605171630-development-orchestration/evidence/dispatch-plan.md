@@ -15,24 +15,28 @@
 ## 首批任务
 
 1. `T01 项目骨架`
+   - 子代理：`019e368b-b9ef-72f1-ba5c-704cb858fe72`
    - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/t01-skeleton`
    - Branch：`codex/guessword-t01-skeleton`
    - 负责范围：创建 Cloudflare Pages + Functions 的 TypeScript 项目骨架、Wrangler 配置、本地 stub/bypass/noop/file 模式、基础健康检查、目录分层。
    - 验收重点：本地可启动空页面和 `/api/health`，目录体现 `domain`、`usecases`、`infrastructure/adapters`、`routes/handlers`。
 
 2. `数据与词库准备`
+   - 子代理：`019e368b-f18e-7791-979e-25efe0161549`
    - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/data-seed`
    - Branch：`codex/guessword-data-seed`
    - 负责范围：D1 migration 草案、seed 机制、首批 50 个本地测试词条起步、敏感词初筛资料。
    - 验收重点：不依赖业务实现也能提供可合入的数据文件和 migration；不得泄露敏感内容；词条避免抽象概念。
 
 3. `评分规则准备`
+   - 子代理：`019e368c-2d1b-71c2-ab33-5c29ca0c8ce6`
    - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/scoring-rules`
    - Branch：`codex/guessword-scoring-rules`
    - 负责范围：输入归一化、关系类型、分数上限、AI 输出后处理、人工样本集起步。
    - 验收重点：领域规则保持平台中立；提供单元测试或可直接接入测试的规则模块。
 
 4. `前端原型规格准备`
+   - 子代理：`019e368c-715f-75e1-ae1a-b7996614ff61`
    - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/frontend-spec`
    - Branch：`codex/guessword-frontend-spec`
    - 负责范围：使用 `image2code-skill` 处理 `docs/ui-prototypes/images`，输出规范化图片引用、`ui-spec.json` 或页面规格、视觉验收配置建议。
@@ -44,3 +48,4 @@
 - 核对 `git diff`、提交记录、测试命令输出和实际启动或脚本运行结果。
 - 具体实现分支合入主线默认使用 `git merge --no-ff`。
 - 不能只凭子代理文字汇报认定完成。
+- 子代理超过十分钟没有任何文件变更时，主代理只做状态诊断、总结阻塞并重新派发或调整对应 worktree，不直接替代实现。

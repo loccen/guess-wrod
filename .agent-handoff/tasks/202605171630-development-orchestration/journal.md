@@ -17,3 +17,9 @@
 - 动作：从 `main` 的 `63d1d20` 创建四个独立 worktree。
 - 结果：已创建 `codex/guessword-t01-skeleton`、`codex/guessword-data-seed`、`codex/guessword-scoring-rules`、`codex/guessword-frontend-spec`。
 - 遗留：派发子代理，并等待其在对应 worktree 内维护 `ai-task`、提交实现和验证结果。
+
+## 2026-05-17T23:27:25+08:00 派发首批子代理
+
+- 动作：派发四个 worker 子代理，分别负责 T01 项目骨架、数据与词库准备、评分规则准备、前端原型规格准备。
+- 结果：子代理 ID 已登记到 `evidence/dispatch-plan.md`。
+- 遗留：等待子代理完成；验收时按 `ai-task show`、diff、提交、测试、运行证据逐项核对。
