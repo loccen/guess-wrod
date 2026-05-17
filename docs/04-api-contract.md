@@ -32,6 +32,7 @@ Authorization: Bearer <session_token>
 1. `POST /sessions` 必传 `turnstile_token`。
 2. `POST /games`、`POST /games/{game_id}/guesses`、`POST /games/{game_id}/feedback` 在普通情况下可不传。
 3. 当服务端风控命中高风险、WAF 规则或二次校验策略时，上述接口会返回 `turnstile_required`，前端需拿新 token 后重试。
+4. 本地 `CAPTCHA_MODE=bypass` 调试时，`POST /api/sessions` 可省略 `turnstile_token`；放行只存在于验证码 adapter，不进入业务规则。
 
 ### 1.4 响应格式
 
@@ -143,6 +144,7 @@ Response:
 
 1. V0.1 只接受 `mode=random`。
 2. 不能返回答案。
+3. 同一匿名会话若已有进行中的游戏，重复调用 `POST /api/games` 会返回现有游戏，不再新建第二条 `playing` 记录。
 
 ### 3.2 获取游戏状态
 
@@ -179,6 +181,11 @@ Response:
   }
 }
 ```
+
+说明：
+
+1. `best_guess` 在还没有有效猜词时返回 `null`。
+2. `guesses` 在还没有历史记录时返回空数组。
 
 结束状态追加：
 
@@ -329,6 +336,7 @@ Response:
 | `unauthorized` | 401 | false | 无会话或会话失效 |
 | `turnstile_required` | 403 | false | 需要补做人机校验 |
 | `turnstile_failed` | 400 | false | Turnstile token 无效、过期或校验失败 |
+| `invalid_request` | 400 | false | 请求体缺字段、字段值不支持或模式非法 |
 | `invalid_guess` | 400 | false | 空输入、超长、格式非法 |
 | `sensitive_word` | 400 | false | 命中敏感词 |
 | `game_not_found` | 404 | false | 游戏不存在或无权访问 |
