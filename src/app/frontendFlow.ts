@@ -9,11 +9,13 @@ export type RestoredSession = {
 };
 
 export type GuessHistoryItem = {
+  guessId: string;
   rank: number;
   word: string;
   score: number;
   relation: string;
-  feedbackHref: string;
+  counted: boolean;
+  feedbackHref: string | null;
 };
 
 export type GamePageModel = {
@@ -209,11 +211,13 @@ export function toGuessHistoryItems(
   feedbackHrefBuilder: (guessId: string) => string
 ): GuessHistoryItem[] {
   return guesses.map((guess, index) => ({
+    guessId: guess.guess_id,
     rank: index + 1,
     word: guess.guess,
     score: guess.score ?? 0,
     relation: mapRelationLabel(guess.relation_type),
-    feedbackHref: feedbackHrefBuilder(guess.guess_id)
+    counted: guess.counted,
+    feedbackHref: guess.counted && guess.score !== null ? feedbackHrefBuilder(guess.guess_id) : null
   }));
 }
 

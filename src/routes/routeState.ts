@@ -3,7 +3,7 @@ export type ResultMode = "success" | "give-up" | "expired";
 export type RouteState =
   | { page: "home" }
   | { page: "session" }
-  | { page: "game"; feedback: boolean; gameId: string | null; demo: boolean }
+  | { page: "game"; feedback: boolean; feedbackGuessId: string | null; gameId: string | null; demo: boolean }
   | { page: "rules" }
   | { page: "result"; mode: ResultMode; gameId: string | null; demo: boolean };
 
@@ -13,13 +13,16 @@ const GAME_RESULT_PATH = /^\/games\/([^/]+)\/result\/(success|give-up|expired)$/
 export function readRoute(location: Location): RouteState {
   const path = location.pathname.replace(/\/+$/, "") || "/";
   const params = new URLSearchParams(location.search);
+  const feedbackParam = params.get("feedback");
+  const feedback = feedbackParam !== null && feedbackParam !== "0" && feedbackParam !== "";
+  const feedbackGuessId = feedback && feedbackParam !== "1" ? feedbackParam : null;
 
   if (path === "/session") {
     return { page: "session" };
   }
 
   if (path === "/games/demo-playing") {
-    return { page: "game", feedback: params.get("feedback") === "1", gameId: null, demo: true };
+    return { page: "game", feedback, feedbackGuessId, gameId: null, demo: true };
   }
 
   if (path === "/games/demo/result/success") {
@@ -38,7 +41,8 @@ export function readRoute(location: Location): RouteState {
   if (gameMatch) {
     return {
       page: "game",
-      feedback: params.get("feedback") === "1",
+      feedback,
+      feedbackGuessId,
       gameId: decodeURIComponent(gameMatch[1]),
       demo: false
     };
@@ -65,8 +69,12 @@ export function buildGamePath(gameId: string): string {
   return `/games/${encodeURIComponent(gameId)}`;
 }
 
-export function buildGameFeedbackPath(gameId: string): string {
-  return `${buildGamePath(gameId)}?feedback=1`;
+export function buildGameFeedbackPath(gameId: string, guessId?: string | null): string {
+  if (!guessId) {
+    return `${buildGamePath(gameId)}?feedback=1`;
+  }
+
+  return `${buildGamePath(gameId)}?feedback=${encodeURIComponent(guessId)}`;
 }
 
 export function buildResultPath(gameId: string, mode: ResultMode): string {

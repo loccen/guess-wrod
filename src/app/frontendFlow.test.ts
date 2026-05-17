@@ -1,20 +1,28 @@
 import { describe, expect, it } from "vitest";
 import { formatDurationText, formatExpiresText, getErrorMessage, mapRelationLabel, toGuessHistoryItems, toGuessSubmitNotice } from "./frontendFlow";
+import { buildFeedbackNote, validateFeedbackNote } from "./feedbackFlow";
 import { FrontendApiError } from "./apiClient";
 import { buildGamePath, buildResultPath, readRoute, toResultMode } from "../routes/routeState";
 
 describe("routeState", () => {
   it("parses real game and result routes", () => {
-    const gameRoute = readRoute(new URL("https://example.com/games/game_42?feedback=1") as unknown as Location);
+    const gameRoute = readRoute(new URL("https://example.com/games/game_42?feedback=guess_9") as unknown as Location);
     const resultRoute = readRoute(new URL("https://example.com/games/game_42/result/give-up") as unknown as Location);
 
-    expect(gameRoute).toEqual({ page: "game", feedback: true, gameId: "game_42", demo: false });
+    expect(gameRoute).toEqual({ page: "game", feedback: true, feedbackGuessId: "guess_9", gameId: "game_42", demo: false });
     expect(resultRoute).toEqual({ page: "result", gameId: "game_42", mode: "give-up", demo: false });
   });
 
   it("builds game and result paths", () => {
     expect(buildGamePath("game_1")).toBe("/games/game_1");
     expect(buildResultPath("game_1", "expired")).toBe("/games/game_1/result/expired");
+    expect(readRoute(new URL("https://example.com/games/demo-playing?feedback=1") as unknown as Location)).toEqual({
+      page: "game",
+      feedback: true,
+      feedbackGuessId: null,
+      gameId: null,
+      demo: true
+    });
   });
 });
 
@@ -50,13 +58,38 @@ describe("frontendFlow helpers", () => {
 
     expect(guesses).toEqual([
       {
+        guessId: "guess_1",
         rank: 1,
         word: "平板",
         score: 76,
         relation: "同类",
+        counted: true,
         feedbackHref: "/feedback/guess_1"
       }
     ]);
+  });
+
+  it("disables feedback links for non-counted guesses", () => {
+    const guesses = toGuessHistoryItems(
+      [
+        {
+          guess_id: "guess_2",
+          guess: "平板",
+          score: 76,
+          relation_type: "same_category",
+          source: "game_cache",
+          counted: false,
+          created_at: "2026-05-18T00:00:00.000Z"
+        }
+      ],
+      (guessId) => `/feedback/${guessId}`
+    );
+
+    expect(guesses[0]).toMatchObject({
+      guessId: "guess_2",
+      counted: false,
+      feedbackHref: null
+    });
   });
 
   it("formats remaining time text", () => {
@@ -114,5 +147,16 @@ describe("frontendFlow helpers", () => {
     });
 
     expect(getErrorMessage(invalidGuessError)).toBe("请输入 1 到 20 个字符的有效猜词。");
+  });
+
+  it("builds feedback note payloads for unsupported directions", () => {
+    expect(buildFeedbackNote("score-high", "这个分数高了")).toBe("这个分数高了");
+    expect(buildFeedbackNote("score-low", "")).toBe("反馈方向：分数偏低");
+    expect(buildFeedbackNote("relation-wrong", "更像配件")).toBe("反馈方向：关系不对；更像配件");
+  });
+
+  it("validates feedback note length", () => {
+    expect(validateFeedbackNote("score-high", "a".repeat(100))).toBeNull();
+    expect(validateFeedbackNote("score-high", "a".repeat(101))).toBe("补充说明最多 100 个字。");
   });
 });
