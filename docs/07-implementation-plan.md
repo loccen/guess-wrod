@@ -300,15 +300,16 @@ npx wrangler d1 execute guess-wrod-local --local --command "SELECT COUNT(*) AS c
 1. `POST /api/sessions`：创建匿名访客、生成签名 session token、只保存 token 哈希；`CAPTCHA_MODE=bypass` 时允许省略 `turnstile_token`。
 2. `GET /api/session`：校验 Bearer token、校验过期时间、返回 `visitor_id`、`expires_at` 和当前 `active_game_id`。
 3. `POST /api/games`：在会话下创建随机局；若当前已存在 `playing` 游戏，则直接返回该游戏，避免同一会话并存多条进行中记录。
-4. `GET /api/games/{game_id}`：进行中状态不返回答案；结束状态返回 `answer` 与 `answer_aliases`。
-5. `POST /api/games/{game_id}/give-up`：把游戏状态更新为 `give_up`，返回答案。
-6. `POST /api/games/{game_id}/guesses`：完成输入归一化、敏感词拦截、exact/alias、本局重复猜词缓存、全局缓存和 stub/model 评分最小链路。
+4. `GET /api/games/{game_id}`：进行中状态不返回答案；结束状态返回 `answer` 与 `answer_aliases`；若读取时已过 24 小时 TTL 或达到 100 次有效猜词，use case 会先写回 `expired` 和 `expire_reason`。
+5. `POST /api/games/{game_id}/give-up`：把游戏状态更新为 `give_up`，返回答案；若请求到达时该局已过期，则返回 `409 game_ended`，保留 `expired` 状态。
+6. `POST /api/games/{game_id}/guesses`：完成输入归一化、敏感词拦截、exact/alias、本局重复猜词缓存、全局缓存和 stub/model 评分最小链路；第 100 次有效猜词仍未命中时，当次响应直接返回 `status=expired` 和答案。
+7. `src/usecases/services/gameRuleService.ts` 已集中处理 TTL、100 次上限和过期写回，handler 与函数入口不直接写死这些规则。
 
 当前仍未覆盖：
 
 1. 真实 Turnstile 校验 adapter。
 2. AI 调用镜像、反馈与分析链路。
-3. 基于 24 小时 TTL 的自动过期处理。
+3. 真实 Cron 调度和批量过期扫描；当前只做请求触发式判定。
 
 ## 15. T14 当前验收基线
 
@@ -322,3 +323,5 @@ npx wrangler d1 execute guess-wrod-local --local --command "SELECT COUNT(*) AS c
 6. 跨局复用 `score_cache` 时返回 `global_cache`，并增加当前局有效次数。
 7. stub/model 路径会写入 `guesses` 和 `score_cache`。
 8. 游戏结束后继续提交返回 `game_ended`。
+9. 第 100 次有效猜词后仍未命中时，当前响应直接返回 `expired`、答案和 `expire_reason=guess_limit`。
+10. TTL 已过期的游戏在状态查询、猜词和放弃时都会先写回 `expired`，并通过 `GET /api/games/{game_id}` 返回答案与 `expire_reason=ttl`。

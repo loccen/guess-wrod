@@ -151,7 +151,8 @@ Response:
 
 1. V0.1 只接受 `mode=random`。
 2. 不能返回答案。
-3. 同一匿名会话若已有进行中的游戏，重复调用 `POST /api/games` 会返回现有游戏，不再新建第二条 `playing` 记录。
+3. 同一匿名会话若已有未过期的进行中游戏，重复调用 `POST /api/games` 会返回现有游戏，不再新建第二条 `playing` 记录。
+4. 若现有 `playing` 游戏在读取时已达到 24 小时 TTL 或已到 100 次有效猜词上限，服务端会先把它标记为 `expired`，再允许创建新局。
 
 ### 3.2 获取游戏状态
 
@@ -193,6 +194,7 @@ Response:
 
 1. `best_guess` 在还没有有效猜词时返回 `null`。
 2. `guesses` 在还没有历史记录时返回空数组。
+3. 读取状态时若发现该局已达到 24 小时 TTL 或有效猜词已满 100 次，服务端会先把该局更新为 `expired`，再返回结果。
 
 结束状态追加：
 
@@ -200,10 +202,16 @@ Response:
 {
   "data": {
     "answer": "手机",
-    "answer_aliases": ["智能手机", "移动电话", "📱"]
+    "answer_aliases": ["智能手机", "移动电话", "📱"],
+    "expire_reason": "ttl"
   }
 }
 ```
+
+其中 `expire_reason` 只会在 `status=expired` 时返回，可选值：
+
+1. `guess_limit`：达到 100 次有效猜词后仍未命中。
+2. `ttl`：超过 24 小时仍未完成。
 
 ### 3.3 提交猜词
 
@@ -291,6 +299,33 @@ Response:
 }
 ```
 
+第 100 次有效猜词后过期示例：
+
+```json
+{
+  "data": {
+    "guess_id": "guess_100",
+    "guess": "平板",
+    "normalized_guess": "平板",
+    "score": 76,
+    "relation_type": "same_category",
+    "is_exact": false,
+    "status": "expired",
+    "source": "model",
+    "counted": true,
+    "guess_count": 100,
+    "expire_reason": "guess_limit",
+    "answer": "手机"
+  }
+}
+```
+
+规则：
+
+1. 单局最多接受 100 次有效猜词；重复猜词、非法输入、敏感词、AI 异常都不计入这 100 次。
+2. 当第 100 次有效猜词仍未命中时，本次响应直接返回 `status=expired`，并附带答案。
+3. 若提交猜词时该局已因 TTL 或次数上限过期，接口返回 `409 game_ended`；前端应随后刷新 `GET /api/games/{game_id}` 获取最终结果。
+
 ### 3.4 放弃游戏
 
 ```http
@@ -310,6 +345,10 @@ Response:
   }
 }
 ```
+
+说明：
+
+1. 若请求到达时该局已因 TTL 或次数上限过期，接口返回 `409 game_ended`，不会再把状态改成 `give_up`。
 
 ### 3.5 提交评分反馈
 
@@ -377,9 +416,10 @@ Response:
 4. 单局重复猜词复用已有结果，返回 `source=game_cache`，不增加 `guess_count`。
 5. 全局缓存命中返回 `source=global_cache`，作为新的有效猜词写入当前局。
 6. 未命中缓存时走 `ScoringGateway`；本地默认 `AI_MODE=stub`，live 模式只保留 adapter 注入边界。
+7. `GET /api/games/{game_id}`、`POST /api/games/{game_id}/guesses`、`POST /api/games/{game_id}/give-up` 当前都会在 use case 层统一判定 TTL 和 100 次上限，并把过期结果写回 `games`。
 
 当前未实现：
 
-1. 猜词次数上限和 TTL 自动过期。
+1. 真实定时调度入口和自动扫描过期局；当前仅在读取状态、提交猜词、放弃、重复创建游戏时按需判定过期。
 2. `ai_call_logs` 写入和真实 DeepSeek 联调。
 3. 反馈接口和分析事件的真实落库。

@@ -354,6 +354,32 @@ async function createGame(services: AppServices, authorization: string): Promise
   return String(payload.data.game_id);
 }
 
+async function createStoredGame(
+  services: AppServices,
+  visitorId: string,
+  overrides: Partial<Game> = {}
+): Promise<string> {
+  const now = services.clock.now().toISOString();
+  const gameId = overrides.id ?? "game_manual";
+  await services.storage.games.createGame({
+    id: gameId,
+    visitorId,
+    answerId: overrides.answerId ?? "word_1",
+    status: overrides.status ?? "playing",
+    ruleVersion: overrides.ruleVersion ?? "v0.1",
+    modelName: overrides.modelName ?? services.scoringProfile.modelName,
+    thinkingMode: overrides.thinkingMode ?? services.scoringProfile.thinkingMode,
+    guessCount: overrides.guessCount ?? 0,
+    bestGuessId: overrides.bestGuessId ?? null,
+    startedAt: overrides.startedAt ?? now,
+    endedAt: overrides.endedAt ?? null,
+    expiresAt: overrides.expiresAt ?? "2026-05-18T10:00:00.000Z",
+    expireReason: overrides.expireReason ?? null
+  });
+
+  return gameId;
+}
+
 async function submitGuess(
   services: AppServices,
   authorization: string,
@@ -519,6 +545,91 @@ describe("session and game handlers", () => {
     expect(payload.data.status).toBe("playing");
     expect(payload.data.answer).toBeUndefined();
     expect(payload.data.guesses).toEqual([]);
+  });
+
+  it("marks the game expired after the 100th valid guess and returns the answer", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z", [
+      {
+        guess: "平板",
+        response: {
+          score: 76,
+          relation_type: "same_category",
+          is_exact: false
+        }
+      }
+    ]);
+    const { authorization, visitorId } = await createAuthorizedRequest(services);
+    const gameId = await createStoredGame(services, visitorId, {
+      id: "game_limit",
+      guessCount: 99,
+      startedAt: "2026-05-17T09:30:00.000Z",
+      expiresAt: "2026-05-18T10:00:00.000Z"
+    });
+
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(200);
+    expect(payload.data.status).toBe("expired");
+    expect(payload.data.answer).toBe("手机");
+    expect(payload.data.expire_reason).toBe("guess_limit");
+    expect(payload.data.guess_count).toBe(100);
+
+    const statusResponse = await getGameResponse(
+      new Request(`https://example.com/api/games/${gameId}`, {
+        headers: {
+          authorization
+        }
+      }),
+      services,
+      gameId
+    );
+    const statusPayload = (await statusResponse.json()) as Record<string, any>;
+
+    expect(statusResponse.status).toBe(200);
+    expect(statusPayload.data.status).toBe("expired");
+    expect(statusPayload.data.answer).toBe("手机");
+    expect(statusPayload.data.expire_reason).toBe("guess_limit");
+    expect(statusPayload.data.ended_at).toBe("2026-05-17T10:00:00.000Z");
+  });
+
+  it("returns expired status and answer after TTL has passed", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z");
+    const { authorization, visitorId } = await createAuthorizedRequest(services);
+    const gameId = await createStoredGame(services, visitorId, {
+      id: "game_ttl",
+      startedAt: "2026-05-16T09:00:00.000Z",
+      expiresAt: "2026-05-17T09:00:00.000Z"
+    });
+
+    const response = await getGameResponse(
+      new Request(`https://example.com/api/games/${gameId}`, {
+        headers: {
+          authorization
+        }
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(200);
+    expect(payload.data.status).toBe("expired");
+    expect(payload.data.answer).toBe("手机");
+    expect(payload.data.answer_aliases).toEqual(["智能手机", "移动电话"]);
+    expect(payload.data.expire_reason).toBe("ttl");
+    expect(payload.data.ended_at).toBe("2026-05-17T09:00:00.000Z");
   });
 
   it("returns the answer after give-up and keeps the game out of playing state", async () => {
@@ -839,6 +950,87 @@ describe("session and game handlers", () => {
 
     expect(response.status).toBe(409);
     expect(payload.error.code).toBe("game_ended");
+  });
+
+  it("rejects guesses after TTL expiry and keeps the game in expired state", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z");
+    const { authorization, visitorId } = await createAuthorizedRequest(services);
+    const gameId = await createStoredGame(services, visitorId, {
+      id: "game_ttl_guess",
+      startedAt: "2026-05-16T09:00:00.000Z",
+      expiresAt: "2026-05-17T09:00:00.000Z"
+    });
+
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(409);
+    expect(payload.error.code).toBe("game_ended");
+
+    const statusResponse = await getGameResponse(
+      new Request(`https://example.com/api/games/${gameId}`, {
+        headers: {
+          authorization
+        }
+      }),
+      services,
+      gameId
+    );
+    const statusPayload = (await statusResponse.json()) as Record<string, any>;
+
+    expect(statusPayload.data.status).toBe("expired");
+    expect(statusPayload.data.expire_reason).toBe("ttl");
+  });
+
+  it("rejects give-up after TTL expiry and keeps the game in expired state", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z");
+    const { authorization, visitorId } = await createAuthorizedRequest(services);
+    const gameId = await createStoredGame(services, visitorId, {
+      id: "game_ttl_giveup",
+      startedAt: "2026-05-16T09:00:00.000Z",
+      expiresAt: "2026-05-17T09:00:00.000Z"
+    });
+
+    const response = await giveUpGameResponse(
+      new Request(`https://example.com/api/games/${gameId}/give-up`, {
+        method: "POST",
+        headers: {
+          authorization
+        }
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(409);
+    expect(payload.error.code).toBe("game_ended");
+
+    const statusResponse = await getGameResponse(
+      new Request(`https://example.com/api/games/${gameId}`, {
+        headers: {
+          authorization
+        }
+      }),
+      services,
+      gameId
+    );
+    const statusPayload = (await statusResponse.json()) as Record<string, any>;
+
+    expect(statusPayload.data.status).toBe("expired");
+    expect(statusPayload.data.answer).toBe("手机");
+    expect(statusPayload.data.expire_reason).toBe("ttl");
   });
 
   it("rejects feedback when session header is missing", async () => {

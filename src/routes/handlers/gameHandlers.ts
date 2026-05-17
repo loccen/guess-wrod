@@ -53,6 +53,7 @@ export async function getGameResponse(request: Request, services: AppServices, g
       game_id: result.gameId,
       status: result.status,
       guess_count: result.guessCount,
+      ...(result.expireReason ? { expire_reason: result.expireReason } : {}),
       best_guess: result.bestGuess
         ? {
             guess_id: result.bestGuess.guessId,
@@ -123,6 +124,7 @@ export async function submitGuessResponse(request: Request, services: AppService
       source: result.source,
       counted: result.counted,
       guess_count: result.guessCount,
+      ...(result.expireReason ? { expire_reason: result.expireReason } : {}),
       best_guess: result.bestGuess
         ? {
             guess_id: result.bestGuess.guessId,

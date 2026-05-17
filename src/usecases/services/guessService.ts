@@ -1,8 +1,9 @@
-import { ApiError } from "../../domain/models/api";
+import { ApiError, GAME_MAX_GUESSES } from "../../domain/models/api";
 import type { Game, Guess, GuessSource, Word } from "../../domain/models/storage";
 import { findLocalExactMatch, type RelationType } from "../../domain/scoring/index.mjs";
 import type { AppServices } from "./platformPorts";
 import type { AuthenticatedSession } from "./sessionService";
+import { GameRuleService } from "./gameRuleService";
 
 export interface SubmitGuessInput {
   guess: unknown;
@@ -19,6 +20,7 @@ export interface SubmitGuessResult {
   source: GuessSource;
   counted: boolean;
   guessCount: number;
+  expireReason: Game["expireReason"];
   bestGuess: {
     guessId: string;
     guess: string;
@@ -76,6 +78,7 @@ function toCachedResponse(params: {
     source: "game_cache",
     counted: false,
     guessCount: params.guessCount,
+    expireReason: null,
     bestGuess: toBestGuessSummary(params.bestGuess)
   };
 }
@@ -84,16 +87,9 @@ export class GuessService {
   constructor(private readonly services: AppServices) {}
 
   async submitGuess(session: AuthenticatedSession, gameId: string, input: SubmitGuessInput): Promise<SubmitGuessResult> {
-    const game = await this.readOwnedGame(session.visitorId, gameId);
-    if (game.status !== "playing") {
-      throw new ApiError({
-        code: "game_ended",
-        status: 409,
-        message: "当前游戏已结束。"
-      });
-    }
-
-    const answer = await this.readAnswerWord(game.answerId);
+    const gameRuleService = new GameRuleService(this.services);
+    const game = await gameRuleService.readPlayableGame(session.visitorId, gameId);
+    const answer = await gameRuleService.readAnswerWord(game.answerId);
     const guessRaw = typeof input.guess === "string" ? input.guess.trim() : "";
     const localMatch = findLocalExactMatch({
       guess: input.guess,
@@ -223,6 +219,7 @@ export class GuessService {
   private async persistCountedGuess(game: Game, answer: Word, payload: CountedGuessPayload): Promise<SubmitGuessResult> {
     const createdAt = this.services.clock.now().toISOString();
     const guessId = this.services.idGenerator.next("guess");
+    const gameRuleService = new GameRuleService(this.services);
 
     await this.services.storage.guesses.createGuess({
       id: guessId,
@@ -269,10 +266,23 @@ export class GuessService {
 
     let status: Game["status"] = "playing";
     let answerValue: string | undefined;
+    let expireReason: Game["expireReason"] = null;
     if (payload.score === 100 && isExactRelation(payload.relationType)) {
       status = "success";
       answerValue = answer.word;
       await this.services.storage.games.finishGame(game.id, "success", createdAt, null);
+    } else if (nextGuessCount >= GAME_MAX_GUESSES) {
+      status = "expired";
+      answerValue = answer.word;
+      expireReason = "guess_limit";
+      await gameRuleService.expireByGuessLimit(
+        {
+          ...game,
+          guessCount: nextGuessCount,
+          bestGuessId
+        },
+        createdAt
+      );
     }
 
     return {
@@ -286,6 +296,7 @@ export class GuessService {
       source: payload.source,
       counted: true,
       guessCount: nextGuessCount,
+      expireReason,
       bestGuess:
         bestGuessId === guessId
           ? {
@@ -296,32 +307,6 @@ export class GuessService {
           : toBestGuessSummary(bestGuess),
       ...(answerValue ? { answer: answerValue } : {})
     };
-  }
-
-  private async readOwnedGame(visitorId: string, gameId: string): Promise<Game> {
-    const game = await this.services.storage.games.findGameById(gameId);
-    if (!game || game.visitorId !== visitorId) {
-      throw new ApiError({
-        code: "game_not_found",
-        status: 404,
-        message: "游戏不存在。"
-      });
-    }
-
-    return game;
-  }
-
-  private async readAnswerWord(answerId: string): Promise<Word> {
-    const answer = await this.services.storage.words.findWordById(answerId);
-    if (!answer) {
-      throw new ApiError({
-        code: "system_error",
-        status: 500,
-        message: "答案词条不存在。"
-      });
-    }
-
-    return answer;
   }
 
   private async readBestGuess(game: Game): Promise<Guess | null> {

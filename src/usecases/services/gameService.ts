@@ -2,6 +2,7 @@ import { ApiError, DEFAULT_RULE_VERSION, GAME_TTL_MS } from "../../domain/models
 import type { Game, Guess, Word } from "../../domain/models/storage";
 import type { AppServices } from "./platformPorts";
 import type { AuthenticatedSession } from "./sessionService";
+import { GameRuleService } from "./gameRuleService";
 
 export interface CreateGameInput {
   mode?: string | null;
@@ -30,6 +31,7 @@ export interface GameStatusResult {
   gameId: string;
   status: Game["status"];
   guessCount: number;
+  expireReason: Game["expireReason"];
   bestGuess: {
     guessId: string;
     guess: string;
@@ -69,6 +71,7 @@ export class GameService {
   constructor(private readonly services: AppServices) {}
 
   async createGame(session: AuthenticatedSession, input: CreateGameInput): Promise<CreateGameResult> {
+    const gameRuleService = new GameRuleService(this.services);
     const mode = input.mode ?? "random";
     if (mode !== "random") {
       throw new ApiError({
@@ -84,7 +87,10 @@ export class GameService {
     });
     const existingGame = activeGames[0];
     if (existingGame) {
-      return toCreateGameResult(existingGame);
+      const resolvedGame = await gameRuleService.materializeExpiration(existingGame);
+      if (resolvedGame.status === "playing") {
+        return toCreateGameResult(resolvedGame);
+      }
     }
 
     const words = await this.services.storage.words.listEnabledWords({ limit: 500 });
@@ -122,8 +128,9 @@ export class GameService {
   }
 
   async getGameStatus(session: AuthenticatedSession, gameId: string): Promise<GameStatusResult> {
-    const game = await this.readOwnedGame(session.visitorId, gameId);
-    const answer = await this.readAnswerWord(game.answerId);
+    const gameRuleService = new GameRuleService(this.services);
+    const game = await gameRuleService.readOwnedGame(session.visitorId, gameId);
+    const answer = await gameRuleService.readAnswerWord(game.answerId);
     const guesses = await this.services.storage.guesses.listGuessesByGame(game.id, { limit: 100 });
     const bestGuess = game.bestGuessId ? guesses.find((guess) => guess.id === game.bestGuessId) ?? null : null;
 
@@ -131,6 +138,7 @@ export class GameService {
       gameId: game.id,
       status: game.status,
       guessCount: game.guessCount,
+      expireReason: game.expireReason,
       bestGuess: bestGuess
         ? {
             guessId: bestGuess.id,
@@ -160,18 +168,12 @@ export class GameService {
   }
 
   async giveUpGame(session: AuthenticatedSession, gameId: string): Promise<GiveUpGameResult> {
-    const game = await this.readOwnedGame(session.visitorId, gameId);
-    if (game.status !== "playing") {
-      throw new ApiError({
-        code: "game_ended",
-        status: 409,
-        message: "当前游戏已结束。"
-      });
-    }
+    const gameRuleService = new GameRuleService(this.services);
+    const game = await gameRuleService.readPlayableGame(session.visitorId, gameId);
 
     const nowIso = this.services.clock.now().toISOString();
     await this.services.storage.games.finishGame(game.id, "give_up", nowIso, null);
-    const answer = await this.readAnswerWord(game.answerId);
+    const answer = await gameRuleService.readAnswerWord(game.answerId);
 
     return {
       gameId: game.id,
@@ -180,31 +182,5 @@ export class GameService {
       guessCount: game.guessCount,
       endedAt: nowIso
     };
-  }
-
-  private async readOwnedGame(visitorId: string, gameId: string): Promise<Game> {
-    const game = await this.services.storage.games.findGameById(gameId);
-    if (!game || game.visitorId !== visitorId) {
-      throw new ApiError({
-        code: "game_not_found",
-        status: 404,
-        message: "游戏不存在。"
-      });
-    }
-
-    return game;
-  }
-
-  private async readAnswerWord(answerId: string): Promise<Word> {
-    const answer = await this.services.storage.words.findWordById(answerId);
-    if (!answer) {
-      throw new ApiError({
-        code: "system_error",
-        status: 500,
-        message: "答案词条不存在。"
-      });
-    }
-
-    return answer;
   }
 }
