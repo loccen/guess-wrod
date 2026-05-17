@@ -19,7 +19,7 @@
 
 1. D1 正式库 `guess-wrod-prod`（UUID：`35412c0c-e8b9-4a0b-bf89-ddcdc89b63b3`）。
 2. Pages 项目 `guess-wrod`（项目 ID：`3bd20fb8-15fd-443f-ac81-792fa3cfdd62`，默认子域：`guess-wrod.pages.dev`）。
-3. `wrangler.jsonc` 已回填 `DB` 绑定到正式 D1。
+3. 正式库信息仅记录在文档，默认开发配置仍保持本地 D1 语义。
 
 待后续联动：
 
@@ -249,7 +249,7 @@ T01 项目骨架使用 React + Vite + TypeScript + Cloudflare Pages Functions。
 | `CAPTCHA_MODE` | `bypass` | 本地默认不接真实验证码 |
 | `ANALYTICS_MODE` | `noop` | 本地默认不写真实分析数据 |
 | `ARCHIVE_MODE` | `file` | 本地默认预留文件归档 adapter |
-| `DB` | `guess-wrod-prod` | Cloudflare D1 正式库 binding（UUID：`35412c0c-e8b9-4a0b-bf89-ddcdc89b63b3`） |
+| `DB` | `guess-wrod-local` | 本地 D1 binding，默认用于 `wrangler pages dev` / 本地 migration 验证 |
 
 当前健康检查地址为 `GET /api/health`。该接口用于验证 Pages Functions、routes handler、use case 和运行时配置 adapter 的最小链路；不包含业务主流程、数据库、词库 seed、评分规则或真实 AI 调用。
 

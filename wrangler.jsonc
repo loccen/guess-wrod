@@ -12,8 +12,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "guess-wrod-prod",
-      "database_id": "35412c0c-e8b9-4a0b-bf89-ddcdc89b63b3"
+      "database_name": "guess-wrod-local",
+      "database_id": "local-development-only"
     }
   ]
 }
