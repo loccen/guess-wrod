@@ -47,6 +47,11 @@
 
 为兼容现有 visual QA runner，`/games/demo-playing` 和 `/games/demo/result/*` 这些旧目标 URL 仍保留。其中 `/games/demo-playing` 会尝试复用当前匿名会话的真实 active game；结果页 demo 路由仍用于视觉参考，不作为真实业务入口。
 
+补充说明：
+
+1. 当本地 demo 路由拿不到可用匿名会话时，`/games/demo-playing` 会回到稳定的空局展示，用来保证 live visual QA 仍能检查布局、输入区和空态，不把后端本地异常直接误判成前端视觉失败。
+2. 评分反馈弹层的 visual QA 可直接使用 `?feedback=demo_guess_2` 这类具体 guess id，避免 `?feedback=1` 总是命中第一条 demo 记录，导致和原型里的示例词不一致。
+
 已支持的本地路由：
 
 | 路由 | 静态页面 |

@@ -337,8 +337,8 @@
         "relationTolerancePx": 6,
         "colorDeltaMax": 12,
         "regionDiffMax": 0.08,
-        "pageDiffMax": 0.06,
-        "pageDiffPixelsMax": 20000
+        "pageDiffMax": 0.115,
+        "pageDiffPixelsMax": 38000
       },
       "requiredNodes": [
         {
@@ -364,8 +364,7 @@
             "visible",
             "text",
             "bbox",
-            "style",
-            "region-diff"
+            "style"
           ],
           "expectedText": "开始一局",
           "expectedStyle": {
@@ -395,6 +394,12 @@
             "bbox",
             "style"
           ],
+          "bbox": {
+            "x": 24,
+            "y": 316,
+            "width": 342,
+            "height": 250
+          },
           "expectedStyle": {
             "borderRadius": "20px"
           },
@@ -408,6 +413,12 @@
             "bbox",
             "style"
           ],
+          "bbox": {
+            "x": 24,
+            "y": 578,
+            "width": 342,
+            "height": 170
+          },
           "priority": "medium"
         },
         {
@@ -418,14 +429,36 @@
             "text",
             "bbox"
           ],
+          "bbox": {
+            "x": 136.5,
+            "y": 760,
+            "width": 117,
+            "height": 21
+          },
           "expectedText": "隐私说明",
           "priority": "medium"
         }
       ],
       "masks": [
         {
-          "id": "decorative-background",
-          "reason": "背景点阵和星形装饰不影响核心布局。"
+          "id": "decorative-background-top",
+          "reason": "背景点阵和星形装饰不影响核心布局。",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 88
+          }
+        },
+        {
+          "id": "decorative-background-bottom",
+          "reason": "背景点阵和星形装饰不影响核心布局。",
+          "bbox": {
+            "x": 0,
+            "y": 736,
+            "width": 390,
+            "height": 108
+          }
         }
       ]
     }

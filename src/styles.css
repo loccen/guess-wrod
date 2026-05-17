@@ -402,7 +402,7 @@ button:disabled {
   width: 117px;
   align-self: center;
   justify-content: center;
-  margin: 8px auto 0;
+  margin: 12px auto 0;
   color: #108f98;
   font-size: 15px;
   font-weight: 800;
@@ -550,10 +550,10 @@ button:disabled {
   display: grid;
   width: 117px;
   height: 123px;
-  align-self: center;
+  align-self: start;
   place-items: center;
-  justify-self: start;
-  margin-left: -16px;
+  justify-self: center;
+  margin-top: 8px;
 }
 
 .score-ring svg {
@@ -578,7 +578,10 @@ button:disabled {
 }
 
 .score-ring strong {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 2;
   color: #0f9ba4;
   font-size: 32px;
@@ -643,11 +646,13 @@ button:disabled {
   border-radius: 10px;
   padding: 0 14px 0 40px;
   background: #fff;
-  color: #8c96a0;
+  color: #9ba4ac;
   position: relative;
 }
 
 .guess-input-shell input {
+  position: relative;
+  z-index: 1;
   width: 100%;
   border: 0;
   padding: 0;
@@ -678,8 +683,14 @@ button:disabled {
 }
 
 .placeholder-text {
+  position: absolute;
+  inset: 0 14px 0 40px;
+  z-index: 0;
+  display: flex;
+  align-items: center;
   color: #9ba4ac;
   font-size: 17px;
+  pointer-events: none;
 }
 
 .guess-form button,
@@ -874,7 +885,7 @@ button:disabled {
   position: relative;
   width: min(100%, 430px);
   border-radius: 24px 24px 0 0;
-  padding: 16px 22px 26px;
+  padding: 18px 20px 26px;
   background: #fff;
   box-shadow: 0 -12px 30px rgba(36, 52, 71, 0.22);
 }
@@ -883,7 +894,7 @@ button:disabled {
   display: block;
   width: 48px;
   height: 5px;
-  margin: 0 auto 18px;
+  margin: 0 auto 24px;
   border-radius: 999px;
   background: #d9ddd7;
 }
@@ -906,6 +917,7 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-top: 2px;
 }
 
 .sheet-title-row h2 {
@@ -957,6 +969,7 @@ button:disabled {
   color: #243447;
   font-size: 13px;
   font-weight: 900;
+  line-height: 1.2;
 }
 
 .feedback-options button:disabled {

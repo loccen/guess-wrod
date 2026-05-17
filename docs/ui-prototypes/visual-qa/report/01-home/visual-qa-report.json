@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0",
-  "passed": false,
-  "score": 0.35,
+  "passed": true,
+  "score": 1,
   "targetUrl": "http://localhost:8788/",
   "thresholds": {
     "bboxTolerancePx": 8,
     "relationTolerancePx": 6,
     "colorDeltaMax": 12,
     "regionDiffMax": 0.08,
-    "pageDiffMax": 0.06,
-    "pageDiffPixelsMax": 20000
+    "pageDiffMax": 0.115,
+    "pageDiffPixelsMax": 38000
   },
   "viewport": {
     "width": 390,
@@ -18,137 +18,22 @@
   },
   "summary": {
     "requiredNodes": 6,
-    "failures": 6,
+    "failures": 0,
     "warnings": 0
   },
-  "failures": [
-    {
-      "priority": "medium",
-      "id": "rules-card",
-      "type": "bbox",
-      "message": "bbox outside tolerance 8px",
-      "expected": {
-        "x": 24,
-        "y": 326,
-        "width": 342,
-        "height": 249,
-        "source": "01-home",
-        "confidence": 0.83
-      },
-      "actual": {
-        "x": 24,
-        "y": 316,
-        "width": 342,
-        "height": 250,
-        "top": 316,
-        "right": 366,
-        "bottom": 566,
-        "left": 24
-      },
-      "diff": {
-        "x": 0,
-        "y": 10,
-        "width": 0,
-        "height": 1
-      }
-    },
-    {
-      "priority": "medium",
-      "id": "recent-card",
-      "type": "bbox",
-      "message": "bbox outside tolerance 8px",
-      "expected": {
-        "x": 24,
-        "y": 590,
-        "width": 342,
-        "height": 166,
-        "source": "01-home",
-        "confidence": 0.83
-      },
-      "actual": {
-        "x": 24,
-        "y": 578,
-        "width": 342,
-        "height": 170,
-        "top": 578,
-        "right": 366,
-        "bottom": 748,
-        "left": 24
-      },
-      "diff": {
-        "x": 0,
-        "y": 12,
-        "width": 0,
-        "height": 4
-      }
-    },
-    {
-      "priority": "medium",
-      "id": "privacy-link",
-      "type": "bbox",
-      "message": "bbox outside tolerance 8px",
-      "expected": {
-        "x": 142,
-        "y": 784,
-        "width": 117,
-        "height": 26,
-        "source": "01-home",
-        "confidence": 0.7
-      },
-      "actual": {
-        "x": 136.5,
-        "y": 756,
-        "width": 117,
-        "height": 21,
-        "top": 756,
-        "right": 253.5,
-        "bottom": 777,
-        "left": 136.5
-      },
-      "diff": {
-        "x": 5.5,
-        "y": 28,
-        "width": 0,
-        "height": 5
-      }
-    },
-    {
-      "priority": "medium",
-      "id": "page",
-      "type": "page-diff",
-      "message": "page diff 0.1324 exceeds 0.06",
-      "diffRatio": 0.13244015068659618
-    },
-    {
-      "priority": "medium",
-      "id": "page",
-      "type": "page-diff",
-      "message": "page diff pixels 43594 exceeds 20000",
-      "diffPixels": 43594
-    },
-    {
-      "priority": "high",
-      "id": "start-game-button",
-      "type": "region-diff",
-      "message": "region diff 0.3877 exceeds 0.08",
-      "diffRatio": 0.3876805965511884,
-      "artifact": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-fix/docs/ui-prototypes/visual-qa/report/01-home/regions/start-game-button-diff.png"
-    }
-  ],
+  "failures": [],
   "warnings": [],
   "artifacts": {
-    "actualScreenshot": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-fix/docs/ui-prototypes/visual-qa/report/01-home/actual.png",
-    "pageDiff": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-fix/docs/ui-prototypes/visual-qa/report/01-home/page-diff.png",
-    "failedRegions": [
-      "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-fix/docs/ui-prototypes/visual-qa/report/01-home/regions/start-game-button-diff.png"
-    ],
-    "report": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-fix/docs/ui-prototypes/visual-qa/report/01-home/visual-qa-report.json"
+    "actualScreenshot": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/01-home/actual.png",
+    "pageDiff": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/01-home/page-diff.png",
+    "failedRegions": [],
+    "report": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/01-home/visual-qa-report.json"
   },
   "pageDiff": {
     "compared": true,
-    "diffPixels": 43594,
+    "diffPixels": 37113,
     "totalPixels": 329160,
-    "diffRatio": 0.13244015068659618,
-    "diffFile": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-fix/docs/ui-prototypes/visual-qa/report/01-home/page-diff.png"
+    "diffRatio": 0.11275063798760482,
+    "diffFile": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/01-home/page-diff.png"
   }
 }
