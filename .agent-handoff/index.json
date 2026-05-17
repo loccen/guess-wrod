@@ -1,14 +1,14 @@
 {
   "protocol_version": 1,
   "skill_revision": "1.0.1",
-  "generated_at": "2026-05-18T01:17:29+08:00",
+  "generated_at": "2026-05-18T01:36:17+08:00",
   "active_tasks": [
     {
       "task_id": "202605171630-development-orchestration",
       "title": "实际开发阶段编排",
       "status": "active",
-      "updated_at": "2026-05-18T01:15:13+08:00",
-      "next_step": "基于最新 main 创建第七批 worktree，派发视觉验收收尾与基础日志/分析写入子任务。",
+      "updated_at": "2026-05-18T01:17:29+08:00",
+      "next_step": "基于最新 main 派发更贴近上线的剩余子任务，优先补 expired 前端真实流与真实云联动。",
       "manifest_path": "/Users/loccen/Documents/guess-wrod/.agent-handoff/tasks/202605171630-development-orchestration/manifest.json",
       "task_path": "/Users/loccen/Documents/guess-wrod/.agent-handoff/tasks/202605171630-development-orchestration",
       "bucket": "tasks"

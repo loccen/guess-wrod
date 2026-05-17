@@ -7,25 +7,27 @@
 - 第三批已合入 `main`：前端 visual QA 修复 `3719d4c`、后端基础 API `9e7a1a5`。
 - 第四批已合入 `main`：猜词提交流程 `166d10c`、前端真实流程 `51ff6f5`。
 - 第五批已合入 `main`：前端真实猜词流程 `dbdf55e`、评分反馈接口 `bd3d226`。
+- 第六批已合入 `main`：前端反馈接入 `aae5b1f`、过期规则 `57234af`。
+- 第七批已合入 `main`：基础分析写入 `5a4326e`、视觉验收收尾 `c5299d8`。
 - 合并后验证通过：`npm run typecheck`、`npm test`、`node --test tests/domain/scoring.test.mjs`、`npm run build`、`npm run cf:check`、seed/migration、`.agent-handoff` 校验。
 - `npm run dev:pages` 启动后，8 个静态路由和 `/api/health` 均返回 200；`POST /api/sessions -> POST /api/games -> GET /api/games/{id} -> POST /api/games/{id}/give-up -> GET /api/games/{id}` 真实链路通过。
 - 当前主仓还能本地跑通 `POST /api/sessions -> POST /api/games -> POST /api/games/{id}/guesses -> GET /api/games/{id} -> POST /api/games/{id}/give-up -> GET /api/games/{id}`。
 - 当前主仓还能本地跑通 `POST /api/sessions -> POST /api/games -> POST /api/games/{id}/guesses -> GET /api/games/{id} -> POST /api/games/{id}/feedback -> POST /api/games/{id}/give-up -> GET /api/games/{id}`。
+- 首页、游戏页、live guess、live feedback 四份关键 visual QA 报告当前都为 `passed=true`。
 - 当前只剩主仓 worktree；第二批临时 worktree 和分支已清理。
 
 ## 未完成
 
-- 前端 visual QA 仍未通过：首页报告 6 个失败项，游戏页报告 6 个失败项。
-- 前端反馈 UI 还没接，反馈按钮仍是 disabled 占位。
-- 过期/上限规则还没接，expired 结果页仍没有真实后端支撑。
+- 过期/上限规则虽然有了后端，但 expired 结果页还没走完整前端真实流程验收。
+- 真实 Workers Analytics Engine、R2 归档 writer、AI Gateway 成本/request id 映射还没接。
 - 真实 Cloudflare D1/AI Gateway/Turnstile/Analytics/R2 尚未联动；`wrangler.jsonc` 中 D1 id 仍是本地占位。
 
 ## 第一步该做什么
 
-- 当前会话已完成第六批合并。下一步从最新 `main` 创建第七批 worktree。
-- 建议第七批先派两个独立子任务：视觉验收收尾、基础日志/分析写入。
+- 当前会话已完成第七批合并。下一步从最新 `main` 派发更贴近上线的剩余项。
+- 建议下一批优先：expired 前端真实流、真实云资源联动或 analytics live writer。
 - 完成一个验收一个并及时合入 `main`。
-- 第六批结果和第七批建议见 `evidence/dispatch-plan.md`。
+- 第七批结果和后续建议见 `evidence/dispatch-plan.md`。
 
 ## 先看哪些文件/命令
 
