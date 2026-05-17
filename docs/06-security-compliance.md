@@ -63,7 +63,7 @@ V0.1 采用 H5 发布，不走微信小程序审核。
 ## 4. 敏感信息处理
 
 1. DeepSeek provider key 只保存在 Cloudflare 侧 provider 配置，不作为应用运行时必填环境变量。
-2. `AI_GATEWAY_API_KEY` 若启用网关鉴权，只保存在 Cloudflare Workers secret 中。
+2. `AI_GATEWAY_API_KEY` 若启用网关鉴权，只保存在 Cloudflare Workers secret 中，并仅用于发送 `cf-aig-authorization: Bearer <CF_AIG_TOKEN>`。
 3. `TURNSTILE_SECRET_KEY` 只保存在服务端 secret 中。
 4. 前端不出现模型密钥、Turnstile secret、后端内部规则和答案。
 4. 日志不记录完整请求头、Cookie、token。
