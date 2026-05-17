@@ -3,16 +3,16 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T03:05:46+08:00",
+  "updated_at": "2026-05-18T04:35:44+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
   "truth_sources": ["AGENTS.md", "docs/02-architecture.md", "docs/04-api-contract.md", "docs/05-scoring-spec.md", "docs/07-implementation-plan.md", "docs/08-analytics-and-quality.md", "docs/ui-prototypes/images"],
-  "next_step": "从最新 main 重新派发前端 expired 视觉收尾与真实部署子任务，优先解决 Pages 生产绑定、deployment 创建与公网实玩证据。",
+  "next_step": "继续处理 AI Gateway custom provider/BYOK 401 与 Direct Upload 根目录结构，优先打通公网猜词提交链路。",
   "blockers": [
-    "Cloudflare API 对 Pages 项目配置写入返回 10000 Authentication error。",
-    "Chrome Dashboard 路径可达，但 D1 绑定面板保存状态不稳定，尚未拿到稳定成功反馈。",
-    "expired 页面 visual QA 仍未通过，未提交尝试残留在 /Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa。"
+    "公网 POST /api/games/{id}/guesses 仍返回 500 system_error，当前主阻塞在 AI Gateway custom provider/BYOK 联动。",
+    "AI Gateway 现有 provider config 只有 alias=guess-word 且 default_config=0，Dashboard 改默认要求重新提供明文 secret。",
+    "Cloudflare Direct Upload 当前多次把上传内容落成 /dist/* 而不是站点根，导致 production alias 行为不稳定。"
   ],
   "evidence_paths": [".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"],
   "related_commits": [
@@ -58,7 +58,16 @@
     "a714445",
     "05e07bd",
     "7f9ebc6",
-    "ce6e89e"
+    "ce6e89e",
+    "b9f3161",
+    "4ea91be",
+    "e6cbf7c",
+    "dba631f",
+    "bc56a44",
+    "b3cc77c",
+    "e985f4a",
+    "cdae1b0",
+    "cf9883a"
   ],
   "related_tasks": [
     "codex/guessword-t01-skeleton",
@@ -79,7 +88,12 @@
     "codex/guessword-live-adapters",
     "codex/guessword-cloudflare-bootstrap",
     "codex/guessword-expired-visual-qa",
-    "codex/guessword-deploy"
+    "codex/guessword-deploy",
+    "codex/guessword-expired-finalize",
+    "codex/guessword-gateway-path-fix",
+    "codex/guessword-gateway-auth-header",
+    "codex/guessword-byok-alias",
+    "codex/guessword-prod-deploy-v4"
   ],
   "supersedes": [],
   "protocol_version": 1,

@@ -2,7 +2,7 @@
 
 - Task ID: `202605171630-development-orchestration`
 - Created At: `2026-05-17T23:22:27+08:00`
-- Updated At: `2026-05-18T03:05:46+08:00`
+- Updated At: `2026-05-18T04:35:44+08:00`
 - Status: `active`
 
 ## 目标
@@ -27,50 +27,59 @@
 
 ## 关键决策
 
-- 决策：首批先派发 T01 项目骨架；同时派发不依赖骨架的资料准备任务，降低后续阻塞。
-- 原因：当前仓库只有文档和原型图，没有 `package.json`、Wrangler、Pages Functions、前端入口或测试配置；T02/T03/T05/T17 等多数任务依赖 T01 的技术栈和目录边界。
-- 决策：前端子任务必须显式使用 `image2code-skill`，并引用 `docs/ui-prototypes/images`。
-- 原因：用户要求前端实现必须按该 skill 处理原型图，且原型图已包含页面、设计规范和模块素材清单。
-- 决策：业务层和领域层不得直接依赖 Cloudflare 平台对象，平台能力只出现在入口层或 adapter。
-- 原因：`AGENTS.md`、`docs/02-architecture.md` 与 `docs/07-implementation-plan.md` 均把平台中立边界列为强约束。
+- 决策：前端视觉任务按 `image2code-skill` 走，并把 `06-result-expired-live` 收敛到只剩 page-level diff。
+- 决策：云侧优先走真实资源和真实部署证据，而不是继续做本地推断。
+- 决策：AI Gateway 相关问题按“请求路径 -> 鉴权头 -> BYOK alias -> provider config/default -> deployment 根目录结构”逐层拆开推进。
 
 ## 验收标准
 
-- python3 /Users/loccen/.codex/skills/agent-handoff/scripts/validate_handoff.py --repo-root .
-- 子任务验收必须读取 ai-task show、diff、提交、测试和运行证据
+- `python3 /Users/loccen/.codex/skills/agent-handoff/scripts/validate_handoff.py --repo-root .`
+- 子任务验收必须读取 `ai-task show`、diff、提交、测试和运行证据。
 - 主代理不得直接实现业务或前端代码；如子代理超过十分钟没有任何文件变更，只诊断和重派，不替代实现。
 - 每个子代理必须使用独立 worktree，并维护自己的 `ai-task` 状态。
-- 具体实现涉及接口、评分、架构、本地开发、分析质量或前端交互时，必须同步更新对应 docs。
-- 交付 Git 改动必须通过 `ai-commit` 中文提交；多分支合入 main 默认使用 `git merge --no-ff`。
-- 子任务完成后应及时合入 `main`；后续派发子代理必须从最新 `main` 创建 worktree。
+- 交付 Git 改动必须通过 `ai-commit` 中文提交；多分支合入 `main` 默认使用 `git merge --no-ff`。
 
 ## 当前状态
 
-- 已完成：从 handoff-ready 状态恢复，当前基线为 `main` 的 `6b8c171`。
-- 已完成：第三批已基于最新 `main` 派发前端 visual QA 修复和后端基础 API 两个子任务。
-- 已完成：读取 `AGENTS.md`、`docs/02-architecture.md`、`docs/04-api-contract.md`、`docs/05-scoring-spec.md`、`docs/07-implementation-plan.md`、`docs/08-analytics-and-quality.md`、`docs/ui-prototypes/README.md`。
-- 已完成：确认仓库当前只有文档和原型图，尚无实现骨架；已创建本 task bundle 和本线程 `ai-task`。
-- 已完成：创建首批独立 worktree，并派发四个子代理，详见 `evidence/dispatch-plan.md`。
-- 已完成：首批四个子任务均已有提交，主代理已完成初步复验。
-- 已完成：四个子任务已通过 no-ff merge 合入 `main`，合并后验证通过，临时 worktree 和分支已清理。
-- 已完成：第二批已基于最新 `main` 派发存储基础、评分客户端、前端静态主流程三个子任务。
-- 已完成：第二批三个子任务已合入 `main`，合并后验证通过，临时 worktree 和分支已清理。
-- 已完成：第三批两个子任务已合入 `main`，主仓已具备会话、建局、状态、放弃的本地 HTTP 链路。
-- 已完成：第四批已基于最新 `main` 派发猜词提交流程和前端真实 API 接入两个子任务。
-- 已完成：第四批两个子任务已合入 `main`，主仓已具备会话、建局、猜词、状态、放弃的本地 HTTP 链路。
-- 已完成：第五批已基于最新 `main` 派发前端真实猜词流程和评分反馈后端链路两个子任务。
-- 已完成：第五批两个子任务已合入 `main`，主仓已具备 session -> game -> guess -> feedback -> give-up -> status 的本地 HTTP 链路。
-- 已完成：第六批两个子任务已合入 `main`，前端反馈接入与过期/上限规则已落地。
-- 已完成：新增后端 live adapter 子任务已合入 `main`，当前主仓支持可选 AI Gateway 鉴权、真实 captcha adapter、live analytics/archive 最小接线点，并补齐测试与文档。
-- 已完成：新增 Cloudflare 资源基线子任务已合入 `main`，仓库文档已回填真实资源事实：Pages 项目 `guess-wrod`、D1 正式库 `guess-wrod-prod`、AI Gateway `guess-wrod-gateway`。
-- 已完成：expired 结果页真实数据流子任务的已提交部分已合入 `main`，前端已真实消费 `expire_reason`、答案与统计字段，并新增 repo-tracked `06-result-expired-live` 报告目录。
-- 未完成：expired 页面 visual QA 仍未通过；当前未提交尝试停留在 `/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`，不可安全清理。
-- 未完成：Cloudflare Pages 生产绑定、远端 D1 migration/seed、真实部署 URL、公网实玩证据仍未完成。
-- 未完成：R2 仍提示需先在 Dashboard 启用；Turnstile API 写操作当前未打通。
-- 阻塞：Cloudflare API 读权限可用，但对 Pages 项目配置写入返回 `10000: Authentication error`；Chrome 登录态可进入 Dashboard，但 D1 绑定面板保存状态不稳定，暂未拿到可复验的“已保存成功”证据。
+- 已完成：主仓本地链路可跑通 `session -> game -> guess -> feedback -> give-up -> status`，类型检查、测试、构建、`cf:check`、handoff 校验通过。
+- 已完成：Cloudflare 资源基线已建立并回填文档。
+  - Pages 项目：`guess-wrod`
+  - D1 正式库：`guess-wrod-prod`
+  - AI Gateway：`guess-wrod-gateway`
+- 已完成：D1 正式库已建表并导入 50 条 `words` seed。
+- 已完成：expired 页面最新视觉基线已合入 `main`，`06-result-expired-live` 仅剩 page-level diff，报告保留 `only-page-level-diff` 说明。
+- 已完成：后续已合入多轮 AI Gateway adapter 修复：
+  - provider 基础 URL 自动补 `/chat/completions`
+  - `cf-aig-authorization` 头替代错误的 provider `Authorization`
+  - 可选 `cf-aig-byok-alias`
+- 已完成：Pages production env 已确认存在：
+  - `AI_MODE=live`
+  - `AI_MODEL_NAME=deepseek-v4-flash`
+  - `AI_GATEWAY_ENDPOINT_URL=https://gateway.ai.cloudflare.com/v1/656612e8bac6e750ae630a5ad3320858/guess-wrod-gateway/custom-guessword-deepseek/v1`
+  - `AI_GATEWAY_API_KEY`（secret）
+  - `AI_GATEWAY_BYOK_ALIAS=guess-word`
+- 已完成：AI Gateway `guess-wrod-gateway` 已重新开启 authenticated gateway。
+- 已完成：公网已能跑通：
+  - `GET /api/health`
+  - `POST /api/sessions`
+  - `POST /api/games`
+  - `POST /api/games/{id}/give-up`
+  - `GET /api/games/{id}` 结果页
+- 未完成：公网完整一局仍未完成，`POST /api/games/{id}/guesses` 继续返回 `500 system_error`，反馈链路无法真实触发。
+- 未完成：`guess-wrod.pages.dev` 的生产 alias 与最新 direct upload 根目录结构仍未完全对齐；多次 direct upload 都落成 `/dist/*` 或根目录上传未真正进入列表。
+- 未完成：R2 仍提示需先在 Dashboard 启用；Turnstile live 写操作仍未打通。
+- 残留现场：`/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa` 只包含未提交的旧视觉尝试，当前不可安全清理。
+
+## 当前阻塞
+
+- AI Gateway 历史日志显示 `provider=custom-guessword-deepseek`、`status_code=401`、`response_head=Authentication Fails (governor)`，且 `byok=null`。
+- 现有 provider config 只有一条：`alias=guess-word`、`default_config=0`、`secret_preview=********ed5`。
+- API 无法直接把现有 provider config 改成默认；Dashboard 若想改默认会要求重新提供明文 secret。
+- 最新 production deployment 元数据虽然已带上 `AI_GATEWAY_API_KEY(secret)`、`AI_GATEWAY_BYOK_ALIAS=guess-word` 和 custom provider endpoint，但公网猜词仍失败。
+- Direct Upload UI 目前无法稳定把 `_worker.js`、`index.html`、`assets` 作为根级站点内容上传；若继续走 drag-and-drop，容易把内容落成 `/dist/*`。
 
 ## 下一步
 
-- 从最新 `main` 重新派发两个剩余方向：
-- 1. 前端 expired 页面视觉收尾：沿用当前 diff 作为参考，但必须从最新 `main` 新开 worktree，避免继续在旧 worktree 未提交尝试上空转。
-- 2. 真实部署与公网验收：优先解决 Pages 生产环境绑定与 deployment 创建，再推进远端 D1 初始化和公网实玩。
+- 1. 继续解决 AI Gateway custom provider/BYOK 的 401，优先确认 provider config secret 的真实生效条件，必要时改走别的 Gateway/provider 方案。
+- 2. 并行确认 Direct Upload / Wrangler 哪条路线能真正把 `_worker.js`、`index.html`、`assets` 作为根级站点内容发到 production。
+- 3. 只有在公网 `POST /api/games/{id}/guesses` 恢复成功后，才继续补公网反馈提交和至少一轮完整实玩证据。

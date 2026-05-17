@@ -2,45 +2,44 @@
 
 ## 已验证基线
 
-- 当前 `main` 已包含：React + Vite + Pages Functions 骨架、`/api/health`、migration/seed、评分规则、评分客户端抽象、存储 repository/adapter、前端静态 mock 主流程、image2code 规格与视觉报告。
-- 第二批已合入 `main`：评分客户端 `8bb623f`、存储基础 `8369b0f`、前端静态主流程 `42aaf31`。
-- 第三批已合入 `main`：前端 visual QA 修复 `3719d4c`、后端基础 API `9e7a1a5`。
-- 第四批已合入 `main`：猜词提交流程 `166d10c`、前端真实流程 `51ff6f5`。
-- 第五批已合入 `main`：前端真实猜词流程 `dbdf55e`、评分反馈接口 `bd3d226`。
-- 第六批已合入 `main`：前端反馈接入 `aae5b1f`、过期规则 `57234af`。
-- 第七批已合入 `main`：基础分析写入 `5a4326e`、视觉验收收尾 `c5299d8`。
+- 当前 `main` 已包含：React + Vite + Pages Functions 骨架、`/api/health`、migration/seed、评分规则、评分客户端抽象、存储 repository/adapter、前端真实主流程、image2code 规格与视觉报告。
 - 当前会话新增已合入 `main`：
-  - 后端 live adapter `a3a448a`（子任务提交：`80ea9c2`、`531a84a`）
-  - Cloudflare 资源基线 `05e07bd`（子任务提交：`8c06241`、`a714445`）
-  - expired 数据流 `ce6e89e`（子任务提交：`7f9ebc6`）
-- 合并后验证通过：`npm run typecheck`、`npm test`、`node --test tests/domain/scoring.test.mjs`、`npm run build`、`npm run cf:check`、seed/migration、`.agent-handoff` 校验。
-- `npm run dev:pages` 启动后，8 个静态路由和 `/api/health` 均返回 200；`POST /api/sessions -> POST /api/games -> GET /api/games/{id} -> POST /api/games/{id}/give-up -> GET /api/games/{id}` 真实链路通过。
-- 当前主仓还能本地跑通 `POST /api/sessions -> POST /api/games -> POST /api/games/{id}/guesses -> GET /api/games/{id} -> POST /api/games/{id}/give-up -> GET /api/games/{id}`。
-- 当前主仓还能本地跑通 `POST /api/sessions -> POST /api/games -> POST /api/games/{id}/guesses -> GET /api/games/{id} -> POST /api/games/{id}/feedback -> POST /api/games/{id}/give-up -> GET /api/games/{id}`。
-- 首页、游戏页、live guess、live feedback 四份既有关键 visual QA 报告仍在仓库中；新增 `06-result-expired-live` 报告已落库但当前 `passed=false`。
-- 当前仍保留一个未清理现场：`/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`，原因是其中仅有未提交的视觉微调尝试，尚未验收。
+  - 后端 live adapter `a3a448a`
+  - Cloudflare 资源基线 `05e07bd`
+  - expired 数据流 `ce6e89e`
+  - expired 视觉收尾 `e6cbf7c`
+  - AI Gateway 请求路径修复 `bc56a44`
+  - AI Gateway 鉴权头修复 `e985f4a`
+  - AI Gateway BYOK alias 支持 `cf9883a`
+- 主仓本地验证仍通过：`npm run typecheck`、`npm test`、`npm run build`、`npm run cf:check`、handoff validate。
+- D1 正式库 `guess-wrod-prod` 已建表并导入 50 条 `words`。
+- Pages production env 已确认存在：
+  - `AI_MODE=live`
+  - `AI_MODEL_NAME=deepseek-v4-flash`
+  - `AI_GATEWAY_ENDPOINT_URL=https://gateway.ai.cloudflare.com/v1/656612e8bac6e750ae630a5ad3320858/guess-wrod-gateway/custom-guessword-deepseek/v1`
+  - `AI_GATEWAY_API_KEY`（secret）
+  - `AI_GATEWAY_BYOK_ALIAS=guess-word`
+- AI Gateway `guess-wrod-gateway` 已重新开启 authenticated gateway。
+- 公网 `https://guess-wrod.pages.dev/api/health` 返回 `status=ok`。
+- 公网 `POST /api/sessions`、`POST /api/games`、`POST /api/games/{id}/give-up`、`GET /api/games/{id}` 已可跑通。
+- `06-result-expired-live` 已收敛为 only-page-level-diff，视觉不再是当前主阻塞。
 
 ## 未完成
 
-- expired 结果页的真实数据流已接上，但视觉验收仍未通过；最新未提交尝试的剩余差值为：
-  - `answer-card` bbox: `{ x: 2, y: 17.359375, width: 4, height: 17 }`
-  - `best-path-card` bbox: `{ x: 2, y: 3.359375, width: 4, height: 24.734375 }`
-  - `play-again-button` bbox: `{ x: 0, y: 17.09375, width: 0, height: 0 }`
-  - `answer-card` region-diff: `0.1413426353407886`
-  - `page-diff`: `0.17458682707497875`
-- 真实资源层面目前只确认并创建了 Pages 与 D1；R2 仍需先在 Dashboard 启用，Turnstile 写操作未打通。
-- Pages 项目配置写入存在权限/交互双重阻塞：
-  - Cloudflare API `PATCH /pages/projects/guess-wrod` 返回 `10000: Authentication error`
-  - Chrome 路径可进入 `Workers 和 Pages -> guess-wrod -> 设置`，但 D1 绑定面板保存后字段会回退为空并显示 `必需`，尚未出现稳定成功反馈。
-- 目前还没有任何 Pages deployment，`guess-wrod.pages.dev` 尚未形成可验收的公网入口。
+- 公网 `POST /api/games/{id}/guesses` 仍返回 `500 system_error`，因此反馈链路无法真实触发。
+- AI Gateway 历史日志显示 `provider=custom-guessword-deepseek`、`status_code=401`、`response_head=Authentication Fails (governor)`，且 `byok=null`。
+- 现有 provider config 只有一条：`alias=guess-word`、`default_config=0`、`secret_preview=********ed5`。
+- API 无法直接把现有 config 改成默认；Dashboard 若想改默认会要求重新提供明文 secret。
+- Direct Upload UI 目前无法稳定把 `_worker.js`、`index.html`、`assets` 作为根级站点内容上传；多次 deployment 都落成 `/dist/*`，导致 production alias 与 deployment 文件结构不一致。
+- `R2` 仍需先在 Dashboard 启用；Turnstile live 写操作仍未打通。
 
 ## 第一步该做什么
 
-- 当前主仓基线已提升到 `main` 的 `ce6e89e`。
-- 下一步优先级应改为：
-  1. 从 `ce6e89e` 新开前端 worktree，专门收 `06-result-expired-live` 视觉差异，不复用旧 worktree 的未提交尝试。
-  2. 从 `ce6e89e` 新开部署 worktree，继续处理 Pages 生产绑定、deployment 创建、远端 D1 migration/seed。
-  3. 若仍需浏览器路径，优先从 Dashboard UI 进入 `Workers 和 Pages -> guess-wrod -> 设置/部署`，不要再猜直链 URL。
+- 当前主仓基线已提升到 `main` 的 `cf9883a`。
+- 下一步优先级：
+  1. 先继续解决 AI Gateway custom provider/BYOK 401；只要公网 `POST /guesses` 还 500，就不要宣称“公网可玩”。
+  2. 并行确认 Direct Upload / Wrangler 哪条路线能真正把 `_worker.js`、`index.html`、`assets` 作为根级站点内容发到 production。
+  3. 一旦猜词恢复，再补公网反馈提交和至少一轮完整实玩证据。
 
 ## 先看哪些文件/命令
 
@@ -48,17 +47,16 @@
 - `.agent-handoff/ACTIVE.md`
 - `.agent-handoff/tasks/202605171630-development-orchestration/task.md`
 - `.agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md`
+- `docs/05-scoring-spec.md`
 - `docs/07-implementation-plan.md`
-- `docs/ui-prototypes/README.md`
 - `git status --short --branch`
-- `ai-task show`
 - `git worktree list`
-- `docs/ui-prototypes/visual-qa/report/01-home/visual-qa-report.json`
-- `docs/ui-prototypes/visual-qa/report/02-game-playing/visual-qa-report.json`
+- `ai-task show`
+- `docs/ui-prototypes/visual-qa/report/06-result-expired-live/visual-qa-report.json`
 
 ## 风险
 
-- 当前还不是可公网实玩的一局：没有可用 deployment，也没有公网链路证据。
-- expired 页面视觉收尾仍未完成，不能宣称关键 visual QA 已全部过线。
-- 存在一个需人工判断的残留现场：`/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`。
+- 当前还不是可公网完整游玩的一局：公网猜词提交仍失败，反馈链路无法真实触发。
+- Direct Upload 与 production alias 的根目录行为仍不稳定，容易出现最新 deployment 成功但根页面继续返回旧资源或 404。
+- 仍存在一个需人工判断的残留现场：`/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`。
 - 后续子代理不得发送 ntfy；最终通知只由主代理发送。
