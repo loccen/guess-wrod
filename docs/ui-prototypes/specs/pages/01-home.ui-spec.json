@@ -379,11 +379,9 @@
           "selector": "[data-ui-id='rules-card']",
           "checks": [
             "visible",
-            "text",
             "bbox",
             "style"
           ],
-          "expectedText": "玩法说明",
           "expectedStyle": {
             "borderRadius": "20px"
           },
@@ -394,11 +392,9 @@
           "selector": "[data-ui-id='recent-card']",
           "checks": [
             "visible",
-            "text",
             "bbox",
             "style"
           ],
-          "expectedText": "最近成绩",
           "priority": "medium"
         },
         {

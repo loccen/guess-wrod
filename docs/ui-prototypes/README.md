@@ -36,6 +36,36 @@
 
 ## 页面功能与交互
 
+当前 `codex/guessword-frontend-static-flow` 分支已经按这些 normalized 原型图实现一版 React + Vite 静态主流程骨架。路由由 `src/routes/routeState.ts` 基于 `window.location` 做轻量映射；页面 mock 数据集中放在 `src/mock/game.ts`，只用于视觉和交互占位，不代表真实 API 已接通。
+
+已支持的本地路由：
+
+| 路由 | 静态页面 |
+| --- | --- |
+| `/` | 首页 |
+| `/session` | 启动 / 恢复会话 |
+| `/games/demo-playing` | 游戏进行中 |
+| `/games/demo-playing?feedback=1` | 游戏页 + 评分反馈弹层 |
+| `/games/demo/result/success` | 猜中结果 |
+| `/games/demo/result/give-up` | 放弃结果 |
+| `/games/demo/result/expired` | 过期结果 |
+| `/rules` | 玩法与隐私 |
+
+视觉验收建议先启动 Pages 本地预览：
+
+```bash
+npm run dev:pages
+```
+
+然后按页面执行 runner，例如：
+
+```bash
+node /Users/loccen/.codex/skills/image2code-skill/scripts/visual-qa-runner.mjs --spec docs/ui-prototypes/specs/pages/01-home.ui-spec.json --out docs/ui-prototypes/visual-qa/report/01-home
+node /Users/loccen/.codex/skills/image2code-skill/scripts/visual-qa-runner.mjs --spec docs/ui-prototypes/specs/pages/02-game-playing.ui-spec.json --out docs/ui-prototypes/visual-qa/report/02-game-playing
+```
+
+`ui-spec.json` 中的 high / medium `requiredNodes` 已对应到稳定的 `data-ui-id`。后续接 API 时，应替换 mock 层数据来源，不要把请求逻辑直接写进页面展示组件。
+
 1. 启动 / 恢复会话：进入 H5 后创建或恢复匿名会话；若 `GET /api/session` 返回 `active_game_id`，进入游戏页；无进行中游戏则进入首页。
 2. 首页：点击“开始一局”调用 `POST /api/games`，成功后跳转 `/games/:gameId`；玩法说明进入 `07-rules-privacy` 页面。
 3. 游戏页：输入 1-20 个字符猜词；点击“提交”调用 `POST /api/games/{game_id}/guesses`；展示加载态，不清空输入；返回分数后更新最高分和历史列表。
