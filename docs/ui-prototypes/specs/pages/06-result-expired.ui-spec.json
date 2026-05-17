@@ -313,7 +313,7 @@
   "validation": {
     "visualQa": {
       "referenceImage": "../../normalized/06-result-expired/06-result-expired.normalized.png",
-      "targetUrl": "http://localhost:8791/games/demo/result/expired",
+      "targetUrl": "http://localhost:8788/games/demo/result/expired",
       "allowNoReference": false,
       "allowNoNormalization": false,
       "viewport": {

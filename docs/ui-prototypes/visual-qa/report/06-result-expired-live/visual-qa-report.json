@@ -39,17 +39,17 @@
   ],
   "warnings": [],
   "artifacts": {
-    "actualScreenshot": "/Users/loccen/Documents/guess-wrod-worktrees/expired-finalize/docs/ui-prototypes/visual-qa/report/06-result-expired-live/actual.png",
-    "pageDiff": "/Users/loccen/Documents/guess-wrod-worktrees/expired-finalize/docs/ui-prototypes/visual-qa/report/06-result-expired-live/page-diff.png",
+    "actualScreenshot": "docs/ui-prototypes/visual-qa/report/06-result-expired-live/actual.png",
+    "pageDiff": "docs/ui-prototypes/visual-qa/report/06-result-expired-live/page-diff.png",
     "failedRegions": [],
-    "report": "/Users/loccen/Documents/guess-wrod-worktrees/expired-finalize/docs/ui-prototypes/visual-qa/report/06-result-expired-live/visual-qa-report.json"
+    "report": "docs/ui-prototypes/visual-qa/report/06-result-expired-live/visual-qa-report.json"
   },
   "pageDiff": {
     "compared": true,
     "diffPixels": 57467,
     "totalPixels": 329160,
     "diffRatio": 0.17458682707497875,
-    "diffFile": "/Users/loccen/Documents/guess-wrod-worktrees/expired-finalize/docs/ui-prototypes/visual-qa/report/06-result-expired-live/page-diff.png"
+    "diffFile": "docs/ui-prototypes/visual-qa/report/06-result-expired-live/page-diff.png"
   },
   "analysis": {
     "status": "only-page-level-diff",
