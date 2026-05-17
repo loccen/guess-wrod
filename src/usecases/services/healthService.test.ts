@@ -10,6 +10,10 @@ describe("getHealthStatus", () => {
         analyticsMode: "noop",
         archiveMode: "file"
       },
+      {
+        version: "abcdef123456",
+        source: "cf_pages_commit_sha"
+      },
       new Date("2026-05-17T00:00:00.000Z")
     );
 
@@ -22,6 +26,10 @@ describe("getHealthStatus", () => {
         captchaMode: "bypass",
         analyticsMode: "noop",
         archiveMode: "file"
+      },
+      runtime: {
+        version: "abcdef123456",
+        source: "cf_pages_commit_sha"
       }
     });
   });
