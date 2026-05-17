@@ -656,6 +656,15 @@ button:disabled {
   outline: 0;
 }
 
+.guess-input-shell:focus-within {
+  border-color: #1b9aaa;
+  box-shadow: 0 0 0 3px rgba(27, 154, 170, 0.14);
+}
+
+.guess-input-shell:has(input:disabled) {
+  background: #f7f8f6;
+}
+
 .guess-input-shell input::placeholder {
   color: #9ba4ac;
 }
@@ -700,6 +709,8 @@ button:disabled {
   color: #1b9aaa;
   font-size: 13px;
   font-weight: 800;
+  line-height: 1.45;
+  text-align: center;
 }
 
 .spinner {
@@ -774,17 +785,29 @@ button:disabled {
 }
 
 .empty-hint,
-.inline-error {
+.inline-error,
+.inline-note {
   margin: 12px 0 0;
-  color: #5f6b76;
   text-align: center;
   font-size: 13px;
   font-weight: 700;
   line-height: 1.45;
 }
 
+.empty-hint {
+  color: #5f6b76;
+}
+
 .inline-error {
   color: #d95d4e;
+}
+
+.inline-note--success {
+  color: #178f76;
+}
+
+.inline-note--warning {
+  color: #bb7a12;
 }
 
 .inline-error--hero {

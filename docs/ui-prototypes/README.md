@@ -36,13 +36,13 @@
 
 ## 页面功能与交互
 
-当前 `codex/guessword-frontend-live-flow` 分支已在保留 image2code 页面骨架和 `data-ui-id` 的前提下，接入前半段真实 API：
+当前 `codex/guessword-frontend-live-flow` 分支已在保留 image2code 页面骨架和 `data-ui-id` 的前提下，接入前端主流程所需的真实 API：
 
 1. `/session` 会恢复本地 `session_token`，失效时自动重建匿名会话。
 2. 首页“开始一局”改为真实调用 `POST /api/games`。
 3. `/games/:gameId` 改为真实加载 `GET /api/games/{game_id}`。
 4. “放弃看答案”改为真实调用 `POST /api/games/{game_id}/give-up`，再跳转 `/games/:gameId/result/give-up`。
-5. `POST /api/games/{game_id}/guesses` 和反馈提交仍未接入，页面保留占位和提示文案。
+5. `POST /api/games/{game_id}/guesses` 已接入真实提交、加载、历史刷新和猜中跳转；反馈提交仍未接入。
 
 为兼容现有 visual QA runner，`/games/demo-playing` 和 `/games/demo/result/*` 这些旧目标 URL 仍保留。其中 `/games/demo-playing` 会尝试复用当前匿名会话的真实 active game；结果页 demo 路由仍用于视觉参考，不作为真实业务入口。
 
@@ -78,10 +78,10 @@ node /Users/loccen/.codex/skills/image2code-skill/scripts/visual-qa-runner.mjs -
 
 1. 启动 / 恢复会话：进入 H5 后创建或恢复匿名会话；若 `GET /api/session` 返回 `active_game_id`，进入真实游戏页；无进行中游戏则进入首页。
 2. 首页：点击“开始一局”调用 `POST /api/games`，成功后跳转 `/games/:gameId`；玩法说明进入 `07-rules-privacy` 页面。
-3. 游戏页：页面加载时调用 `GET /api/games/{game_id}`，展示真实有效次数、最高分、历史和结束状态；猜词提交按钮目前只保留视觉结构，等待并行分支接入 `POST /api/games/{game_id}/guesses`。
+3. 游戏页：页面加载时调用 `GET /api/games/{game_id}`，展示真实有效次数、最高分、历史和结束状态；提交猜词会调用 `POST /api/games/{game_id}/guesses`，并刷新历史、最高分和成功跳转。
 4. 评分反馈：弹层与文案保留，提交接口仍未接入。
 5. 放弃：点击“放弃看答案”调用 `POST /api/games/{game_id}/give-up`；成功后进入真实放弃结果页。
-6. 结果页：真实 `give_up` 已可通过 `GET /api/games/{game_id}` 加载答案与统计；`success`、`expired` 页面结构已留好，等待后端猜词链路结束态接通。
+6. 结果页：`success`、`give_up`、`expired` 页面都会通过 `GET /api/games/{game_id}` 加载答案与统计；demo 路由仅保留给视觉参考。
 7. 玩法与隐私：只展示说明，不收集表单信息；底部“知道了”返回上一页或首页。
 
 ## 业务规则

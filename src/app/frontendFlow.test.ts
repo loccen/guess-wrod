@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { formatDurationText, formatExpiresText, mapRelationLabel, toGuessHistoryItems } from "./frontendFlow";
+import { formatDurationText, formatExpiresText, getErrorMessage, mapRelationLabel, toGuessHistoryItems, toGuessSubmitNotice } from "./frontendFlow";
+import { FrontendApiError } from "./apiClient";
 import { buildGamePath, buildResultPath, readRoute, toResultMode } from "../routes/routeState";
 
 describe("routeState", () => {
@@ -61,5 +62,57 @@ describe("frontendFlow helpers", () => {
   it("formats remaining time text", () => {
     const text = formatExpiresText(new Date(Date.now() - 60 * 60 * 1000).toISOString());
     expect(text).toMatch(/^剩余 /);
+  });
+
+  it("maps submit notice for counted and duplicate guesses", () => {
+    expect(
+      toGuessSubmitNotice({
+        guess_id: "guess_1",
+        guess: "电器",
+        normalized_guess: "电器",
+        score: 66,
+        relation_type: "parent_category",
+        is_exact: false,
+        status: "playing",
+        source: "model",
+        counted: true,
+        guess_count: 1,
+        best_guess: null
+      })
+    ).toEqual({
+      tone: "success",
+      text: "已提交 “电器”，关系 上位，分数 66%。"
+    });
+
+    expect(
+      toGuessSubmitNotice({
+        guess_id: "guess_1",
+        guess: "电器",
+        normalized_guess: "电器",
+        score: 66,
+        relation_type: "parent_category",
+        is_exact: false,
+        status: "playing",
+        source: "game_cache",
+        counted: false,
+        guess_count: 1,
+        best_guess: null
+      })
+    ).toEqual({
+      tone: "warning",
+      text: "“电器” 已猜过，不计次，当前关系 上位，分数 66%。"
+    });
+  });
+
+  it("maps frontend api errors into user facing text", () => {
+    const invalidGuessError = new FrontendApiError(400, {
+      error: {
+        code: "invalid_guess",
+        message: "猜词不能为空。",
+        counted: false
+      }
+    });
+
+    expect(getErrorMessage(invalidGuessError)).toBe("请输入 1 到 20 个字符的有效猜词。");
   });
 });

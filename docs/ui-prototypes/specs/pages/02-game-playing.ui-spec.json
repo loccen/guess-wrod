@@ -9,12 +9,12 @@
     ],
     "normalization": "../../normalized/02-game-playing/prototype-normalization.json",
     "analysisAt": "2026-05-17T00:00:00.000+08:00",
-    "notes": "游戏进行页，包含 AI 评分中状态。"
+    "notes": "游戏进行页，包含真实猜词提交后的加载、历史与最高分状态。"
   },
   "target": {
     "platform": "mobile-web",
     "framework": "unknown",
-    "implementationMode": "static"
+    "implementationMode": "api"
   },
   "page": {
     "name": "游戏页",
@@ -365,7 +365,7 @@
   "implementationHints": [
     "主体布局使用普通文档流、flex 或 grid，不要用绝对定位复刻整页。",
     "关键节点需添加 validation.visualQa.requiredNodes 中声明的 data-ui-id。",
-    "业务数据先按 README 样例做静态 fixture，后续接 API 时替换绑定。"
+    "页面视觉基线仍以 normalized 原型图为准，真实 API 数据只替换内容来源，不改变主结构。"
   ],
   "validation": {
     "visualQa": {
