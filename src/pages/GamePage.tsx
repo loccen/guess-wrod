@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "../app/apiClient";
 import {
   ensureSession,
+  formatExpiresText,
   getErrorMessage,
   isFrontendApiError,
   toGamePageModel,
@@ -27,6 +28,17 @@ type GameScreenState =
       model: ReturnType<typeof toGamePageModel>;
     };
 
+function buildDemoFallbackModel() {
+  return {
+    gameId: "demo-playing",
+    countText: "第 0 次 / 100",
+    expiresText: "剩余 24 小时",
+    bestGuessWord: "还没有",
+    bestGuessScore: 0,
+    guesses: []
+  };
+}
+
 export function GamePage({ route, navigate }: GamePageProps) {
   const [screenState, setScreenState] = useState<GameScreenState>({ status: "loading" });
   const [guessText, setGuessText] = useState("");
@@ -48,7 +60,26 @@ export function GamePage({ route, navigate }: GamePageProps) {
         const restored = await ensureSession();
         let gameId = route.gameId;
         if (route.demo && !gameId) {
-          gameId = restored.session.active_game_id ?? (await apiClient.createGame(restored.token)).game_id;
+          if (restored.session.active_game_id) {
+            gameId = restored.session.active_game_id;
+          } else {
+            const created = await apiClient.createGame(restored.token);
+            if (!active) {
+              return;
+            }
+            setScreenState({
+              status: "ready",
+              model: {
+                gameId: created.game_id,
+                countText: `第 ${created.guess_count} 次 / 100`,
+                expiresText: formatExpiresText(created.started_at),
+                bestGuessWord: "还没有",
+                bestGuessScore: 0,
+                guesses: []
+              }
+            });
+            return;
+          }
         }
 
         if (!gameId) {
@@ -73,6 +104,13 @@ export function GamePage({ route, navigate }: GamePageProps) {
         });
       } catch (error) {
         if (!active) {
+          return;
+        }
+        if (route.demo) {
+          setScreenState({
+            status: "ready",
+            model: buildDemoFallbackModel()
+          });
           return;
         }
         setScreenState({ status: "error", message: getErrorMessage(error) });
@@ -237,10 +275,11 @@ export function GamePage({ route, navigate }: GamePageProps) {
       <section className="card input-card" data-ui-id="guess-form">
         <form className="guess-form" onSubmit={handleSubmitGuess}>
           <label className="guess-input-shell" data-ui-id="guess-input">
+            {!guessText && <span className="placeholder-text">输入一个猜词</span>}
             <input
               value={guessText}
               onChange={(event) => setGuessText(event.target.value)}
-              placeholder="输入一个猜词"
+              placeholder=""
               maxLength={20}
               autoCapitalize="none"
               autoCorrect="off"

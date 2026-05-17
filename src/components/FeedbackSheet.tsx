@@ -83,6 +83,7 @@ export function FeedbackSheet({ guess, gamePath, submitFeedback }: FeedbackSheet
           {feedbackOptions.map((option) => (
             <button
               className={selectedOption === option.id ? "is-selected" : ""}
+              data-ui-id={`feedback-option-${option.id}`}
               key={option.id}
               type="button"
               onClick={() => {
@@ -93,7 +94,7 @@ export function FeedbackSheet({ guess, gamePath, submitFeedback }: FeedbackSheet
               disabled={submitPending || Boolean(submitSuccess)}
             >
               <span>{option.icon}</span>
-              {option.label}
+              <span className="feedback-option-label" data-ui-id={`feedback-option-label-${option.id}`}>{option.label}</span>
             </button>
           ))}
         </div>

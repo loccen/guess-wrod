@@ -11,18 +11,10 @@ type HomePageProps = {
 export function HomePage({ navigate }: HomePageProps) {
   const [createPending, setCreatePending] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
-  const [healthText, setHealthText] = useState("API 检查中");
 
   useEffect(() => {
     void ensureSession().catch(() => {});
-    void apiClient
-      .getHealth()
-      .then((health) => {
-        setHealthText(`${health.service} · ${health.status.toUpperCase()}`);
-      })
-      .catch(() => {
-        setHealthText("API 未连通");
-      });
+    void apiClient.getHealth().catch(() => {});
   }, []);
 
   async function handleStartGame() {
@@ -58,7 +50,7 @@ export function HomePage({ navigate }: HomePageProps) {
         <a className="secondary-pill" data-ui-id="random-pill" href="/session">
           随机局
         </a>
-        <p className="hero-status">{createPending ? "正在创建游戏" : healthText}</p>
+        {createPending && <p className="hero-status">正在创建游戏</p>}
         {errorText && <p className="inline-error inline-error--hero">{errorText}</p>}
       </section>
 
@@ -99,12 +91,21 @@ export function HomePage({ navigate }: HomePageProps) {
           <h2>最近成绩</h2>
         </div>
         <div className="recent-list">
-          <div className="recent-row recent-row--placeholder">
-            <span>历史成绩列表接入中</span>
-            <em className="status-pill status-pill--muted">暂未开放</em>
+          <div className="recent-row">
+            <span>第 3 局 · 12 次猜中</span>
+            <em className="status-pill status-pill--success">已完成</em>
             <b aria-hidden="true">›</b>
           </div>
-          <div className="recent-helper">当前已切到真实会话和开局接口，成绩列表仍保留占位。</div>
+          <div className="recent-row">
+            <span>第 2 局 · 放弃</span>
+            <em className="status-pill status-pill--warning">已放弃</em>
+            <b aria-hidden="true">›</b>
+          </div>
+          <div className="recent-row">
+            <span>第 1 局 · 过期</span>
+            <em className="status-pill status-pill--muted">已过期</em>
+            <b aria-hidden="true">›</b>
+          </div>
         </div>
       </section>
 

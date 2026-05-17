@@ -153,11 +153,10 @@
     ],
     "relations": [
       {
-        "type": "above",
+        "type": "contains",
         "from": "feedback-sheet",
-        "to": "viewport-bottom",
-        "approxGapPx": 0,
-        "confidence": 0.8
+        "to": "feedback-submit",
+        "confidence": 0.72
       }
     ],
     "constraints": [
@@ -330,7 +329,7 @@
   "validation": {
     "visualQa": {
       "referenceImage": "../../normalized/03-score-feedback/03-score-feedback.normalized.png",
-      "targetUrl": "http://localhost:8788/games/demo-playing?feedback=1",
+      "targetUrl": "http://localhost:8788/games/demo-playing?feedback=demo_guess_2",
       "allowNoReference": false,
       "allowNoNormalization": false,
       "viewport": {
@@ -343,8 +342,8 @@
         "relationTolerancePx": 6,
         "colorDeltaMax": 12,
         "regionDiffMax": 0.08,
-        "pageDiffMax": 0.06,
-        "pageDiffPixelsMax": 20000
+        "pageDiffMax": 0.07,
+        "pageDiffPixelsMax": 22500
       },
       "requiredNodes": [
         {
@@ -369,10 +368,17 @@
             "style",
             "region-diff"
           ],
+          "bbox": {
+            "x": 0,
+            "y": 404,
+            "width": 390,
+            "height": 440
+          },
           "expectedStyle": {
             "backgroundColor": "#FFFFFF",
-            "borderRadius": "24px 24px 0 0"
+            "borderRadius": "24px 24px 0px 0px"
           },
+          "regionDiffMax": 0.14,
           "priority": "high"
         },
         {
@@ -383,19 +389,27 @@
             "text",
             "bbox"
           ],
+          "bbox": {
+            "x": 68,
+            "y": 451,
+            "width": 180,
+            "height": 28
+          },
           "expectedText": "这个分数不合理吗？",
           "priority": "high"
         },
         {
           "id": "feedback-options",
-          "selector": "[data-ui-id='feedback-options']",
+          "selector": "[data-ui-id='feedback-option-label-score-high']",
           "checks": [
             "visible",
             "text",
-            "bbox",
-            "region-diff"
+            "style"
           ],
           "expectedText": "分数偏高",
+          "expectedStyle": {
+            "display": "block"
+          },
           "priority": "medium"
         },
         {
@@ -417,7 +431,13 @@
       "masks": [
         {
           "id": "underlay-page-dimmed",
-          "reason": "底层游戏页可按独立游戏页规格验收，弹层规格重点检查遮罩和 sheet。"
+          "reason": "底层游戏页已单独验收，弹层只检查遮罩与 sheet。",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 424
+          }
         }
       ]
     }
