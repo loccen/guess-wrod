@@ -1,4 +1,4 @@
-import { apiClient, FrontendApiError, type GameStatusData, type SessionData } from "./apiClient";
+import { apiClient, FrontendApiError, type GameStatusData, type SessionData, type SubmitGuessData } from "./apiClient";
 import { clearSessionToken, readSessionToken, writeSessionToken } from "./sessionTokenStore";
 import type { ResultMode } from "../routes/routeState";
 
@@ -34,6 +34,11 @@ export type ResultPageModel = {
   guesses: GuessHistoryItem[];
 };
 
+export type GuessSubmitNotice = {
+  tone: "success" | "warning";
+  text: string;
+};
+
 const GAME_MAX_GUESSES = 100;
 const GAME_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -51,6 +56,18 @@ export function getErrorMessage(error: unknown): string {
     }
     if (error.code === "game_ended") {
       return "这局已经结束，正在刷新结果。";
+    }
+    if (error.code === "invalid_guess") {
+      return "请输入 1 到 20 个字符的有效猜词。";
+    }
+    if (error.code === "sensitive_word") {
+      return "猜词包含敏感内容，请换一个词。";
+    }
+    if (error.code === "rate_limited") {
+      return "提交太快了，请稍后再试。";
+    }
+    if (error.code === "ai_timeout") {
+      return "评分超时了，请重试这次猜词。";
     }
     return error.message;
   }
@@ -210,6 +227,28 @@ export function toGamePageModel(game: GameStatusData, feedbackHrefBuilder: (gues
     bestGuessWord: game.best_guess?.guess ?? "还没有",
     bestGuessScore: game.best_guess?.score ?? 0,
     guesses
+  };
+}
+
+export function toGuessSubmitNotice(result: SubmitGuessData): GuessSubmitNotice {
+  const relationLabel = mapRelationLabel(result.relation_type);
+  if (!result.counted) {
+    return {
+      tone: "warning",
+      text: `“${result.guess}” 已猜过，不计次，当前关系 ${relationLabel}，分数 ${result.score}%。`
+    };
+  }
+
+  if (result.status === "success") {
+    return {
+      tone: "success",
+      text: `“${result.guess}” 猜中了，答案已揭晓。`
+    };
+  }
+
+  return {
+    tone: "success",
+    text: `已提交 “${result.guess}”，关系 ${relationLabel}，分数 ${result.score}%。`
   };
 }
 

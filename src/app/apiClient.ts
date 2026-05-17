@@ -67,6 +67,25 @@ export type GameStatusData = {
   answer_aliases?: string[];
 };
 
+export type SubmitGuessData = {
+  guess_id: string;
+  guess: string;
+  normalized_guess: string;
+  score: number;
+  relation_type: string;
+  is_exact: boolean;
+  status: string;
+  source: string;
+  counted: boolean;
+  guess_count: number;
+  best_guess: {
+    guess_id: string;
+    guess: string;
+    score: number;
+  } | null;
+  answer?: string;
+};
+
 export type GiveUpGameData = {
   game_id: string;
   status: string;
@@ -127,6 +146,13 @@ export const apiClient = {
   },
   getGame(token: string, gameId: string): Promise<GameStatusData> {
     return requestJson(`/api/games/${encodeURIComponent(gameId)}`, { token });
+  },
+  submitGuess(token: string, gameId: string, guess: string): Promise<SubmitGuessData> {
+    return requestJson(`/api/games/${encodeURIComponent(gameId)}/guesses`, {
+      method: "POST",
+      token,
+      body: JSON.stringify({ guess })
+    });
   },
   giveUpGame(token: string, gameId: string): Promise<GiveUpGameData> {
     return requestJson(`/api/games/${encodeURIComponent(gameId)}/give-up`, {

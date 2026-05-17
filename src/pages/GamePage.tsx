@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "../app/apiClient";
-import { ensureSession, getErrorMessage, toGamePageModel, toGuessHistoryItems } from "../app/frontendFlow";
+import {
+  ensureSession,
+  getErrorMessage,
+  isFrontendApiError,
+  toGamePageModel,
+  toGuessHistoryItems,
+  toGuessSubmitNotice
+} from "../app/frontendFlow";
 import { GuessHistory } from "../components/GuessHistory";
 import { IconBadge } from "../components/IconBadge";
 import { ScoreRing } from "../components/ScoreRing";
@@ -22,7 +29,11 @@ type GameScreenState =
 
 export function GamePage({ route, navigate }: GamePageProps) {
   const [screenState, setScreenState] = useState<GameScreenState>({ status: "loading" });
+  const [guessText, setGuessText] = useState("");
+  const [submitPending, setSubmitPending] = useState(false);
   const [giveUpPending, setGiveUpPending] = useState(false);
+  const [inlineError, setInlineError] = useState<string | null>(null);
+  const [submitNotice, setSubmitNotice] = useState<{ tone: "success" | "warning"; text: string } | null>(null);
 
   const showFeedback = route.feedback;
 
@@ -31,6 +42,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
 
     async function loadGame() {
       setScreenState({ status: "loading" });
+      setInlineError(null);
 
       try {
         const restored = await ensureSession();
@@ -74,18 +86,82 @@ export function GamePage({ route, navigate }: GamePageProps) {
     };
   }, [navigate, route.demo, route.gameId]);
 
+  async function refreshReadyGame(gameId: string, token?: string) {
+    const sessionToken = token ? token : (await ensureSession()).token;
+    const game = await apiClient.getGame(sessionToken, gameId);
+    const resultMode = toResultMode(game.status);
+    if (resultMode) {
+      navigate(buildResultPath(game.game_id, resultMode), { replace: true });
+      return;
+    }
+
+    setScreenState({
+      status: "ready",
+      model: toGamePageModel(game, () => buildGameFeedbackPath(game.game_id))
+    });
+  }
+
+  async function handleSubmitGuess(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (screenState.status !== "ready" || submitPending) {
+      return;
+    }
+
+    const nextGuess = guessText.trim();
+    if (!nextGuess) {
+      setInlineError("请输入一个猜词。");
+      setSubmitNotice(null);
+      return;
+    }
+
+    setSubmitPending(true);
+    setInlineError(null);
+    setSubmitNotice(null);
+
+    try {
+      const token = await ensureSession().then((restored) => restored.token);
+      const result = await apiClient.submitGuess(token, screenState.model.gameId, nextGuess);
+      setSubmitNotice(toGuessSubmitNotice(result));
+
+      if (result.status === "success") {
+        setGuessText("");
+        navigate(buildResultPath(screenState.model.gameId, "success"));
+        return;
+      }
+
+      await refreshReadyGame(screenState.model.gameId, token);
+      if (result.counted) {
+        setGuessText("");
+      }
+    } catch (error) {
+      if (isFrontendApiError(error) && error.code === "game_ended") {
+        try {
+          await refreshReadyGame(screenState.status === "ready" ? screenState.model.gameId : route.gameId ?? "");
+          return;
+        } catch {
+          // 保留原始错误提示，由外层继续处理。
+        }
+      }
+
+      setInlineError(getErrorMessage(error));
+    } finally {
+      setSubmitPending(false);
+    }
+  }
+
   async function handleGiveUp() {
     if (screenState.status !== "ready") {
       return;
     }
 
     setGiveUpPending(true);
+    setInlineError(null);
     try {
       const token = await ensureSession().then((restored) => restored.token);
       await apiClient.giveUpGame(token, screenState.model.gameId);
       navigate(buildResultPath(screenState.model.gameId, "give-up"));
     } catch (error) {
-      setScreenState({ status: "error", message: getErrorMessage(error) });
+      setInlineError(getErrorMessage(error));
     } finally {
       setGiveUpPending(false);
     }
@@ -99,6 +175,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
   }, [screenState]);
 
   const bestGuess = screenState.status === "ready" ? screenState.model : null;
+  const canSubmit = screenState.status === "ready" && guessText.trim().length > 0 && !submitPending && !giveUpPending;
 
   return (
     <main className={`phone-page game-page ${showFeedback ? "is-dimmed" : ""}`}>
@@ -127,16 +204,37 @@ export function GamePage({ route, navigate }: GamePageProps) {
       </section>
 
       <section className="card input-card" data-ui-id="guess-form">
-        <div className="guess-form">
+        <form className="guess-form" onSubmit={handleSubmitGuess}>
           <label className="guess-input-shell" data-ui-id="guess-input">
-            <input disabled value="" placeholder="输入一个猜词" />
+            <input
+              value={guessText}
+              onChange={(event) => setGuessText(event.target.value)}
+              placeholder="输入一个猜词"
+              maxLength={20}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              disabled={screenState.status !== "ready" || submitPending || giveUpPending}
+            />
           </label>
-          <button data-ui-id="submit-button" type="button" disabled>提交</button>
-        </div>
-        <p className="scoring-state">
-          <span className="spinner" />
-          {screenState.status === "loading" ? "正在加载本局状态" : "猜词提交接口由并行分支接入中"}
+          <button data-ui-id="submit-button" type="submit" disabled={!canSubmit}>
+            {submitPending ? "提交中" : "提交"}
+          </button>
+        </form>
+        <p className="scoring-state" data-ui-id="guess-status">
+          {(screenState.status === "loading" || submitPending) && <span className="spinner" />}
+          {screenState.status === "loading"
+            ? "正在加载本局状态"
+            : submitPending
+              ? "AI 评分中，通常约 2 秒"
+              : submitNotice?.text ?? "输入一个词，提交后会显示真实分数与历史"}
         </p>
+        {submitNotice && (
+          <p className={`inline-note inline-note--${submitNotice.tone}`} data-ui-id="guess-submit-note">
+            {submitNotice.text}
+          </p>
+        )}
+        {inlineError && <p className="inline-error" data-ui-id="guess-submit-error">{inlineError}</p>}
       </section>
 
       <section className="card history-card" data-ui-id="history-card">
@@ -154,7 +252,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
         ) : screenState.status === "ready" && screenState.model.guesses.length > 0 ? (
           <GuessHistory guesses={screenState.model.guesses} />
         ) : (
-          <p className="empty-hint">还没有有效猜词。等提交接口接上后，这里会显示真实历史。</p>
+          <p className="empty-hint">还没有有效猜词。提交后，这里会显示真实历史。</p>
         )}
       </section>
 

@@ -256,7 +256,7 @@ T12/T13 当前完成最小前置：
 1. 已接通 `POST /api/sessions`、`GET /api/session`、`POST /api/games`、`GET /api/games/{id}`、`POST /api/games/{id}/give-up`。
 2. 前端已保存并恢复本地 `session_token`，`401 unauthorized` 时会清理后自动重建匿名会话。
 3. 首页、启动页、游戏页、放弃结果页已经改为真实数据或真实请求驱动。
-4. `POST /api/games/{id}/guesses` 与反馈提交仍由并行任务负责，当前页面仅保留输入区、反馈弹层和错误/重试结构。
+4. `POST /api/games/{id}/guesses` 已接入前端真实提交链路，页面会处理加载、重复猜词提示、历史刷新和猜中跳转；反馈提交仍由并行任务负责。
 5. 旧的 `/games/demo-playing` 与 `/games/demo/result/*` 路由仍保留给 visual QA；真实业务入口使用 `/games/:gameId` 与 `/games/:gameId/result/:mode`。
 
 ## 13. 当前资料基线
