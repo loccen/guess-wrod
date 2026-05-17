@@ -55,6 +55,12 @@
 | `score_feedback_submitted` | `game_id`, `guess_id`, `answer_id`, `score`, `relation_type`, `feedback_type` |
 | `ai_error` | `game_id`, `guess_id`, `answer_id`, `error_code`, `model_name`, `rule_version` |
 
+当前代码状态说明：
+
+1. `guesses`、`games`、`score_cache` 已能支撑最小业务复验。
+2. `guess_events` 与 `ai_call_logs` 仍未在 `POST /api/games/{game_id}/guesses` 中真实写入。
+3. 因此当前只能依赖业务表验证计次、缓存和状态，不足以产出完整行为报表或 AI 成本统计。
+
 ## 4. AI 调用观测
 
 ### 4.1 AI Gateway 应提供的主要字段

@@ -5,6 +5,10 @@ export type ApiErrorCode =
   | "game_not_found"
   | "game_ended"
   | "invalid_request"
+  | "invalid_guess"
+  | "sensitive_word"
+  | "ai_timeout"
+  | "rate_limited"
   | "system_error";
 
 export interface ApiErrorOptions {

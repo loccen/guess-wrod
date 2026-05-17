@@ -1,4 +1,5 @@
 import { GameService } from "../../usecases/services/gameService";
+import { GuessService } from "../../usecases/services/guessService";
 import type { AppServices } from "../../usecases/services/platformPorts";
 import { SessionService } from "../../usecases/services/sessionService";
 import { createDataResponse, createErrorResponse } from "./apiResponse";
@@ -94,6 +95,41 @@ export async function giveUpGameResponse(request: Request, services: AppServices
       answer: result.answer,
       guess_count: result.guessCount,
       ended_at: result.endedAt
+    });
+  } catch (error) {
+    return createErrorResponse(error);
+  }
+}
+
+export async function submitGuessResponse(request: Request, services: AppServices, gameId: string): Promise<Response> {
+  try {
+    const body = await readJsonObject(request);
+    const sessionService = new SessionService(services);
+    const authenticated = await sessionService.authenticate(request.headers.get("authorization"));
+    const guessService = new GuessService(services);
+    const result = await guessService.submitGuess(authenticated, gameId, {
+      guess: body.guess
+    });
+
+    return createDataResponse({
+      guess_id: result.guessId,
+      guess: result.guess,
+      normalized_guess: result.normalizedGuess,
+      score: result.score,
+      relation_type: result.relationType,
+      is_exact: result.isExact,
+      status: result.status,
+      source: result.source,
+      counted: result.counted,
+      guess_count: result.guessCount,
+      best_guess: result.bestGuess
+        ? {
+            guess_id: result.bestGuess.guessId,
+            guess: result.bestGuess.guess,
+            score: result.bestGuess.score
+          }
+        : null,
+      ...(result.answer ? { answer: result.answer } : {})
     });
   } catch (error) {
     return createErrorResponse(error);

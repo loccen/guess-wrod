@@ -273,6 +273,20 @@ AI Gateway 可对完全相同的模型请求体做网关级缓存，但它不是
 2. AI Gateway 缓存只用于减少重复调用 DeepSeek 的次数和成本。
 3. 当规则版本、模型名或思考模式变化时，业务缓存键必须变化，避免旧分数污染新版本结果。
 
+## 13.4 当前本地实现
+
+截至 2026-05-18，当前仓库已经接入以下最小链路：
+
+1. 本地默认 `AI_MODE=stub`，通过 `StubScoringClient` 返回结构化评分。
+2. `POST /api/games/{game_id}/guesses` 会把 stub/model 结果写入 `score_cache`，后续同答案同猜词可被全局缓存复用。
+3. `guesses` 表会记录 `exact_match`、`game_cache`、`global_cache`、`model` 四类来源。
+4. `exact/alias` 仍只由本地词库判断，stub/live 都不能绕过这条规则。
+
+当前仍未接入：
+
+1. AI 调用镜像表 `ai_call_logs`。
+2. live 模式的真实 endpoint、密钥管理和线上成本观测。
+
 ## 14. 人工样本集
 
 上线前准备约 300 条人工样本，覆盖：

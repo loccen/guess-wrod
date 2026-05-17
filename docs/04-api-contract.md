@@ -254,7 +254,12 @@ Response:
     "status": "playing",
     "source": "game_cache",
     "counted": false,
-    "guess_count": 2
+    "guess_count": 2,
+    "best_guess": {
+      "guess_id": "guess_001",
+      "guess": "电器",
+      "score": 66
+    }
   }
 }
 ```
@@ -354,3 +359,20 @@ Response:
 5. 409：刷新游戏状态并跳转结果页。
 6. 429：提示稍后再试。
 7. 503/500：保留当前页面状态，允许用户重试。
+
+## 6. 当前实现说明
+
+截至 2026-05-18，本仓库已在本地 stub 模式实现 `POST /api/games/{game_id}/guesses` 的最小链路：
+
+1. 会话校验、游戏归属校验、结束态拒绝。
+2. 输入归一化、空值/超长校验、敏感词拦截。
+3. 本地标准答案和显式别名 100 分命中。
+4. 单局重复猜词复用已有结果，返回 `source=game_cache`，不增加 `guess_count`。
+5. 全局缓存命中返回 `source=global_cache`，作为新的有效猜词写入当前局。
+6. 未命中缓存时走 `ScoringGateway`；本地默认 `AI_MODE=stub`，live 模式只保留 adapter 注入边界。
+
+当前未实现：
+
+1. 猜词次数上限和 TTL 自动过期。
+2. `ai_call_logs` 写入和真实 DeepSeek 联调。
+3. 反馈接口和分析事件的真实落库。

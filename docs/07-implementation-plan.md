@@ -247,7 +247,7 @@ T12/T13 当前完成最小前置：
 2. 业务层先走本地标准答案和显式别名匹配，未命中才调用 AI client。
 3. stub adapter 位于 `src/infrastructure/adapters/stubScoringClient.ts`，本地默认配合 `AI_MODE=stub` 使用。
 4. DeepSeek + AI Gateway adapter 位于 `src/infrastructure/adapters/deepseekAiGatewayScoringClient.ts`，只接受注入的 endpoint、apiKey、model 和 fetch，不读取 env，不暴露 Cloudflare binding 到 usecase。
-5. live adapter 当前是边界骨架和最小请求封装；尚未接入提交猜词 API、D1 cache、AI 调用日志、真实 endpoint 配置或线上密钥管理。
+5. live adapter 当前是边界骨架和最小请求封装；真实 endpoint、apiKey、model 都只允许通过入口层注入。
 
 ## 13. 当前资料基线
 
@@ -291,10 +291,24 @@ npx wrangler d1 execute guess-wrod-local --local --command "SELECT COUNT(*) AS c
 2. `GET /api/session`：校验 Bearer token、校验过期时间、返回 `visitor_id`、`expires_at` 和当前 `active_game_id`。
 3. `POST /api/games`：在会话下创建随机局；若当前已存在 `playing` 游戏，则直接返回该游戏，避免同一会话并存多条进行中记录。
 4. `GET /api/games/{game_id}`：进行中状态不返回答案；结束状态返回 `answer` 与 `answer_aliases`。
-5. `POST /api/games/{game_id}/give-up`：把游戏状态更新为 `give_up`，返回答案；本次未实现 `POST /api/games/{game_id}/guesses`。
+5. `POST /api/games/{game_id}/give-up`：把游戏状态更新为 `give_up`，返回答案。
+6. `POST /api/games/{game_id}/guesses`：完成输入归一化、敏感词拦截、exact/alias、本局重复猜词缓存、全局缓存和 stub/model 评分最小链路。
 
 当前仍未覆盖：
 
 1. 真实 Turnstile 校验 adapter。
-2. 猜词提交、AI 评分、缓存、反馈与分析链路。
+2. AI 调用镜像、反馈与分析链路。
 3. 基于 24 小时 TTL 的自动过期处理。
+
+## 15. T14 当前验收基线
+
+截至 2026-05-18，`POST /api/games/{game_id}/guesses` 已覆盖以下场景：
+
+1. 空输入返回 `invalid_guess`。
+2. 全角/大小写归一化后参与评分。
+3. 敏感词返回 `sensitive_word`，且不计次。
+4. 标准答案和显式别名直接 100 分成功。
+5. 同一局重复猜词返回 `game_cache`，不增加有效次数。
+6. 跨局复用 `score_cache` 时返回 `global_cache`，并增加当前局有效次数。
+7. stub/model 路径会写入 `guesses` 和 `score_cache`。
+8. 游戏结束后继续提交返回 `game_ended`。
