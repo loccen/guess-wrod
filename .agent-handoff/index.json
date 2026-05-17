@@ -1,14 +1,14 @@
 {
   "protocol_version": 1,
   "skill_revision": "1.0.1",
-  "generated_at": "2026-05-17T23:28:10+08:00",
+  "generated_at": "2026-05-17T23:43:07+08:00",
   "active_tasks": [
     {
       "task_id": "202605171630-development-orchestration",
       "title": "实际开发阶段编排",
       "status": "active",
-      "updated_at": "2026-05-17T23:27:25+08:00",
-      "next_step": "等待四个子代理完成；完成后按 worktree 读取 ai-task show、diff、提交、测试和运行结果验收。",
+      "updated_at": "2026-05-17T23:42:17+08:00",
+      "next_step": "依次合入 T01 项目骨架、数据与词库、评分规则、前端原型规格四个分支，并运行合并后的项目验证。",
       "manifest_path": "/Users/loccen/Documents/guess-wrod/.agent-handoff/tasks/202605171630-development-orchestration/manifest.json",
       "task_path": "/Users/loccen/Documents/guess-wrod/.agent-handoff/tasks/202605171630-development-orchestration",
       "bucket": "tasks"

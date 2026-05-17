@@ -42,15 +42,17 @@
 - 每个子代理必须使用独立 worktree，并维护自己的 `ai-task` 状态。
 - 具体实现涉及接口、评分、架构、本地开发、分析质量或前端交互时，必须同步更新对应 docs。
 - 交付 Git 改动必须通过 `ai-commit` 中文提交；多分支合入 main 默认使用 `git merge --no-ff`。
+- 子任务完成后应及时合入 `main`；后续派发子代理必须从最新 `main` 创建 worktree。
 
 ## 当前状态
 
 - 已完成：读取 `AGENTS.md`、`docs/02-architecture.md`、`docs/04-api-contract.md`、`docs/05-scoring-spec.md`、`docs/07-implementation-plan.md`、`docs/08-analytics-and-quality.md`、`docs/ui-prototypes/README.md`。
 - 已完成：确认仓库当前只有文档和原型图，尚无实现骨架；已创建本 task bundle 和本线程 `ai-task`。
 - 已完成：创建首批独立 worktree，并派发四个子代理，详见 `evidence/dispatch-plan.md`。
-- 未完成：等待子代理提交后验收并合入。
+- 已完成：首批四个子任务均已有提交，主代理已完成初步复验。
+- 未完成：把四个子任务合入 `main`，运行合并后的项目验证，清理已合入 worktree。
 - 阻塞：T02/T03/T05/T17 等实现任务依赖 T01 的项目骨架与目录结构。
 
 ## 下一步
 
-- 等待四个子代理完成首批任务；完成后按 worktree 读取 `ai-task show`、diff、提交、测试和运行结果，再决定是否合入。
+- 依次合入 T01 项目骨架、数据与词库、评分规则、前端原型规格四个分支，并处理文档冲突。

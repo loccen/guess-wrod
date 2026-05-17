@@ -22,7 +22,8 @@
    - 验收重点：本地可启动空页面和 `/api/health`，目录体现 `domain`、`usecases`、`infrastructure/adapters`、`routes/handlers`。
 
 2. `数据与词库准备`
-   - 子代理：`019e368b-f18e-7791-979e-25efe0161549`
+   - 初始子代理：`019e368b-f18e-7791-979e-25efe0161549`，状态：失败退出，留下 staged 改动但未提交。
+   - 接手子代理：`019e3691-940e-7110-80a8-d1ca0557516f`
    - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/data-seed`
    - Branch：`codex/guessword-data-seed`
    - 负责范围：D1 migration 草案、seed 机制、首批 50 个本地测试词条起步、敏感词初筛资料。
@@ -49,3 +50,17 @@
 - 具体实现分支合入主线默认使用 `git merge --no-ff`。
 - 不能只凭子代理文字汇报认定完成。
 - 子代理超过十分钟没有任何文件变更时，主代理只做状态诊断、总结阻塞并重新派发或调整对应 worktree，不直接替代实现。
+- 子代理完成后应及时合入 `main`；后续新派发子代理必须从最新 `main` 创建分支和 worktree。
+
+## 异常处理记录
+
+- 数据与词库准备初始子代理 `019e368b-f18e-7791-979e-25efe0161549` 返回“暂时不能继续完成提交”。
+- 主代理检查到该 worktree 已有 staged 改动，未替代实现，只在同一 worktree 重派 `019e3691-940e-7110-80a8-d1ca0557516f` 接手审查、修正、验证和提交。
+- T01、评分、数据、前端规格子代理均曾发送或声称发送 ntfy；这不符合“只有主代理最终答复前发送 ntfy”的规则，后续派发需显式禁止子代理发送通知。
+
+## 首批完成状态
+
+- T01 项目骨架：提交 `54eb07269d90e1b0bceecf7ed1db1057ede0f683`，主代理复验 `npm run typecheck`、`npm test`、`npm run build`、`npm run cf:check`、`npm run dev:pages`、`curl /`、`curl /api/health` 通过。
+- 数据与词库准备：提交 `a7a7f8c`，主代理复验 `node scripts/validate-seed.mjs` 与 SQLite migration + seed 导入通过，`words` 计数为 `50`。
+- 评分规则准备：提交 `f8eb4bf3ac335c644ff5d9a1a9c44f1c5b30a2a4`，主代理复验 `node --test tests/domain/scoring.test.mjs` 通过，14 项通过；新增领域代码未命中平台绑定关键字。
+- 前端原型规格准备：提交 `d4a9b23ae10bff47bcb216988e2cbd907cbfc158`，主代理复验 JSON 可解析、10 个 normalization 全部 `confirmed=true`、单页规格引用 normalized PNG、high/medium requiredNodes 未仅使用 visible 检查。
