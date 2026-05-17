@@ -58,12 +58,15 @@ interface AiCallAttemptPayload {
 interface GuessSystemErrorDebug {
   response_status: number | null;
   request_path: string | null;
+  response_summary_prefix: string | null;
   has_gateway_auth: boolean | null;
   has_byok_alias: boolean | null;
   runtime: {
     version: string;
   };
 }
+
+const PUBLIC_DEBUG_RESPONSE_SUMMARY_MAX_LENGTH = 160;
 
 function isExactRelation(relationType: string): boolean {
   return relationType === "exact" || relationType === "alias";
@@ -532,6 +535,7 @@ export class GuessService {
       return {
         response_status: error.diagnostic.responseStatus,
         request_path: error.diagnostic.requestPath,
+        response_summary_prefix: sanitizePublicResponseSummaryPrefix(error.diagnostic.responseSummaryPrefix),
         has_gateway_auth: error.diagnostic.hasGatewayAuth,
         has_byok_alias: error.diagnostic.hasByokAlias,
         runtime: {
@@ -543,6 +547,7 @@ export class GuessService {
     return {
       response_status: null,
       request_path: null,
+      response_summary_prefix: null,
       has_gateway_auth: null,
       has_byok_alias: null,
       runtime: {
@@ -550,4 +555,29 @@ export class GuessService {
       }
     };
   }
+}
+
+function sanitizePublicResponseSummaryPrefix(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim().replace(/\s+/g, " ");
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  const redactedUrl = normalized.replace(/https?:\/\/[^\s"'<>]+/gi, "[redacted-url]");
+  const redactedTokenPair = redactedUrl.replace(
+    /\b(token|api[_-]?key|authorization|password|secret)\s*[:=]\s*([^\s,;]+)/gi,
+    "$1=[redacted]"
+  );
+  const redactedBearer = redactedTokenPair.replace(/\bbearer\s+[a-z0-9\-._~+/]+=*/gi, "bearer [redacted]");
+  const redactedLongSecret = redactedBearer.replace(/\b[a-z0-9_\-]{24,}\b/gi, "[redacted]");
+  const compact = redactedLongSecret.trim();
+  if (compact.length === 0) {
+    return null;
+  }
+
+  return compact.slice(0, PUBLIC_DEBUG_RESPONSE_SUMMARY_MAX_LENGTH);
 }
