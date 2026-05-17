@@ -311,3 +311,25 @@
    - 范围：把反馈弹层/按钮接到真实 `POST /api/games/{id}/feedback`，把 disabled 占位替换成真实提交与失败态；视需要同步结果页/历史展示。
 2. `过期与上限规则`
    - 范围：实现单局 100 次上限、TTL 过期状态、相关状态查询和结果页支持；必要时补最小 cron/usecase 边界，但不强求真实计划任务部署。
+
+## 第六批任务
+
+第六批从最新 `main` 的 `6b17ccb` 创建。
+
+1. `前端反馈接入与交互收尾`
+   - 子代理：`019e36e3-5d4b-7840-a91f-bd341824cc37`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback`
+   - Branch：`codex/guessword-frontend-feedback`
+   - 负责范围：把反馈弹层/按钮接到真实 `POST /api/games/{id}/feedback`，加入成功态、失败态和禁用逻辑，继续维持 image2code 结构。
+
+2. `过期与上限规则`
+   - 子代理：`019e36e3-9f0c-7cf0-9613-7f6ad63495ce`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/expiry-rules`
+   - Branch：`codex/guessword-expiry-rules`
+   - 负责范围：实现单局 100 次上限、TTL 过期状态、状态查询与提交/放弃时的过期判定、expired 结果所需字段。
+
+第六批共同约束：
+
+- 子代理不得发送 ntfy。
+- 完成后主代理应及时验收并合入 `main`。
+- 后续新任务必须继续从合入后的最新 `main` 创建 worktree。
