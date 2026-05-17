@@ -41,3 +41,9 @@
 - 动作：依次用 `git merge --no-ff --no-commit` 合入四个子分支，并用 `ai-commit` 创建 merge commit。
 - 结果：T01、数据与词库、评分规则、前端原型规格已全部合入 `main`；合并后验证通过；四个 worktree 和临时分支已删除。
 - 遗留：下一批子代理必须从当前最新 `main` 创建 worktree。
+
+## 2026-05-17T23:51:10+08:00 派发第二批子代理
+
+- 动作：从最新 `main` 的 `b90d215` 创建三个 worktree，并派发存储基础、评分客户端、前端静态主流程三个子代理。
+- 结果：第二批子代理 ID、branch、worktree 已登记到 `evidence/dispatch-plan.md`。
+- 遗留：等待子代理完成；完成一个验收一个并及时合入 `main`。

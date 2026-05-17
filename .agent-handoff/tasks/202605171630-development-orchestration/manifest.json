@@ -3,12 +3,12 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-17T23:48:06+08:00",
+  "updated_at": "2026-05-17T23:51:10+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
   "truth_sources": ["AGENTS.md", "docs/02-architecture.md", "docs/04-api-contract.md", "docs/05-scoring-spec.md", "docs/07-implementation-plan.md", "docs/08-analytics-and-quality.md", "docs/ui-prototypes/images"],
-  "next_step": "基于最新 main 创建下一批 worktree，派发后端主流程和前端主流程子任务。",
+  "next_step": "等待第二批子代理完成；完成一个验收一个并及时合入 main。",
   "blockers": [],
   "evidence_paths": [".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"],
   "related_commits": [
@@ -25,7 +25,10 @@
     "codex/guessword-t01-skeleton",
     "codex/guessword-data-seed",
     "codex/guessword-scoring-rules",
-    "codex/guessword-frontend-spec"
+    "codex/guessword-frontend-spec",
+    "codex/guessword-storage-foundation",
+    "codex/guessword-scoring-client",
+    "codex/guessword-frontend-static-flow"
   ],
   "supersedes": [],
   "protocol_version": 1,
@@ -63,6 +66,24 @@
         "branch": "codex/guessword-frontend-spec",
         "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-spec",
         "scope": "前端原型规格准备"
+      },
+      {
+        "agent_id": "019e36a1-7c11-7d31-9808-11d64d446cf6",
+        "branch": "codex/guessword-storage-foundation",
+        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/storage-foundation",
+        "scope": "存储基础"
+      },
+      {
+        "agent_id": "019e36a1-bdd4-7dc2-9e05-7b8708d5f178",
+        "branch": "codex/guessword-scoring-client",
+        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/scoring-client",
+        "scope": "评分客户端"
+      },
+      {
+        "agent_id": "019e36a2-13da-7312-a54d-600c598c53ac",
+        "branch": "codex/guessword-frontend-static-flow",
+        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-static-flow",
+        "scope": "前端静态主流程"
       }
     ]
   }

@@ -83,3 +83,31 @@
   - `python3 validate_handoff.py --repo-root .` 通过
   - `npm run dev:pages` 启动后，`curl /` 和 `curl /api/health` 均返回 200，健康检查显示 `stub/bypass/noop/file`
 - 清理结果：四个 worktree 已删除，四个 `codex/guessword-*` 临时分支已删除，当前只剩主仓 worktree。
+
+## 第二批任务
+
+第二批从最新 `main` 的 `b90d215` 创建，不复用首批旧 worktree。
+
+1. `存储基础`
+   - 子代理：`019e36a1-7c11-7d31-9808-11d64d446cf6`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/storage-foundation`
+   - Branch：`codex/guessword-storage-foundation`
+   - 负责范围：repository 接口、D1/SQLite adapter 边界、必要类型和测试；不实现完整业务 API。
+
+2. `评分客户端`
+   - 子代理：`019e36a1-bdd4-7dc2-9e05-7b8708d5f178`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/scoring-client`
+   - Branch：`codex/guessword-scoring-client`
+   - 负责范围：`ScoringGateway` / `AiScoringClient` 抽象、stub 实现、AI Gateway/DeepSeek adapter 边界和测试；不接猜词 API。
+
+3. `前端静态主流程`
+   - 子代理：`019e36a2-13da-7312-a54d-600c598c53ac`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/frontend-static-flow`
+   - Branch：`codex/guessword-frontend-static-flow`
+   - 负责范围：使用 `image2code-skill` 和已合入规格实现移动端静态主流程、路由、mock 状态和视觉验收；不接真实 API。
+
+第二批共同约束：
+
+- 子代理不得发送 ntfy。
+- 完成后主代理应及时验收并合入 `main`。
+- 后续第三批必须继续从合入后的最新 `main` 创建 worktree。
