@@ -67,8 +67,8 @@
 | T09 | 实现精确命中判断 | P0 | T04,T07 | 是 | answer/alias 匹配 | 标准答案和显式别名 100 分 |
 | T10 | 实现单局缓存（D1） | P0 | T05,T07 | 是 | game cache 查询逻辑 | 重复猜词不计次 |
 | T11 | 实现全局评分缓存（D1） | P0 | T02,T07 | 是 | `score_cache` 读写 | 命中后计为新有效猜词 |
-| T12 | 封装 AI Gateway + DeepSeek 评分服务 | P0 | T07 | 是 | ScoringService | 使用 `deepseek-v4-flash` 返回结构化评分，且业务层不直接感知 AI Gateway |
-| T13 | 实现 AI 输出后处理和重试 | P0 | T12 | 是 | 裁剪、重试、错误处理 | 非法 JSON 和越界分数处理正确 |
+| T12 | 封装 AI Gateway + DeepSeek 评分服务 | P0 | T07 | 是 | ScoringGateway / AiScoringClient / adapter | 使用 `deepseek-v4-flash` 返回结构化评分，且业务层不直接感知 AI Gateway |
+| T13 | 实现 AI 输出后处理和重试 | P0 | T12 | 是 | 裁剪、重试、错误处理 | 非法 JSON、非法关系类型、AI 非本地 exact/alias 和越界分数处理正确 |
 | T14 | 实现提交猜词接口 | P0 | T05,T07,T08,T09,T10,T11,T13 | 否 | `POST /api/games/{id}/guesses` | 所有计次规则正确 |
 | T15 | 实现放弃接口 | P0 | T05 | 是 | `POST /api/games/{id}/give-up` | 放弃后返回答案并禁止继续猜 |
 | T16 | 实现游戏过期和 Cron 清理 | P0 | T14 | 是 | 次数上限和 TTL 处理 | 第 100 次后仍未命中则过期 |
@@ -238,7 +238,17 @@ T01 项目骨架使用 React + Vite + TypeScript + Cloudflare Pages Functions。
 
 当前健康检查地址为 `GET /api/health`。该接口用于验证 Pages Functions、routes handler、use case 和运行时配置 adapter 的最小链路；不包含业务主流程、数据库、词库 seed、评分规则或真实 AI 调用。
 
-## 12. 当前资料基线
+## 12.1 评分客户端当前边界
+
+T12/T13 当前完成最小前置：
+
+1. `src/usecases/scoring/scoringGateway.ts` 定义平台中立的 `AiScoringClient` 和 `ScoringGateway`。
+2. 业务层先走本地标准答案和显式别名匹配，未命中才调用 AI client。
+3. stub adapter 位于 `src/infrastructure/adapters/stubScoringClient.ts`，本地默认配合 `AI_MODE=stub` 使用。
+4. DeepSeek + AI Gateway adapter 位于 `src/infrastructure/adapters/deepseekAiGatewayScoringClient.ts`，只接受注入的 endpoint、apiKey、model 和 fetch，不读取 env，不暴露 Cloudflare binding 到 usecase。
+5. live adapter 当前是边界骨架和最小请求封装；尚未接入提交猜词 API、D1 cache、AI 调用日志、真实 endpoint 配置或线上密钥管理。
+
+## 13. 当前资料基线
 
 本仓库已准备一组不依赖项目骨架的 T02/T04/T08 基础资料：
 
