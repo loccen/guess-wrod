@@ -9,10 +9,9 @@ export function HomePage() {
         <h1 id="home-title" data-ui-id="home-hero-title">猜不到的词</h1>
         <p className="hero-subtitle">AI 只返回百分比，你来推理答案</p>
         <a className="primary-button primary-button--hero" data-ui-id="start-game-button" href="/session">
-          开始一局
+          <span>开始一局</span>
         </a>
         <a className="secondary-pill" data-ui-id="random-pill" href="/session">
-          <span aria-hidden="true">⌘</span>
           随机局
         </a>
       </section>
@@ -28,21 +27,21 @@ export function HomePage() {
             <span>01</span>
             <div>
               <strong>输入一个词</strong>
-              <p>输入任意词汇开始猜测</p>
+              <p>开始猜测</p>
             </div>
           </li>
           <li>
             <span>02</span>
             <div>
               <strong>只看接近百分比</strong>
-              <p>AI 只告诉你当前词与答案的接近程度</p>
+              <p>只看分数</p>
             </div>
           </li>
           <li>
             <span>03</span>
             <div>
               <strong>100% 即猜中</strong>
-              <p>接近 100% 时，你就猜对了！</p>
+              <p>接近答案</p>
             </div>
           </li>
         </ol>

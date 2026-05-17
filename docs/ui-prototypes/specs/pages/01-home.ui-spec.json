@@ -375,6 +375,19 @@
           "priority": "high"
         },
         {
+          "id": "random-pill",
+          "selector": "[data-ui-id='random-pill']",
+          "checks": [
+            "visible",
+            "bbox",
+            "style"
+          ],
+          "expectedStyle": {
+            "borderRadius": "999px"
+          },
+          "priority": "medium"
+        },
+        {
           "id": "rules-card",
           "selector": "[data-ui-id='rules-card']",
           "checks": [

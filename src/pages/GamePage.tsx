@@ -11,7 +11,7 @@ export function GamePage({ showFeedback }: GamePageProps) {
   return (
     <main className={`phone-page game-page ${showFeedback ? "is-dimmed" : ""}`}>
       <header className="game-header">
-        <h1>猜不到的词</h1>
+        <h1 data-ui-id="game-title">猜不到的词</h1>
         <p>猜一个词，看它离答案有多近</p>
         <div className="status-row">
           <span><IconBadge label="◎" size="sm" />{mockGame.countText}</span>
@@ -32,10 +32,9 @@ export function GamePage({ showFeedback }: GamePageProps) {
         <div className="progress-track" aria-hidden="true"><span /></div>
       </section>
 
-      <section className="card input-card">
-        <div className="guess-form" data-ui-id="guess-form">
-          <label data-ui-id="guess-input">
-            <span className="search-mark" aria-hidden="true">⌕</span>
+      <section className="card input-card" data-ui-id="guess-form">
+        <div className="guess-form">
+          <label className="guess-input-shell" data-ui-id="guess-input">
             <span className="placeholder-text">输入一个猜词</span>
           </label>
           <button data-ui-id="submit-button" type="button">提交</button>
