@@ -207,3 +207,55 @@
    - 范围：输入归一化、敏感词过滤、exact/alias、本局缓存、全局缓存、评分客户端接入、计次规则和错误处理。
 2. 前端真实 API 接入
    - 范围：会话恢复、建局、状态查询、放弃、结果页改为真实数据；前端继续保留 image2code 约束。
+
+## 第四批任务
+
+第四批从最新 `main` 的 `ca60508` 创建。
+
+1. `猜词提交流程`
+   - 子代理：`019e36c5-e115-7043-b000-e727e8748d61`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/guess-api`
+   - Branch：`codex/guessword-guess-api`
+   - 负责范围：实现 `POST /api/games/{game_id}/guesses`、缓存计次、评分客户端接入和相关测试；不改前端。
+
+2. `前端真实 API 接入`
+   - 子代理：`019e36c6-2599-71e3-9080-3343412cf6fd`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow`
+   - Branch：`codex/guessword-frontend-live-flow`
+   - 负责范围：把会话恢复、建局、状态查询、放弃、结果页切到真实 API；继续保留 image2code 结构；不实现后端路由。
+
+第四批共同约束：
+
+- 子代理不得发送 ntfy。
+- 完成后主代理应及时验收并合入 `main`。
+- 后续新任务必须继续从合入后的最新 `main` 创建 worktree。
+
+## 第四批合并状态
+
+- 猜词提交流程：
+  - 子任务提交：`1488646432bfcbd3dc48523bebcf26db03d35fdd`
+  - merge commit：`166d10c`
+  - 结果：`POST /api/games/{id}/guesses` 已接通，支持归一化、敏感词、exact/alias、本局缓存、全局缓存、stub/model 评分、best guess 更新和结束态拒绝。
+- 前端真实 API 接入：
+  - 子任务提交：`b845f626a630662e060e4d34a70c137a63bacf0e`
+  - merge commit：`51ff6f5`
+  - 结果：前端已接入会话恢复、建局、状态查询、放弃和结果页真实 API；猜词提交和反馈仍是占位。
+- 第四批合并后主验证：
+  - `npm run typecheck` 通过
+  - `npm test` 通过，8 个文件 39 个用例
+  - `node --test tests/domain/scoring.test.mjs` 通过，14 项
+  - `npm run build` 通过
+  - `npm run cf:check` 通过
+  - seed/migration 校验通过
+  - `.agent-handoff` 校验通过
+  - `npm run dev:pages` 下，`POST /api/sessions -> POST /api/games -> POST /api/games/{id}/guesses -> GET /api/games/{id} -> POST /api/games/{id}/give-up -> GET /api/games/{id}` 真实链路通过
+- 清理结果：第四批两个 worktree 与临时分支已删除。
+
+## 第五批建议
+
+基于第四批后的最新 `main`，优先拆这两条：
+
+1. `前端真实猜词流程`
+   - 范围：把游戏页输入、提交、加载、历史和结果切到真实 `POST /api/games/{id}/guesses` 与 `GET /api/games/{id}`，并继续维持 image2code 结构。
+2. `评分反馈后端链路`
+   - 范围：实现 `POST /api/games/{id}/feedback`、`score_feedback` 写入和相关契约/测试，为前端反馈入口铺路。
