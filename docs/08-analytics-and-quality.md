@@ -93,6 +93,11 @@
 1. 和 `games`、`guesses` 做业务 join。
 2. 支撑每日 AI 调用量和单局成本统计。
 3. 快速定位某个 `guess_id` 对应的模型调用结果。
+4. 当 `status=error` 且 `error_code=ai_request_failed` 时，额外保留最小诊断字段：
+   - `response_status`：HTTP 状态码（无响应时为 `null`）。
+   - `request_url` 与 `request_path`：目标请求地址和路径（不含密钥）。
+   - `response_summary_prefix`：响应文本前缀（截断，避免写入大文本）。
+   - `has_gateway_auth`、`has_byok_alias`：是否携带网关鉴权和 BYOK alias。
 
 ### 4.3 R2 原始归档
 

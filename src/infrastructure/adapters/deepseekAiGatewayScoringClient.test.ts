@@ -116,4 +116,38 @@ describe("DeepSeekAiGatewayScoringClient", () => {
     const init = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
     expect((init.headers as Record<string, string>)["cf-aig-byok-alias"]).toBeUndefined();
   });
+
+  it("网关返回非 2xx 时抛出带最小诊断信息的错误", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 401,
+      text: async () => "Authentication Fails (governor)"
+    })) as unknown as typeof fetch;
+    const client = new DeepSeekAiGatewayScoringClient({
+      endpointUrl: "https://example.com/v1/acct/custom-guessword-deepseek",
+      apiKey: "cf-token",
+      byokAlias: "guess-word",
+      fetch: fetchMock
+    });
+
+    await expect(
+      client.score({
+        answer: "a",
+        guess: "b",
+        language: "zh-CN",
+        scoringRulesVersion: "v1",
+        relationCaps: { synonym: 20, same_category: 20 }
+      })
+    ).rejects.toMatchObject({
+      name: "AiGatewayRequestError",
+      diagnostic: {
+        responseStatus: 401,
+        requestUrl: "https://example.com/v1/acct/custom-guessword-deepseek/chat/completions",
+        requestPath: "/v1/acct/custom-guessword-deepseek/chat/completions",
+        responseSummaryPrefix: "Authentication Fails (governor)",
+        hasGatewayAuth: true,
+        hasByokAlias: true
+      }
+    });
+  });
 });

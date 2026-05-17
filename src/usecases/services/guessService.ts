@@ -1,6 +1,7 @@
 import { ApiError, GAME_MAX_GUESSES } from "../../domain/models/api";
 import type { Game, Guess, GuessSource, Word } from "../../domain/models/storage";
 import { findLocalExactMatch, type RelationType } from "../../domain/scoring/index.mjs";
+import { AiGatewayRequestError } from "../../infrastructure/adapters/deepseekAiGatewayScoringClient";
 import { ObservabilityService } from "./observabilityService";
 import type { AppServices } from "./platformPorts";
 import type { AuthenticatedSession } from "./sessionService";
@@ -46,6 +47,12 @@ interface AiCallAttemptPayload {
   status: "success" | "error" | "invalid_json";
   latencyMs: number;
   errorCode?: string | null;
+  responseStatus?: number | null;
+  requestUrl?: string | null;
+  requestPath?: string | null;
+  responseSummaryPrefix?: string | null;
+  hasGatewayAuth?: boolean | null;
+  hasByokAlias?: boolean | null;
 }
 
 function isExactRelation(relationType: string): boolean {
@@ -205,7 +212,13 @@ export class GuessService {
       await this.recordAiFailure(observability, session, game, answer, normalizedGuess, {
         status: "error",
         latencyMs,
-        errorCode: "ai_request_failed"
+        errorCode: "ai_request_failed",
+        responseStatus: error instanceof AiGatewayRequestError ? error.diagnostic.responseStatus : null,
+        requestUrl: error instanceof AiGatewayRequestError ? error.diagnostic.requestUrl : null,
+        requestPath: error instanceof AiGatewayRequestError ? error.diagnostic.requestPath : null,
+        responseSummaryPrefix: error instanceof AiGatewayRequestError ? error.diagnostic.responseSummaryPrefix : null,
+        hasGatewayAuth: error instanceof AiGatewayRequestError ? error.diagnostic.hasGatewayAuth : null,
+        hasByokAlias: error instanceof AiGatewayRequestError ? error.diagnostic.hasByokAlias : null
       });
 
       throw new ApiError({
@@ -464,6 +477,12 @@ export class GuessService {
       latencyMs: payload.latencyMs,
       status: payload.status,
       errorCode: payload.errorCode ?? null,
+      responseStatus: payload.responseStatus ?? null,
+      requestUrl: payload.requestUrl ?? null,
+      requestPath: payload.requestPath ?? null,
+      responseSummaryPrefix: payload.responseSummaryPrefix ?? null,
+      hasGatewayAuth: payload.hasGatewayAuth ?? null,
+      hasByokAlias: payload.hasByokAlias ?? null,
       createdAt: this.services.clock.now().toISOString()
     });
   }

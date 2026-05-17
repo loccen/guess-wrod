@@ -189,6 +189,8 @@ function mapFeedback(row: Row): ScoreFeedback {
 }
 
 function mapAiCallLog(row: Row): AiCallLog {
+  const hasGatewayAuthValue = rowNullableNumber(row, "has_gateway_auth");
+  const hasByokAliasValue = rowNullableNumber(row, "has_byok_alias");
   return {
     id: rowString(row, "id"),
     gameId: rowString(row, "game_id"),
@@ -207,6 +209,12 @@ function mapAiCallLog(row: Row): AiCallLog {
     estimatedCostUsd: rowNullableNumber(row, "estimated_cost_usd"),
     status: rowString(row, "status") as AiCallLog["status"],
     errorCode: rowNullableString(row, "error_code"),
+    responseStatus: rowNullableNumber(row, "response_status"),
+    requestUrl: rowNullableString(row, "request_url"),
+    requestPath: rowNullableString(row, "request_path"),
+    responseSummaryPrefix: rowNullableString(row, "response_summary_prefix"),
+    hasGatewayAuth: hasGatewayAuthValue === null ? null : hasGatewayAuthValue === 1,
+    hasByokAlias: hasByokAliasValue === null ? null : hasByokAliasValue === 1,
     archiveObjectKey: rowNullableString(row, "archive_object_key"),
     createdAt: rowString(row, "created_at")
   };
@@ -545,9 +553,11 @@ class SqliteAiCallLogRepository implements AiCallLogRepository {
       `INSERT INTO ai_call_logs (
          id, game_id, guess_id, provider, model_name, thinking_mode, gateway_slug,
          gateway_request_id, provider_request_id, rule_version, input_tokens, output_tokens,
-         cache_status, latency_ms, estimated_cost_usd, status, error_code, archive_object_key, created_at
+         cache_status, latency_ms, estimated_cost_usd, status, error_code, response_status,
+         request_url, request_path, response_summary_prefix, has_gateway_auth, has_byok_alias,
+         archive_object_key, created_at
        )
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now')))`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now')))`,
       [
         log.id,
         log.gameId,
@@ -566,6 +576,12 @@ class SqliteAiCallLogRepository implements AiCallLogRepository {
         optionalNumber(log.estimatedCostUsd),
         log.status,
         optional(log.errorCode),
+        optionalNumber(log.responseStatus),
+        optional(log.requestUrl),
+        optional(log.requestPath),
+        optional(log.responseSummaryPrefix),
+        log.hasGatewayAuth === null || log.hasGatewayAuth === undefined ? null : log.hasGatewayAuth ? 1 : 0,
+        log.hasByokAlias === null || log.hasByokAlias === undefined ? null : log.hasByokAlias ? 1 : 0,
         optional(log.archiveObjectKey),
         optional(log.createdAt)
       ]

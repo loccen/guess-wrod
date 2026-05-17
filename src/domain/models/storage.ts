@@ -117,6 +117,12 @@ export interface AiCallLog {
   estimatedCostUsd: number | null;
   status: AiCallStatus;
   errorCode: string | null;
+  responseStatus: number | null;
+  requestUrl: string | null;
+  requestPath: string | null;
+  responseSummaryPrefix: string | null;
+  hasGatewayAuth: boolean | null;
+  hasByokAlias: boolean | null;
   archiveObjectKey: string | null;
   createdAt: IsoDateTimeString;
 }
@@ -177,6 +183,12 @@ export type NewAiCallLog = Pick<
       | "cacheStatus"
       | "estimatedCostUsd"
       | "errorCode"
+      | "responseStatus"
+      | "requestUrl"
+      | "requestPath"
+      | "responseSummaryPrefix"
+      | "hasGatewayAuth"
+      | "hasByokAlias"
       | "archiveObjectKey"
       | "createdAt"
     >
