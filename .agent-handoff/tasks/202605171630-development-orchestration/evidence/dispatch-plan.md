@@ -111,3 +111,39 @@
 - 子代理不得发送 ntfy。
 - 完成后主代理应及时验收并合入 `main`。
 - 后续第三批必须继续从合入后的最新 `main` 创建 worktree。
+
+## 第二批合并与暂停状态
+
+- 评分客户端：
+  - 子任务提交：`04e3329e55643583975f446febb68a571ae116f3`
+  - merge commit：`8bb623f`
+  - 验证：`npm run typecheck`、`npm test`、`node --test tests/domain/scoring.test.mjs`、`npm run build` 通过。
+- 存储基础：
+  - 子任务提交：`51cdf42f46205ba964366ebedb41ec8eed7fdb49`
+  - merge commit：`8369b0f`
+  - 验证：`npm run typecheck`、`npm test`、`npm run build`、`npm run cf:check` 通过；本地 D1 migration + seed 导入已由子代理验证。
+- 前端静态主流程：
+  - 子任务提交：`1e63d2b5e32a8f92b1d66173d21d0125280b8b53`
+  - merge commit：`42aaf31`
+  - 验证：`npm run typecheck`、`npm test`、`npm run build`、`npm run cf:check` 通过；`npm run dev:pages` 启动后 `/`、`/session`、`/games/demo-playing`、`/games/demo-playing?feedback=1`、三类结果页、`/rules`、`/api/health` 均返回 200。
+  - 未通过：`docs/ui-prototypes/visual-qa/report/01-home/visual-qa-report.json` 显示 `passed=false`、8 个失败项；`docs/ui-prototypes/visual-qa/report/02-game-playing/visual-qa-report.json` 显示 `passed=false`、12 个失败项。
+- 合并后总验证：
+  - `npm run typecheck` 通过
+  - `npm test` 通过，5 个 Vitest 文件 17 个用例
+  - `node --test tests/domain/scoring.test.mjs` 通过，14 项
+  - `npm run build` 通过
+  - `npm run cf:check` 通过
+  - `node scripts/validate-seed.mjs` 通过，50 个词条、74 个别名、25 个敏感词片段
+  - SQLite migration + seed 导入通过，`words` 计数为 `50`
+  - `.agent-handoff` 校验通过
+- 清理结果：第二批 worktree 和临时分支已删除，当前只剩主仓 worktree。
+
+## 暂停后下一步
+
+用户要求当前批次完成后暂停，后续将用 GPT-5.4 新会话接续。
+
+下一会话建议先做：
+
+1. 从最新 `main` 开始，先读 `.agent-handoff/ACTIVE.md`、本文件、`handoff.md`、`manifest.json`。
+2. 先处理前端视觉 QA 失败，或在确认视觉差异可接受后转入 API 主流程。
+3. 后端下一批建议拆：会话 API、游戏创建/状态/放弃 API、猜词提交流程集成。每批完成后及时合入 `main`，新子代理必须基于最新 `main`。

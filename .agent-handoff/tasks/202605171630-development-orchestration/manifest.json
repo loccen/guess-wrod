@@ -1,14 +1,14 @@
 {
   "task_id": "202605171630-development-orchestration",
   "title": "实际开发阶段编排",
-  "status": "active",
+  "status": "handoff-ready",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-17T23:51:10+08:00",
+  "updated_at": "2026-05-18T00:05:59+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
   "truth_sources": ["AGENTS.md", "docs/02-architecture.md", "docs/04-api-contract.md", "docs/05-scoring-spec.md", "docs/07-implementation-plan.md", "docs/08-analytics-and-quality.md", "docs/ui-prototypes/images"],
-  "next_step": "等待第二批子代理完成；完成一个验收一个并及时合入 main。",
+  "next_step": "暂停当前会话；下一会话从最新 main 接续，先处理前端 visual QA 失败或派发后端 API 主流程子任务。",
   "blockers": [],
   "evidence_paths": [".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"],
   "related_commits": [
@@ -19,7 +19,13 @@
     "908c819",
     "644f1f5",
     "85bf33f",
-    "68a650f"
+    "68a650f",
+    "04e3329e55643583975f446febb68a571ae116f3",
+    "8bb623f",
+    "51cdf42f46205ba964366ebedb41ec8eed7fdb49",
+    "8369b0f",
+    "1e63d2b5e32a8f92b1d66173d21d0125280b8b53",
+    "42aaf31"
   ],
   "related_tasks": [
     "codex/guessword-t01-skeleton",
