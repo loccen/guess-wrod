@@ -3,12 +3,12 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T00:44:39+08:00",
+  "updated_at": "2026-05-18T00:47:32+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
   "truth_sources": ["AGENTS.md", "docs/02-architecture.md", "docs/04-api-contract.md", "docs/05-scoring-spec.md", "docs/07-implementation-plan.md", "docs/08-analytics-and-quality.md", "docs/ui-prototypes/images"],
-  "next_step": "基于最新 main 创建第五批 worktree，派发前端真实猜词流程和评分反馈后端链路子任务。",
+  "next_step": "等待第五批子代理完成；完成一个验收一个并及时合入 main。",
   "blockers": [],
   "evidence_paths": [".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"],
   "related_commits": [
@@ -46,7 +46,9 @@
     "codex/guessword-visual-qa-fix",
     "codex/guessword-backend-base-api",
     "codex/guessword-guess-api",
-    "codex/guessword-frontend-live-flow"
+    "codex/guessword-frontend-live-flow",
+    "codex/guessword-frontend-live-guess",
+    "codex/guessword-feedback-api"
   ],
   "supersedes": [],
   "protocol_version": 1,
@@ -126,6 +128,18 @@
         "branch": "codex/guessword-frontend-live-flow",
         "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow",
         "scope": "前端真实 API 接入"
+      },
+      {
+        "agent_id": "019e36d5-8bc1-7213-8773-1c3380ae173e",
+        "branch": "codex/guessword-frontend-live-guess",
+        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-guess",
+        "scope": "前端真实猜词流程"
+      },
+      {
+        "agent_id": "019e36d5-c1c6-75a3-855b-557b0120b230",
+        "branch": "codex/guessword-feedback-api",
+        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/feedback-api",
+        "scope": "评分反馈后端链路"
       }
     ]
   }

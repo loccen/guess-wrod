@@ -83,3 +83,9 @@
 - 动作：验收并合入猜词提交流程与前端真实 API 接入两个子任务。
 - 结果：两个子任务已通过 no-ff merge 合入 `main`；主仓已具备 session -> game -> guess -> status -> give-up -> status 的本地 HTTP 链路。
 - 遗留：继续派发前端真实猜词流程和评分反馈后端链路。
+
+## 2026-05-18T00:47:32+08:00 派发第五批子代理
+
+- 动作：从最新 `main` 的 `359fb62` 创建两个 worktree，并派发前端真实猜词流程和评分反馈后端链路子代理。
+- 结果：第五批子代理 ID、branch、worktree 已登记到 `evidence/dispatch-plan.md`。
+- 遗留：等待第五批子任务完成；完成一个验收一个并及时合入 `main`。

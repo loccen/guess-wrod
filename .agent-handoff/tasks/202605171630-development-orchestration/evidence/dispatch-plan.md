@@ -259,3 +259,25 @@
    - 范围：把游戏页输入、提交、加载、历史和结果切到真实 `POST /api/games/{id}/guesses` 与 `GET /api/games/{id}`，并继续维持 image2code 结构。
 2. `评分反馈后端链路`
    - 范围：实现 `POST /api/games/{id}/feedback`、`score_feedback` 写入和相关契约/测试，为前端反馈入口铺路。
+
+## 第五批任务
+
+第五批从最新 `main` 的 `359fb62` 创建。
+
+1. `前端真实猜词流程`
+   - 子代理：`019e36d5-8bc1-7213-8773-1c3380ae173e`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-guess`
+   - Branch：`codex/guessword-frontend-live-guess`
+   - 负责范围：把游戏页输入、提交、加载、历史和结果切到真实 `POST /api/games/{id}/guesses` 与 `GET /api/games/{id}`，并继续维持 image2code 结构。
+
+2. `评分反馈后端链路`
+   - 子代理：`019e36d5-c1c6-75a3-855b-557b0120b230`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/feedback-api`
+   - Branch：`codex/guessword-feedback-api`
+   - 负责范围：实现 `POST /api/games/{id}/feedback`、`score_feedback` 写入和相关契约/测试。
+
+第五批共同约束：
+
+- 子代理不得发送 ntfy。
+- 完成后主代理应及时验收并合入 `main`。
+- 后续新任务必须继续从合入后的最新 `main` 创建 worktree。
