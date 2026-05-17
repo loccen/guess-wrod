@@ -333,3 +333,31 @@
 - 子代理不得发送 ntfy。
 - 完成后主代理应及时验收并合入 `main`。
 - 后续新任务必须继续从合入后的最新 `main` 创建 worktree。
+
+## 第六批合并状态
+
+- 前端反馈接入与交互收尾：
+  - 子任务提交：`9cd0809`
+  - merge commit：`aae5b1f`
+  - 结果：反馈弹层与按钮已接入真实 `POST /api/games/{id}/feedback`，支持提交中、失败、成功状态；反馈按钮不再是静态占位。
+- 过期与上限规则：
+  - 子任务提交：`6748b95a5dd8d8d8962b14ae54532c134b5e3d2a`
+  - merge commit：`57234af`
+  - 结果：后端已支持单局 100 次上限、TTL 过期、`expire_reason` 返回，以及过期后 `409 game_ended`。
+- 第六批合并后主验证：
+  - `npm run typecheck` 通过
+  - `npm test` 通过，8 个文件 53 个用例
+  - `node --test tests/domain/scoring.test.mjs` 通过，14 项
+  - `npm run build` 通过
+  - `npm run cf:check` 通过
+  - `npm run dev:pages` 下，`POST /api/sessions -> POST /api/games -> POST /api/games/{id}/guesses -> POST /api/games/{id}/feedback -> POST /api/games/{id}/give-up -> GET /api/games/{id}` 真实链路通过
+- 清理结果：第六批两个 worktree 与临时分支已删除。
+
+## 第七批建议
+
+基于第六批后的最新 `main`，优先拆这两条：
+
+1. `视觉验收收尾`
+   - 范围：继续处理首页、游戏页、反馈弹层的 live visual QA 失败项，尽量把 high/medium 失败压到最少，必要时只做合理 spec 调整。
+2. `基础日志/分析写入`
+   - 范围：最小接入 `guess_events` / `ai_call_logs` 镜像或 noop/file sink 边界，让“基础日志”不再停留在文档层。
