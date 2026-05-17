@@ -56,6 +56,39 @@ Authorization: Bearer <session_token>
 }
 ```
 
+### 1.5 健康检查
+
+```http
+GET /api/health
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "service": "guess-wrod-api",
+    "status": "ok",
+    "timestamp": "2026-05-18T01:23:45.000Z",
+    "modes": {
+      "aiMode": "stub",
+      "captchaMode": "bypass",
+      "analyticsMode": "noop",
+      "archiveMode": "file"
+    },
+    "runtime": {
+      "version": "abcdef123456",
+      "source": "cf_pages_commit_sha"
+    }
+  }
+}
+```
+
+说明：
+
+1. `runtime.source` 取值：`cf_pages_commit_sha`、`git_commit_sha`、`build_id`、`runtime_version`、`unknown`。
+2. `runtime.version` 会做字符与长度清洗，仅用于版本辨识，不返回密钥类信息。
+
 ## 2. 会话接口
 
 ### 2.1 创建匿名会话

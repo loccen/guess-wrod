@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loadAppConfig } from "./runtimeConfig";
+import { loadAppConfig, loadRuntimeVersion } from "./runtimeConfig";
 
 describe("loadAppConfig", () => {
   it("uses local development defaults when env is empty", () => {
@@ -24,6 +24,23 @@ describe("loadAppConfig", () => {
       captchaMode: "live",
       analyticsMode: "live",
       archiveMode: "live"
+    });
+  });
+
+  it("extracts a safe runtime version from commit/build markers", () => {
+    expect(loadRuntimeVersion({ CF_PAGES_COMMIT_SHA: "ABCDEF1234567890" })).toEqual({
+      version: "abcdef123456",
+      source: "cf_pages_commit_sha"
+    });
+
+    expect(loadRuntimeVersion({ BUILD_ID: "build@2026/05/18#prod" })).toEqual({
+      version: "build_2026_05_18_prod",
+      source: "build_id"
+    });
+
+    expect(loadRuntimeVersion({})).toEqual({
+      version: "unknown",
+      source: "unknown"
     });
   });
 });
