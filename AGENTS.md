@@ -33,7 +33,14 @@
 3. `ANALYTICS_MODE=noop|live`
 4. `ARCHIVE_MODE=file|live`
 
-## 3. 代码边界
+## 3. 真实 Cloudflare 联动
+
+1. 当任务需要联动 Cloudflare 真实能力时，优先直接调用 Cloudflare 插件读取当前账号下的真实资源信息，不要只凭猜测写配置。
+2. 如果任务所需资源当前不存在，而目标又明确需要真实 Cloudflare 资源，可以直接创建。
+3. 创建后必须把资源名、资源 ID、绑定关系或所需配置回填到仓库配置或相关文档，避免事实只留在会话里。
+4. 若只是本地开发默认链路，仍优先使用本地 stub / bypass / file sink，不要无必要把日常开发切到真实云资源。
+
+## 4. 代码边界
 
 至少保留这些接口或等价抽象：
 
@@ -51,7 +58,7 @@
 3. `domain/models`：领域模型、枚举、错误码
 4. `infrastructure/adapters`：D1、AI Gateway、R2、Analytics、Turnstile 实现
 
-## 4. 开发顺序
+## 5. 开发顺序
 
 默认按这个顺序推进：
 
@@ -60,7 +67,7 @@
 3. 最后接 Cloudflare 实现
 4. 完成后先过本地 `stub` 链路，再做一次真实 `live` 集成验证
 
-## 5. 文档同步
+## 6. 文档同步
 
 如果改动影响下列任一项，必须同步更新对应文档：
 
@@ -70,7 +77,7 @@
 4. 本地开发、任务拆分、验收口径：更新 [docs/07-implementation-plan.md](docs/07-implementation-plan.md)
 5. 事件、成本、分析口径：更新 [docs/08-analytics-and-quality.md](docs/08-analytics-and-quality.md)
 
-## 6. 验收重点
+## 7. 验收重点
 
 除了功能正确，还必须回答：
 
