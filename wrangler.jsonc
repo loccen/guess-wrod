@@ -8,5 +8,12 @@
     "CAPTCHA_MODE": "bypass",
     "ANALYTICS_MODE": "noop",
     "ARCHIVE_MODE": "file"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "guess-wrod-local",
+      "database_id": "local-development-only"
+    }
+  ]
 }
