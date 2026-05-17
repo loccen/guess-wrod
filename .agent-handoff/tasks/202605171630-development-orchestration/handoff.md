@@ -17,9 +17,9 @@
 
 ## 第一步该做什么
 
-- 新会话先读 `.agent-handoff/ACTIVE.md`、本文件、`manifest.json` 和 `evidence/dispatch-plan.md`。
-- 按用户要求使用 GPT-5.4 接续；不要从旧 worktree 派发，新任务必须基于最新 `main`。
-- 建议先二选一：修前端 visual QA 失败，或派发后端会话/游戏/猜词 API 子任务。
+- 当前会话已恢复执行。下一步从最新 `main` 创建第三批 worktree。
+- 建议第三批先派两个独立子任务：前端 visual QA 修复、后端会话/游戏基础 API。
+- 完成一个验收一个并及时合入 `main`。
 
 ## 先看哪些文件/命令
 

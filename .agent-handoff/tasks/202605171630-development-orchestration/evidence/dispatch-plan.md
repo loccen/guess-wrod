@@ -147,3 +147,11 @@
 1. 从最新 `main` 开始，先读 `.agent-handoff/ACTIVE.md`、本文件、`handoff.md`、`manifest.json`。
 2. 先处理前端视觉 QA 失败，或在确认视觉差异可接受后转入 API 主流程。
 3. 后端下一批建议拆：会话 API、游戏创建/状态/放弃 API、猜词提交流程集成。每批完成后及时合入 `main`，新子代理必须基于最新 `main`。
+
+## 第三批准备
+
+- 恢复时间：`2026-05-18T00:11:09+08:00`
+- 恢复基线：`main` 的 `6b8c171`
+- 第三批建议：
+  1. 前端 visual QA 修复：使用 `image2code-skill`，目标是首页和游戏页 visual QA high/medium 失败清零，尽量让报告 `passed=true`。
+  2. 后端基础 API：实现会话、游戏创建、游戏状态、放弃接口的 stub/bypass 本地链路，不实现猜词提交。

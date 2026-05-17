@@ -3,7 +3,7 @@
 - Task ID: `202605171630-development-orchestration`
 - Created At: `2026-05-17T23:22:27+08:00`
 - Updated At: `2026-05-17T23:22:27+08:00`
-- Status: `handoff-ready`
+- Status: `active`
 
 ## 目标
 
@@ -46,6 +46,7 @@
 
 ## 当前状态
 
+- 已完成：从 handoff-ready 状态恢复，当前基线为 `main` 的 `6b8c171`。
 - 已完成：读取 `AGENTS.md`、`docs/02-architecture.md`、`docs/04-api-contract.md`、`docs/05-scoring-spec.md`、`docs/07-implementation-plan.md`、`docs/08-analytics-and-quality.md`、`docs/ui-prototypes/README.md`。
 - 已完成：确认仓库当前只有文档和原型图，尚无实现骨架；已创建本 task bundle 和本线程 `ai-task`。
 - 已完成：创建首批独立 worktree，并派发四个子代理，详见 `evidence/dispatch-plan.md`。
@@ -58,4 +59,4 @@
 
 ## 下一步
 
-- 暂停当前会话。下一会话从最新 `main` 接续，先处理前端视觉 QA 失败或派发后端 API 主流程子任务。
+- 基于最新 `main` 创建第三批 worktree，派发前端 visual QA 修复和后端基础 API 子任务。
