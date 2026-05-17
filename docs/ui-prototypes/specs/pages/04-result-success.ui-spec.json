@@ -1,0 +1,426 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "images": [
+      "../../normalized/04-result-success/04-result-success.normalized.png"
+    ],
+    "rawImages": [
+      "../../images/04-result-success.png"
+    ],
+    "normalization": "../../normalized/04-result-success/prototype-normalization.json",
+    "analysisAt": "2026-05-17T00:00:00.000+08:00",
+    "notes": "猜中结果页。"
+  },
+  "target": {
+    "platform": "mobile-web",
+    "framework": "unknown",
+    "implementationMode": "static"
+  },
+  "page": {
+    "name": "猜中结果",
+    "route": "/games/:gameId/result/success",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "device": "mobile"
+    }
+  },
+  "layout": {
+    "coordinateSystem": {
+      "unit": "px",
+      "origin": "top-left",
+      "precision": "estimated"
+    },
+    "nodes": [
+      {
+        "id": "result-heading",
+        "type": "text",
+        "component": "heading",
+        "bbox": {
+          "x": 94,
+          "y": 78,
+          "width": 202,
+          "height": 56,
+          "source": "04-result-success",
+          "confidence": 0.76
+        }
+      },
+      {
+        "id": "answer-card",
+        "type": "region",
+        "component": "answerCard",
+        "bbox": {
+          "x": 23,
+          "y": 178,
+          "width": 344,
+          "height": 173,
+          "source": "04-result-success",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "stats-row",
+        "type": "region",
+        "component": "statCards",
+        "bbox": {
+          "x": 23,
+          "y": 365,
+          "width": 344,
+          "height": 133,
+          "source": "04-result-success",
+          "confidence": 0.8
+        }
+      },
+      {
+        "id": "near-miss-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 23,
+          "y": 514,
+          "width": 344,
+          "height": 203,
+          "source": "04-result-success",
+          "confidence": 0.82
+        }
+      },
+      {
+        "id": "play-again-button",
+        "type": "control",
+        "component": "button",
+        "bbox": {
+          "x": 49,
+          "y": 750,
+          "width": 291,
+          "height": 56,
+          "source": "04-result-success",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "back-home-link",
+        "type": "control",
+        "component": "link",
+        "bbox": {
+          "x": 146,
+          "y": 823,
+          "width": 96,
+          "height": 18,
+          "source": "04-result-success",
+          "confidence": 0.62
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "result-stat-cards",
+        "type": "horizontal-stack",
+        "children": [
+          "stat-valid",
+          "stat-duration",
+          "stat-best"
+        ],
+        "gapXApproxPx": 8,
+        "alignment": "stretch",
+        "source": "04-result-success",
+        "confidence": 0.78
+      },
+      {
+        "id": "near-miss-list",
+        "type": "list",
+        "children": [
+          "near-miss-1",
+          "near-miss-2",
+          "near-miss-3"
+        ],
+        "gapYApproxPx": 0,
+        "alignment": "stretch",
+        "source": "04-result-success",
+        "confidence": 0.78
+      }
+    ],
+    "relations": [
+      {
+        "type": "below",
+        "from": "answer-card",
+        "to": "result-heading",
+        "approxGapPx": 35,
+        "confidence": 0.72
+      }
+    ],
+    "constraints": [
+      "结果页主按钮固定靠近底部；答案卡优先展示大号答案和别名。"
+    ]
+  },
+  "content": {
+    "texts": [
+      "猜到了！",
+      "你找到了答案",
+      "答案",
+      "手机",
+      "也接受：智能手机 / 移动电话 / 📱",
+      "有效猜词",
+      "10次",
+      "用时",
+      "6分18秒",
+      "最高分",
+      "100%",
+      "最接近未命中",
+      "电话",
+      "92%",
+      "平板",
+      "76%",
+      "充电器",
+      "74%",
+      "再来一局",
+      "返回首页"
+    ],
+    "images": [],
+    "icons": [
+      "check",
+      "phone",
+      "target",
+      "clock",
+      "trophy",
+      "refresh",
+      "home"
+    ]
+  },
+  "visual": {
+    "colors": [
+      {
+        "token": "warmWhite",
+        "value": "#FFF8EA",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "mint",
+        "value": "#B8F3D4",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "primaryTeal",
+        "value": "#1B9AAA",
+        "source": "design-dna",
+        "confidence": 0.98
+      },
+      {
+        "token": "dangerCoral",
+        "value": "#FF7A6B",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "sunYellow",
+        "value": "#FFD166",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "ink",
+        "value": "#243447",
+        "source": "design-dna",
+        "confidence": 0.98
+      }
+    ],
+    "typography": [
+      {
+        "role": "heroTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          42,
+          54
+        ],
+        "source": "design-dna",
+        "confidence": 0.84
+      },
+      {
+        "role": "sectionTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          18,
+          24
+        ],
+        "source": "design-dna",
+        "confidence": 0.8
+      },
+      {
+        "role": "body",
+        "fontWeight": 400,
+        "sizeRangePx": [
+          13,
+          16
+        ],
+        "source": "design-dna",
+        "confidence": 0.78
+      }
+    ],
+    "spacing": [
+      {
+        "token": "pageGutter",
+        "valuePx": 20,
+        "source": "04-result-success",
+        "confidence": 0.76
+      },
+      {
+        "token": "cardGap",
+        "valuePx": 14,
+        "source": "04-result-success",
+        "confidence": 0.72
+      }
+    ],
+    "radius": [
+      {
+        "token": "cardRadius",
+        "valuePx": 20,
+        "source": "design-dna",
+        "confidence": 0.86
+      },
+      {
+        "token": "pillRadius",
+        "valuePx": 999,
+        "source": "design-dna",
+        "confidence": 0.86
+      }
+    ],
+    "shadows": [
+      {
+        "token": "cardShadow",
+        "value": "0 8px 24px rgba(36,52,71,0.10)",
+        "source": "normalized pages",
+        "confidence": 0.68
+      }
+    ]
+  },
+  "states": {
+    "loading": [],
+    "empty": [],
+    "error": [],
+    "interactive": []
+  },
+  "data": {
+    "mockData": [],
+    "apiNeeds": [],
+    "bindings": []
+  },
+  "responsive": {
+    "breakpoints": [
+      {
+        "name": "mobile-base",
+        "widthPx": 390,
+        "source": "04-result-success",
+        "confidence": 0.95
+      }
+    ],
+    "rules": [
+      "390px 视口为视觉基准；窄屏保持 20-24px 页面边距，主卡片宽度使用 calc(100% - 40px)。"
+    ]
+  },
+  "implementationHints": [
+    "主体布局使用普通文档流、flex 或 grid，不要用绝对定位复刻整页。",
+    "关键节点需添加 validation.visualQa.requiredNodes 中声明的 data-ui-id。",
+    "业务数据先按 README 样例做静态 fixture，后续接 API 时替换绑定。"
+  ],
+  "validation": {
+    "visualQa": {
+      "referenceImage": "../../normalized/04-result-success/04-result-success.normalized.png",
+      "targetUrl": "http://localhost:8788/games/demo/result/success",
+      "allowNoReference": false,
+      "allowNoNormalization": false,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 1
+      },
+      "thresholds": {
+        "bboxTolerancePx": 8,
+        "relationTolerancePx": 6,
+        "colorDeltaMax": 12,
+        "regionDiffMax": 0.08,
+        "pageDiffMax": 0.06,
+        "pageDiffPixelsMax": 20000
+      },
+      "requiredNodes": [
+        {
+          "id": "result-heading",
+          "selector": "[data-ui-id='result-heading']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "猜到了！",
+          "expectedStyle": {
+            "color": "#243447"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "answer-card",
+          "selector": "[data-ui-id='answer-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style",
+            "region-diff"
+          ],
+          "expectedText": "手机",
+          "expectedStyle": {
+            "borderRadius": "20px"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "stats-row",
+          "selector": "[data-ui-id='stats-row']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "region-diff"
+          ],
+          "expectedText": "100%",
+          "priority": "medium"
+        },
+        {
+          "id": "near-miss-card",
+          "selector": "[data-ui-id='near-miss-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "最接近未命中",
+          "priority": "medium"
+        },
+        {
+          "id": "play-again-button",
+          "selector": "[data-ui-id='play-again-button']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "再来一局",
+          "expectedStyle": {
+            "backgroundColor": "#1B9AAA"
+          },
+          "priority": "high"
+        }
+      ],
+      "masks": [
+        {
+          "id": "confetti",
+          "reason": "彩纸装饰可允许轻微差异。"
+        }
+      ]
+    }
+  },
+  "unknowns": []
+}

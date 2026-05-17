@@ -1,0 +1,437 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "images": [
+      "../../normalized/07-rules-privacy/07-rules-privacy.normalized.png"
+    ],
+    "rawImages": [
+      "../../images/07-rules-privacy.png"
+    ],
+    "normalization": "../../normalized/07-rules-privacy/prototype-normalization.json",
+    "analysisAt": "2026-05-17T00:00:00.000+08:00",
+    "notes": "玩法与隐私说明页。"
+  },
+  "target": {
+    "platform": "mobile-web",
+    "framework": "unknown",
+    "implementationMode": "static"
+  },
+  "page": {
+    "name": "玩法与隐私",
+    "route": "/rules",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "device": "mobile"
+    }
+  },
+  "layout": {
+    "coordinateSystem": {
+      "unit": "px",
+      "origin": "top-left",
+      "precision": "estimated"
+    },
+    "nodes": [
+      {
+        "id": "back-link",
+        "type": "control",
+        "component": "link",
+        "bbox": {
+          "x": 22,
+          "y": 29,
+          "width": 51,
+          "height": 17,
+          "source": "07-rules-privacy",
+          "confidence": 0.72
+        }
+      },
+      {
+        "id": "rules-heading",
+        "type": "text",
+        "component": "heading",
+        "bbox": {
+          "x": 106,
+          "y": 95,
+          "width": 179,
+          "height": 58,
+          "source": "07-rules-privacy",
+          "confidence": 0.78
+        }
+      },
+      {
+        "id": "rules-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 23,
+          "y": 196,
+          "width": 344,
+          "height": 236,
+          "source": "07-rules-privacy",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "ai-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 23,
+          "y": 452,
+          "width": 344,
+          "height": 86,
+          "source": "07-rules-privacy",
+          "confidence": 0.82
+        }
+      },
+      {
+        "id": "privacy-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 23,
+          "y": 554,
+          "width": 344,
+          "height": 122,
+          "source": "07-rules-privacy",
+          "confidence": 0.82
+        }
+      },
+      {
+        "id": "exceptions-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 23,
+          "y": 696,
+          "width": 344,
+          "height": 70,
+          "source": "07-rules-privacy",
+          "confidence": 0.82
+        }
+      },
+      {
+        "id": "confirm-button",
+        "type": "control",
+        "component": "button",
+        "bbox": {
+          "x": 45,
+          "y": 790,
+          "width": 300,
+          "height": 54,
+          "source": "07-rules-privacy",
+          "confidence": 0.84
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "rule-list",
+        "type": "list",
+        "children": [
+          "rule-1",
+          "rule-2",
+          "rule-3",
+          "rule-4"
+        ],
+        "gapYApproxPx": 0,
+        "alignment": "stretch",
+        "source": "07-rules-privacy",
+        "confidence": 0.78
+      },
+      {
+        "id": "exception-pills",
+        "type": "horizontal-wrap",
+        "children": [
+          "exception-repeat",
+          "exception-illegal",
+          "exception-sensitive",
+          "exception-rate-limit",
+          "exception-ai-timeout"
+        ],
+        "gapXApproxPx": 8,
+        "gapYApproxPx": 8,
+        "source": "07-rules-privacy",
+        "confidence": 0.76
+      }
+    ],
+    "relations": [
+      {
+        "type": "below",
+        "from": "rules-card",
+        "to": "rules-heading",
+        "approxGapPx": 32,
+        "confidence": 0.74
+      }
+    ],
+    "constraints": [
+      "说明页内容较密，卡片间距需控制在 14-20px，底部主按钮保持可见。"
+    ]
+  },
+  "content": {
+    "texts": [
+      "玩法与隐私",
+      "怎么玩？",
+      "输入一个词，看它离答案有多近。",
+      "玩法规则",
+      "每局一个隐藏答案",
+      "输入猜词后只显示接近百分比",
+      "100% 代表猜中答案或别名",
+      "最多 100 次有效猜词，24 小时内完成",
+      "AI 评分说明",
+      "隐私说明",
+      "异常不计次",
+      "重复猜词",
+      "非法输入",
+      "敏感词",
+      "限流",
+      "AI 超时",
+      "知道了"
+    ],
+    "images": [],
+    "icons": [
+      "back",
+      "book-open",
+      "bar-chart",
+      "target",
+      "clock",
+      "bot",
+      "shield",
+      "alert",
+      "check"
+    ]
+  },
+  "visual": {
+    "colors": [
+      {
+        "token": "warmWhite",
+        "value": "#FFF8EA",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "mint",
+        "value": "#B8F3D4",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "primaryTeal",
+        "value": "#1B9AAA",
+        "source": "design-dna",
+        "confidence": 0.98
+      },
+      {
+        "token": "dangerCoral",
+        "value": "#FF7A6B",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "sunYellow",
+        "value": "#FFD166",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "ink",
+        "value": "#243447",
+        "source": "design-dna",
+        "confidence": 0.98
+      }
+    ],
+    "typography": [
+      {
+        "role": "heroTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          42,
+          54
+        ],
+        "source": "design-dna",
+        "confidence": 0.84
+      },
+      {
+        "role": "sectionTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          18,
+          24
+        ],
+        "source": "design-dna",
+        "confidence": 0.8
+      },
+      {
+        "role": "body",
+        "fontWeight": 400,
+        "sizeRangePx": [
+          13,
+          16
+        ],
+        "source": "design-dna",
+        "confidence": 0.78
+      }
+    ],
+    "spacing": [
+      {
+        "token": "pageGutter",
+        "valuePx": 20,
+        "source": "07-rules-privacy",
+        "confidence": 0.76
+      },
+      {
+        "token": "cardGap",
+        "valuePx": 14,
+        "source": "07-rules-privacy",
+        "confidence": 0.72
+      }
+    ],
+    "radius": [
+      {
+        "token": "cardRadius",
+        "valuePx": 20,
+        "source": "design-dna",
+        "confidence": 0.86
+      },
+      {
+        "token": "pillRadius",
+        "valuePx": 999,
+        "source": "design-dna",
+        "confidence": 0.86
+      }
+    ],
+    "shadows": [
+      {
+        "token": "cardShadow",
+        "value": "0 8px 24px rgba(36,52,71,0.10)",
+        "source": "normalized pages",
+        "confidence": 0.68
+      }
+    ]
+  },
+  "states": {
+    "loading": [],
+    "empty": [],
+    "error": [],
+    "interactive": []
+  },
+  "data": {
+    "mockData": [],
+    "apiNeeds": [],
+    "bindings": []
+  },
+  "responsive": {
+    "breakpoints": [
+      {
+        "name": "mobile-base",
+        "widthPx": 390,
+        "source": "07-rules-privacy",
+        "confidence": 0.95
+      }
+    ],
+    "rules": [
+      "390px 视口为视觉基准；窄屏保持 20-24px 页面边距，主卡片宽度使用 calc(100% - 40px)。"
+    ]
+  },
+  "implementationHints": [
+    "主体布局使用普通文档流、flex 或 grid，不要用绝对定位复刻整页。",
+    "关键节点需添加 validation.visualQa.requiredNodes 中声明的 data-ui-id。",
+    "业务数据先按 README 样例做静态 fixture，后续接 API 时替换绑定。"
+  ],
+  "validation": {
+    "visualQa": {
+      "referenceImage": "../../normalized/07-rules-privacy/07-rules-privacy.normalized.png",
+      "targetUrl": "http://localhost:8788/rules",
+      "allowNoReference": false,
+      "allowNoNormalization": false,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 1
+      },
+      "thresholds": {
+        "bboxTolerancePx": 8,
+        "relationTolerancePx": 6,
+        "colorDeltaMax": 12,
+        "regionDiffMax": 0.08,
+        "pageDiffMax": 0.06,
+        "pageDiffPixelsMax": 20000
+      },
+      "requiredNodes": [
+        {
+          "id": "back-link",
+          "selector": "[data-ui-id='back-link']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox"
+          ],
+          "expectedText": "返回",
+          "priority": "medium"
+        },
+        {
+          "id": "rules-heading",
+          "selector": "[data-ui-id='rules-heading']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "怎么玩？",
+          "expectedStyle": {
+            "color": "#243447"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "rules-card",
+          "selector": "[data-ui-id='rules-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style",
+            "region-diff"
+          ],
+          "expectedText": "玩法规则",
+          "priority": "high"
+        },
+        {
+          "id": "privacy-card",
+          "selector": "[data-ui-id='privacy-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "隐私说明",
+          "priority": "medium"
+        },
+        {
+          "id": "confirm-button",
+          "selector": "[data-ui-id='confirm-button']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "知道了",
+          "expectedStyle": {
+            "backgroundColor": "#1B9AAA"
+          },
+          "priority": "high"
+        }
+      ],
+      "masks": [
+        {
+          "id": "decorative-background",
+          "reason": "背景装饰低优先级。"
+        }
+      ]
+    }
+  },
+  "unknowns": []
+}

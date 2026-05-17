@@ -1,0 +1,425 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "images": [
+      "../../normalized/01-home/01-home.normalized.png"
+    ],
+    "rawImages": [
+      "../../images/01-home.png"
+    ],
+    "normalization": "../../normalized/01-home/prototype-normalization.json",
+    "analysisAt": "2026-05-17T00:00:00.000+08:00",
+    "notes": "首页页面，纯页面图已 full crop confirmed。"
+  },
+  "target": {
+    "platform": "mobile-web",
+    "framework": "unknown",
+    "implementationMode": "static"
+  },
+  "page": {
+    "name": "首页",
+    "route": "/",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "device": "mobile"
+    }
+  },
+  "layout": {
+    "coordinateSystem": {
+      "unit": "px",
+      "origin": "top-left",
+      "precision": "estimated"
+    },
+    "nodes": [
+      {
+        "id": "home-hero-title",
+        "type": "text",
+        "component": "heading",
+        "bbox": {
+          "x": 77,
+          "y": 71,
+          "width": 242,
+          "height": 55,
+          "source": "01-home",
+          "confidence": 0.78
+        }
+      },
+      {
+        "id": "start-game-button",
+        "type": "control",
+        "component": "button",
+        "bbox": {
+          "x": 38,
+          "y": 177,
+          "width": 314,
+          "height": 82,
+          "source": "01-home",
+          "confidence": 0.86
+        }
+      },
+      {
+        "id": "random-pill",
+        "type": "control",
+        "component": "button",
+        "bbox": {
+          "x": 130,
+          "y": 276,
+          "width": 130,
+          "height": 35,
+          "source": "01-home",
+          "confidence": 0.78
+        }
+      },
+      {
+        "id": "rules-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 24,
+          "y": 326,
+          "width": 342,
+          "height": 249,
+          "source": "01-home",
+          "confidence": 0.83
+        }
+      },
+      {
+        "id": "recent-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 24,
+          "y": 590,
+          "width": 342,
+          "height": 166,
+          "source": "01-home",
+          "confidence": 0.83
+        }
+      },
+      {
+        "id": "privacy-link",
+        "type": "control",
+        "component": "link",
+        "bbox": {
+          "x": 142,
+          "y": 784,
+          "width": 117,
+          "height": 26,
+          "source": "01-home",
+          "confidence": 0.7
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "rules-steps",
+        "type": "list",
+        "children": [
+          "step-input",
+          "step-score",
+          "step-hit"
+        ],
+        "gapYApproxPx": 0,
+        "alignment": "stretch",
+        "source": "01-home",
+        "confidence": 0.78
+      },
+      {
+        "id": "recent-results",
+        "type": "list",
+        "children": [
+          "recent-success",
+          "recent-give-up",
+          "recent-expired"
+        ],
+        "gapYApproxPx": 0,
+        "alignment": "stretch",
+        "source": "01-home",
+        "confidence": 0.78
+      }
+    ],
+    "relations": [
+      {
+        "type": "below",
+        "from": "start-game-button",
+        "to": "home-hero-title",
+        "approxGapPx": 48,
+        "confidence": 0.74
+      },
+      {
+        "type": "below",
+        "from": "rules-card",
+        "to": "random-pill",
+        "approxGapPx": 15,
+        "confidence": 0.72
+      }
+    ],
+    "constraints": [
+      "主按钮是首页最高视觉层级；玩法说明和最近成绩为等宽卡片。"
+    ]
+  },
+  "content": {
+    "texts": [
+      "猜不到的词",
+      "AI 只返回百分比，你来推理答案",
+      "开始一局",
+      "随机局",
+      "玩法说明",
+      "输入一个词",
+      "只看接近百分比",
+      "100% 即猜中",
+      "最近成绩",
+      "隐私说明"
+    ],
+    "images": [],
+    "icons": [
+      "zap",
+      "shuffle",
+      "book-open",
+      "edit",
+      "bar-chart",
+      "target",
+      "trophy",
+      "shield"
+    ]
+  },
+  "visual": {
+    "colors": [
+      {
+        "token": "warmWhite",
+        "value": "#FFF8EA",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "mint",
+        "value": "#B8F3D4",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "primaryTeal",
+        "value": "#1B9AAA",
+        "source": "design-dna",
+        "confidence": 0.98
+      },
+      {
+        "token": "dangerCoral",
+        "value": "#FF7A6B",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "sunYellow",
+        "value": "#FFD166",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "ink",
+        "value": "#243447",
+        "source": "design-dna",
+        "confidence": 0.98
+      }
+    ],
+    "typography": [
+      {
+        "role": "heroTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          42,
+          54
+        ],
+        "source": "design-dna",
+        "confidence": 0.84
+      },
+      {
+        "role": "sectionTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          18,
+          24
+        ],
+        "source": "design-dna",
+        "confidence": 0.8
+      },
+      {
+        "role": "body",
+        "fontWeight": 400,
+        "sizeRangePx": [
+          13,
+          16
+        ],
+        "source": "design-dna",
+        "confidence": 0.78
+      }
+    ],
+    "spacing": [
+      {
+        "token": "pageGutter",
+        "valuePx": 20,
+        "source": "01-home",
+        "confidence": 0.76
+      },
+      {
+        "token": "cardGap",
+        "valuePx": 14,
+        "source": "01-home",
+        "confidence": 0.72
+      }
+    ],
+    "radius": [
+      {
+        "token": "cardRadius",
+        "valuePx": 20,
+        "source": "design-dna",
+        "confidence": 0.86
+      },
+      {
+        "token": "pillRadius",
+        "valuePx": 999,
+        "source": "design-dna",
+        "confidence": 0.86
+      }
+    ],
+    "shadows": [
+      {
+        "token": "cardShadow",
+        "value": "0 8px 24px rgba(36,52,71,0.10)",
+        "source": "normalized pages",
+        "confidence": 0.68
+      }
+    ]
+  },
+  "states": {
+    "loading": [],
+    "empty": [],
+    "error": [],
+    "interactive": []
+  },
+  "data": {
+    "mockData": [],
+    "apiNeeds": [],
+    "bindings": []
+  },
+  "responsive": {
+    "breakpoints": [
+      {
+        "name": "mobile-base",
+        "widthPx": 390,
+        "source": "01-home",
+        "confidence": 0.95
+      }
+    ],
+    "rules": [
+      "390px 视口为视觉基准；窄屏保持 20-24px 页面边距，主卡片宽度使用 calc(100% - 40px)。"
+    ]
+  },
+  "implementationHints": [
+    "主体布局使用普通文档流、flex 或 grid，不要用绝对定位复刻整页。",
+    "关键节点需添加 validation.visualQa.requiredNodes 中声明的 data-ui-id。",
+    "业务数据先按 README 样例做静态 fixture，后续接 API 时替换绑定。"
+  ],
+  "validation": {
+    "visualQa": {
+      "referenceImage": "../../normalized/01-home/01-home.normalized.png",
+      "targetUrl": "http://localhost:8788/",
+      "allowNoReference": false,
+      "allowNoNormalization": false,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 1
+      },
+      "thresholds": {
+        "bboxTolerancePx": 8,
+        "relationTolerancePx": 6,
+        "colorDeltaMax": 12,
+        "regionDiffMax": 0.08,
+        "pageDiffMax": 0.06,
+        "pageDiffPixelsMax": 20000
+      },
+      "requiredNodes": [
+        {
+          "id": "home-hero-title",
+          "selector": "[data-ui-id='home-hero-title']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "猜不到的词",
+          "expectedStyle": {
+            "color": "#243447",
+            "fontWeight": "700"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "start-game-button",
+          "selector": "[data-ui-id='start-game-button']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style",
+            "region-diff"
+          ],
+          "expectedText": "开始一局",
+          "expectedStyle": {
+            "backgroundColor": "#1B9AAA",
+            "borderRadius": "40px"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "rules-card",
+          "selector": "[data-ui-id='rules-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "玩法说明",
+          "expectedStyle": {
+            "borderRadius": "20px"
+          },
+          "priority": "medium"
+        },
+        {
+          "id": "recent-card",
+          "selector": "[data-ui-id='recent-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "最近成绩",
+          "priority": "medium"
+        },
+        {
+          "id": "privacy-link",
+          "selector": "[data-ui-id='privacy-link']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox"
+          ],
+          "expectedText": "隐私说明",
+          "priority": "medium"
+        }
+      ],
+      "masks": [
+        {
+          "id": "decorative-background",
+          "reason": "背景点阵和星形装饰不影响核心布局。"
+        }
+      ]
+    }
+  },
+  "unknowns": []
+}

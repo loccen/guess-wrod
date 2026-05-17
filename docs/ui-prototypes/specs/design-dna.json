@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "images": [
+      "../normalized/08-design-spec-board/08-design-spec-board.normalized.png",
+      "../normalized/09-module-assets-board/09-module-assets-board.normalized.png"
+    ],
+    "rawImages": [
+      "../images/08-design-spec-board.png",
+      "../images/09-module-assets-board.png"
+    ],
+    "normalization": [
+      "../normalized/08-design-spec-board/prototype-normalization.json",
+      "../normalized/09-module-assets-board/prototype-normalization.json"
+    ],
+    "analysisAt": "2026-05-17T00:00:00.000+08:00",
+    "notes": "设计 DNA 来自 confirmed normalized design board 和 module assets board；视觉验收 reference 不使用 raw image。"
+  },
+  "product": {
+    "name": "猜不到的词",
+    "platform": "mobile-web",
+    "tone": "浅色、圆润、休闲益智、轻量游戏感",
+    "language": "zh-CN"
+  },
+  "colors": [
+    { "token": "warmWhite", "value": "#FFF8EA", "usage": "页面背景、卡片暖白层", "source": "08-design-spec-board", "confidence": 0.96 },
+    { "token": "mint", "value": "#B8F3D4", "usage": "背景渐变、浅色徽标底", "source": "08-design-spec-board", "confidence": 0.96 },
+    { "token": "primaryTeal", "value": "#1B9AAA", "usage": "主按钮、进度、图标、强调数字", "source": "08-design-spec-board", "confidence": 0.98 },
+    { "token": "dangerCoral", "value": "#FF7A6B", "usage": "放弃、过期、高风险提示、100% 强调", "source": "08-design-spec-board", "confidence": 0.96 },
+    { "token": "sunYellow", "value": "#FFD166", "usage": "提示态、星形装饰、时间徽标", "source": "08-design-spec-board", "confidence": 0.96 },
+    { "token": "ink", "value": "#243447", "usage": "标题、正文主文本", "source": "08-design-spec-board", "confidence": 0.98 },
+    { "token": "card", "value": "#FFFFFF", "usage": "主卡片、弹层、列表行", "source": "normalized pages", "confidence": 0.84 },
+    { "token": "line", "value": "#E8E0D2", "usage": "边框、分隔线、输入框", "source": "normalized pages", "confidence": 0.76 }
+  ],
+  "typography": [
+    { "role": "heroTitle", "fontFamilyIntent": "圆润黑体", "fontWeight": 700, "sizeRangePx": [42, 54], "lineHeightApprox": 1.08, "color": "#243447", "source": "08-design-spec-board", "confidence": 0.84 },
+    { "role": "sectionTitle", "fontFamilyIntent": "圆润黑体", "fontWeight": 700, "sizeRangePx": [18, 24], "lineHeightApprox": 1.25, "color": "#243447", "source": "normalized pages", "confidence": 0.8 },
+    { "role": "body", "fontFamilyIntent": "清晰无衬线", "fontWeight": 400, "sizeRangePx": [13, 16], "lineHeightApprox": 1.45, "color": "#243447", "source": "08-design-spec-board", "confidence": 0.78 },
+    { "role": "metricNumber", "fontFamilyIntent": "圆润黑体", "fontWeight": 700, "sizeRangePx": [28, 64], "lineHeightApprox": 1.05, "color": "#1B9AAA", "source": "normalized pages", "confidence": 0.82 }
+  ],
+  "layoutRules": [
+    { "id": "mobile-frame", "rule": "目标视口 390x844，主体内容宽度约 342-348px，水平居中。", "source": "normalized pages", "confidence": 0.9 },
+    { "id": "background", "rule": "全页使用暖白到薄荷渐变，角落允许点阵、圆环、星形小装饰，但不遮挡内容。", "source": "normalized pages", "confidence": 0.86 },
+    { "id": "cards", "rule": "主卡片使用白色或暖白底，20-28px 圆角，浅阴影；列表行在卡片内用浅分隔线区分。", "source": "08-design-spec-board", "confidence": 0.9 },
+    { "id": "primary-action", "rule": "主按钮高度 56-64px，胶囊形，青绿色渐变，白色粗体文字，允许左侧线性图标。", "source": "08-design-spec-board", "confidence": 0.92 },
+    { "id": "secondary-danger", "rule": "危险或结束操作使用白底、珊瑚描边与珊瑚文字，不与主按钮同等视觉重量。", "source": "08-design-spec-board", "confidence": 0.88 },
+    { "id": "status-pills", "rule": "状态徽标高度 28-34px，圆角胶囊，图标在左，文本居中。", "source": "08-design-spec-board", "confidence": 0.84 }
+  ],
+  "components": [
+    { "id": "app-title", "name": "顶部标题", "expectedDataUiId": "app-title", "notes": "页面标题使用深墨色，装饰图形靠近标题左右。", "source": "09-module-assets-board", "confidence": 0.82 },
+    { "id": "score-ring", "name": "百分比分数环", "expectedDataUiId": "score-ring", "notes": "环形进度青绿色，背景浅薄荷，中间显示百分比。", "source": "08-design-spec-board", "confidence": 0.9 },
+    { "id": "guess-row", "name": "猜词历史行", "expectedDataUiId": "guess-row-*", "notes": "左侧序号胶囊，中间词和百分比，右侧关系标签和反馈入口。", "source": "09-module-assets-board", "confidence": 0.88 },
+    { "id": "feedback-sheet", "name": "评分反馈底部弹层", "expectedDataUiId": "feedback-sheet", "notes": "背景变暗，底部白色圆角弹层；选项需包含选中态。", "source": "08-design-spec-board", "confidence": 0.86 },
+    { "id": "result-stat-card", "name": "结果统计卡", "expectedDataUiId": "result-stat-card-*", "notes": "图标、短标签、大号数值垂直排列。", "source": "09-module-assets-board", "confidence": 0.84 }
+  ],
+  "iconStyle": {
+    "strokeWidthPx": 2,
+    "lineCap": "round",
+    "style": "线性图标",
+    "recommendedLibrary": "lucide 或等价线性 SVG",
+    "source": "08-design-spec-board",
+    "confidence": 0.86
+  },
+  "dataRules": [
+    "答案结束前不可见。",
+    "前端只展示百分比，不展示 AI reason。",
+    "重复、非法、敏感、超时、限流和系统错误不计入有效次数。",
+    "最多 100 次有效猜词，24 小时内完成。"
+  ],
+  "unknowns": [
+    "原型图未提供真实字体文件名，前端实现需选择系统圆润黑体或项目可用字体近似。",
+    "装饰图形的位置可接受小幅差异，建议在 visual QA 中对背景装饰设低优先级或 mask。"
+  ]
+}

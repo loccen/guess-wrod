@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0",
+  "mode": "single",
+  "rawImage": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-spec/docs/ui-prototypes/images/08-design-spec-board.png",
+  "normalizedImage": "08-design-spec-board.normalized.png",
+  "cropPreview": "08-design-spec-board.normalized.crop-preview.png",
+  "kind": "design-canvas",
+  "confirmed": true,
+  "crop": {
+    "x": 0,
+    "y": 0,
+    "width": 853,
+    "height": 1844
+  },
+  "sourceImageSize": {
+    "width": 853,
+    "height": 1844
+  },
+  "normalizedImageSize": {
+    "width": 853,
+    "height": 1844
+  },
+  "attempts": [
+    {
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 853,
+        "height": 1844
+      },
+      "result": "accepted",
+      "reason": "full image accepted for prototype specification",
+      "createdAt": "2026-05-17T15:28:39.016Z"
+    }
+  ]
+}

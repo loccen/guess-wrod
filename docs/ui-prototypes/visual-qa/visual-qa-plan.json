@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "1.0",
+  "runner": "/Users/loccen/.codex/skills/image2code-skill/scripts/visual-qa-runner.mjs",
+  "specFile": "../specs/pages/*.ui-spec.json",
+  "status": "planned",
+  "reasonNotRun": "当前任务不实现前端页面代码，仓库内尚无可打开的目标页面；因此只提供后续 runner 配置建议。",
+  "baseViewport": {
+    "width": 390,
+    "height": 844,
+    "deviceScaleFactor": 1
+  },
+  "targetBaseUrl": "http://localhost:8788",
+  "thresholds": {
+    "bboxTolerancePx": 8,
+    "relationTolerancePx": 6,
+    "colorDeltaMax": 12,
+    "regionDiffMax": 0.08,
+    "pageDiffMax": 0.06,
+    "pageDiffPixelsMax": 20000
+  },
+  "pages": [
+    {
+      "id": "00-session-restore",
+      "targetUrl": "http://localhost:8788/session",
+      "referenceImage": "../normalized/00-session-restore/00-session-restore.normalized.png",
+      "normalization": "../normalized/00-session-restore/prototype-normalization.json"
+    },
+    {
+      "id": "01-home",
+      "targetUrl": "http://localhost:8788/",
+      "referenceImage": "../normalized/01-home/01-home.normalized.png",
+      "normalization": "../normalized/01-home/prototype-normalization.json"
+    },
+    {
+      "id": "02-game-playing",
+      "targetUrl": "http://localhost:8788/games/demo-playing",
+      "referenceImage": "../normalized/02-game-playing/02-game-playing.normalized.png",
+      "normalization": "../normalized/02-game-playing/prototype-normalization.json"
+    },
+    {
+      "id": "03-score-feedback",
+      "targetUrl": "http://localhost:8788/games/demo-playing?feedback=1",
+      "referenceImage": "../normalized/03-score-feedback/03-score-feedback.normalized.png",
+      "normalization": "../normalized/03-score-feedback/prototype-normalization.json"
+    },
+    {
+      "id": "04-result-success",
+      "targetUrl": "http://localhost:8788/games/demo/result/success",
+      "referenceImage": "../normalized/04-result-success/04-result-success.normalized.png",
+      "normalization": "../normalized/04-result-success/prototype-normalization.json"
+    },
+    {
+      "id": "05-result-give-up",
+      "targetUrl": "http://localhost:8788/games/demo/result/give-up",
+      "referenceImage": "../normalized/05-result-give-up/05-result-give-up.normalized.png",
+      "normalization": "../normalized/05-result-give-up/prototype-normalization.json"
+    },
+    {
+      "id": "06-result-expired",
+      "targetUrl": "http://localhost:8788/games/demo/result/expired",
+      "referenceImage": "../normalized/06-result-expired/06-result-expired.normalized.png",
+      "normalization": "../normalized/06-result-expired/prototype-normalization.json"
+    },
+    {
+      "id": "07-rules-privacy",
+      "targetUrl": "http://localhost:8788/rules",
+      "referenceImage": "../normalized/07-rules-privacy/07-rules-privacy.normalized.png",
+      "normalization": "../normalized/07-rules-privacy/prototype-normalization.json"
+    }
+  ],
+  "requiredNodePolicy": {
+    "selector": "优先使用 [data-ui-id='...']。",
+    "highAndMediumChecks": "high 和 medium 节点必须至少包含 text、bbox、style 或 region-diff 之一，不能只有 visible。",
+    "coverage": "每页至少覆盖标题、主卡片、主按钮、关键状态或列表区域。"
+  },
+  "maskSuggestions": [
+    {
+      "id": "decorative-background",
+      "reason": "点阵、圆环、星星和纸屑装饰不应主导验收结果。",
+      "bbox": null
+    },
+    {
+      "id": "dynamic-timing",
+      "reason": "剩余时间、AI 评分约几秒等运行时文本可变。",
+      "bbox": null
+    },
+    {
+      "id": "loading-orbit",
+      "reason": "启动页加载动效可能用 CSS 动画实现，需单独检查尺寸与中心位置。",
+      "bbox": null
+    },
+    {
+      "id": "underlay-page-dimmed",
+      "reason": "评分反馈弹层的底层页面已由游戏页独立验收，弹层验收聚焦遮罩和 sheet。",
+      "bbox": null
+    }
+  ],
+  "recommendedCommands": [
+    "for spec in docs/ui-prototypes/specs/pages/*.ui-spec.json; do node /Users/loccen/.codex/skills/image2code-skill/scripts/visual-qa-runner.mjs --spec \"$spec\" --out \"docs/ui-prototypes/visual-qa/report/$(basename \"$spec\" .ui-spec.json)\"; done",
+    "每个单页 ui-spec.json 都包含 confirmed normalization、normalized reference、targetUrl、viewport、requiredNodes、thresholds 和 masks。"
+  ],
+  "notCoveredYet": [
+    "尚未验证任何真实 DOM selector，因为本任务不生成前端页面。",
+    "尚未生成 visual-qa-report.json，因为没有运行中的目标页面。",
+    "未检查真实字体渲染与图标库差异，需要前端实现后执行 runner。"
+  ]
+}

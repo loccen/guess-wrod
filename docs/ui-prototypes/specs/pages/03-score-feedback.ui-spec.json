@@ -1,0 +1,426 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "images": [
+      "../../normalized/03-score-feedback/03-score-feedback.normalized.png"
+    ],
+    "rawImages": [
+      "../../images/03-score-feedback.png"
+    ],
+    "normalization": "../../normalized/03-score-feedback/prototype-normalization.json",
+    "analysisAt": "2026-05-17T00:00:00.000+08:00",
+    "notes": "评分反馈弹层叠加在游戏页上，reference 已包含遮罩后的整页状态。"
+  },
+  "target": {
+    "platform": "mobile-web",
+    "framework": "unknown",
+    "implementationMode": "static"
+  },
+  "page": {
+    "name": "评分反馈弹层",
+    "route": "/games/:gameId?feedback=guessId",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "device": "mobile"
+    }
+  },
+  "layout": {
+    "coordinateSystem": {
+      "unit": "px",
+      "origin": "top-left",
+      "precision": "estimated"
+    },
+    "nodes": [
+      {
+        "id": "feedback-backdrop",
+        "type": "overlay",
+        "component": "backdrop",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "source": "03-score-feedback",
+          "confidence": 0.86
+        }
+      },
+      {
+        "id": "feedback-sheet",
+        "type": "overlay",
+        "component": "bottomSheet",
+        "bbox": {
+          "x": 0,
+          "y": 424,
+          "width": 390,
+          "height": 420,
+          "source": "03-score-feedback",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "feedback-title",
+        "type": "text",
+        "component": "heading",
+        "bbox": {
+          "x": 72,
+          "y": 466,
+          "width": 218,
+          "height": 28,
+          "source": "03-score-feedback",
+          "confidence": 0.76
+        }
+      },
+      {
+        "id": "feedback-summary",
+        "type": "region",
+        "component": "summaryCard",
+        "bbox": {
+          "x": 22,
+          "y": 524,
+          "width": 346,
+          "height": 65,
+          "source": "03-score-feedback",
+          "confidence": 0.78
+        }
+      },
+      {
+        "id": "feedback-options",
+        "type": "region",
+        "component": "segmentedOptions",
+        "bbox": {
+          "x": 21,
+          "y": 605,
+          "width": 346,
+          "height": 55,
+          "source": "03-score-feedback",
+          "confidence": 0.8
+        }
+      },
+      {
+        "id": "feedback-note",
+        "type": "control",
+        "component": "textarea",
+        "bbox": {
+          "x": 21,
+          "y": 669,
+          "width": 346,
+          "height": 88,
+          "source": "03-score-feedback",
+          "confidence": 0.8
+        }
+      },
+      {
+        "id": "feedback-submit",
+        "type": "control",
+        "component": "button",
+        "bbox": {
+          "x": 178,
+          "y": 769,
+          "width": 187,
+          "height": 48,
+          "source": "03-score-feedback",
+          "confidence": 0.82
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "feedback-option-row",
+        "type": "horizontal-stack",
+        "children": [
+          "option-high",
+          "option-low",
+          "option-relation"
+        ],
+        "gapXApproxPx": 9,
+        "alignment": "stretch",
+        "source": "03-score-feedback",
+        "confidence": 0.78
+      },
+      {
+        "id": "feedback-action-row",
+        "type": "horizontal-stack",
+        "children": [
+          "feedback-cancel",
+          "feedback-submit"
+        ],
+        "gapXApproxPx": 17,
+        "alignment": "stretch",
+        "source": "03-score-feedback",
+        "confidence": 0.78
+      }
+    ],
+    "relations": [
+      {
+        "type": "above",
+        "from": "feedback-sheet",
+        "to": "viewport-bottom",
+        "approxGapPx": 0,
+        "confidence": 0.8
+      }
+    ],
+    "constraints": [
+      "底部弹层贴底，顶部圆角；背景页面必须有半透明暗色遮罩。"
+    ]
+  },
+  "content": {
+    "texts": [
+      "这个分数不合理吗？",
+      "我们会用反馈改进评分",
+      "你猜的词",
+      "当前分数",
+      "词与答案的关系",
+      "平板",
+      "76%",
+      "同类",
+      "分数偏高",
+      "分数偏低",
+      "关系不对",
+      "补充说明（可选，最多100字）",
+      "取消",
+      "提交反馈"
+    ],
+    "images": [],
+    "icons": [
+      "chat",
+      "arrow-up",
+      "arrow-down",
+      "x",
+      "shield"
+    ]
+  },
+  "visual": {
+    "colors": [
+      {
+        "token": "warmWhite",
+        "value": "#FFF8EA",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "mint",
+        "value": "#B8F3D4",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "primaryTeal",
+        "value": "#1B9AAA",
+        "source": "design-dna",
+        "confidence": 0.98
+      },
+      {
+        "token": "dangerCoral",
+        "value": "#FF7A6B",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "sunYellow",
+        "value": "#FFD166",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "ink",
+        "value": "#243447",
+        "source": "design-dna",
+        "confidence": 0.98
+      }
+    ],
+    "typography": [
+      {
+        "role": "heroTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          42,
+          54
+        ],
+        "source": "design-dna",
+        "confidence": 0.84
+      },
+      {
+        "role": "sectionTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          18,
+          24
+        ],
+        "source": "design-dna",
+        "confidence": 0.8
+      },
+      {
+        "role": "body",
+        "fontWeight": 400,
+        "sizeRangePx": [
+          13,
+          16
+        ],
+        "source": "design-dna",
+        "confidence": 0.78
+      }
+    ],
+    "spacing": [
+      {
+        "token": "pageGutter",
+        "valuePx": 20,
+        "source": "03-score-feedback",
+        "confidence": 0.76
+      },
+      {
+        "token": "cardGap",
+        "valuePx": 14,
+        "source": "03-score-feedback",
+        "confidence": 0.72
+      }
+    ],
+    "radius": [
+      {
+        "token": "cardRadius",
+        "valuePx": 20,
+        "source": "design-dna",
+        "confidence": 0.86
+      },
+      {
+        "token": "pillRadius",
+        "valuePx": 999,
+        "source": "design-dna",
+        "confidence": 0.86
+      }
+    ],
+    "shadows": [
+      {
+        "token": "cardShadow",
+        "value": "0 8px 24px rgba(36,52,71,0.10)",
+        "source": "normalized pages",
+        "confidence": 0.68
+      }
+    ]
+  },
+  "states": {
+    "loading": [],
+    "empty": [],
+    "error": [],
+    "interactive": []
+  },
+  "data": {
+    "mockData": [],
+    "apiNeeds": [],
+    "bindings": []
+  },
+  "responsive": {
+    "breakpoints": [
+      {
+        "name": "mobile-base",
+        "widthPx": 390,
+        "source": "03-score-feedback",
+        "confidence": 0.95
+      }
+    ],
+    "rules": [
+      "390px 视口为视觉基准；窄屏保持 20-24px 页面边距，主卡片宽度使用 calc(100% - 40px)。"
+    ]
+  },
+  "implementationHints": [
+    "主体布局使用普通文档流、flex 或 grid，不要用绝对定位复刻整页。",
+    "关键节点需添加 validation.visualQa.requiredNodes 中声明的 data-ui-id。",
+    "业务数据先按 README 样例做静态 fixture，后续接 API 时替换绑定。"
+  ],
+  "validation": {
+    "visualQa": {
+      "referenceImage": "../../normalized/03-score-feedback/03-score-feedback.normalized.png",
+      "targetUrl": "http://localhost:8788/games/demo-playing?feedback=1",
+      "allowNoReference": false,
+      "allowNoNormalization": false,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 1
+      },
+      "thresholds": {
+        "bboxTolerancePx": 8,
+        "relationTolerancePx": 6,
+        "colorDeltaMax": 12,
+        "regionDiffMax": 0.08,
+        "pageDiffMax": 0.06,
+        "pageDiffPixelsMax": 20000
+      },
+      "requiredNodes": [
+        {
+          "id": "feedback-backdrop",
+          "selector": "[data-ui-id='feedback-backdrop']",
+          "checks": [
+            "visible",
+            "bbox",
+            "style"
+          ],
+          "expectedStyle": {
+            "backgroundColor": "rgba(36,52,71,0.65)"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "feedback-sheet",
+          "selector": "[data-ui-id='feedback-sheet']",
+          "checks": [
+            "visible",
+            "bbox",
+            "style",
+            "region-diff"
+          ],
+          "expectedStyle": {
+            "backgroundColor": "#FFFFFF",
+            "borderRadius": "24px 24px 0 0"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "feedback-title",
+          "selector": "[data-ui-id='feedback-title']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox"
+          ],
+          "expectedText": "这个分数不合理吗？",
+          "priority": "high"
+        },
+        {
+          "id": "feedback-options",
+          "selector": "[data-ui-id='feedback-options']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "region-diff"
+          ],
+          "expectedText": "分数偏高",
+          "priority": "medium"
+        },
+        {
+          "id": "feedback-submit",
+          "selector": "[data-ui-id='feedback-submit']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "提交反馈",
+          "expectedStyle": {
+            "backgroundColor": "#1B9AAA"
+          },
+          "priority": "high"
+        }
+      ],
+      "masks": [
+        {
+          "id": "underlay-page-dimmed",
+          "reason": "底层游戏页可按独立游戏页规格验收，弹层规格重点检查遮罩和 sheet。"
+        }
+      ]
+    }
+  },
+  "unknowns": []
+}
