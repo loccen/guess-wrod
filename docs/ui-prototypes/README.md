@@ -17,6 +17,23 @@
 | `images/08-design-spec-board.png` | 设计规范图 | 字体、图标、组件、色彩、数据内容规范和样例 |
 | `images/09-module-assets-board.png` | 模块素材清单图 | 页面模块、核心组件、图标素材、数据样例、交互状态 |
 
+## Image2Code 规格产物
+
+本目录已按 `image2code-skill` 流程补充后续前端实现可直接使用的规格：
+
+| 路径 | 说明 |
+| --- | --- |
+| `normalized/<id>/<id>.normalized.png` | 由 normalizer 生成的 confirmed PNG，后续视觉验收必须使用这些图片作为 reference |
+| `normalized/<id>/<id>.normalized.crop-preview.png` | 对应裁剪预览；本批输入均按 `--crop full` 处理 |
+| `normalized/<id>/prototype-normalization.json` | 每张输入图的 confirmed normalization metadata |
+| `normalized/prototype-normalization.json` | 汇总索引，便于查找每张图的 normalized 文件与 metadata |
+| `specs/design-dna.json` | 从设计规范图和模块素材清单提取的设计 DNA |
+| `specs/page-specs.json` | 8 个关键页面的结构化规格索引、关键节点和 visual QA 建议 |
+| `specs/pages/*.ui-spec.json` | 每个关键页面可单独交给 visual QA runner 的完整规格 |
+| `visual-qa/visual-qa-plan.json` | 后续实现后的视觉验收运行建议 |
+
+注意：`08-design-spec-board` 和 `09-module-assets-board` 是设计/素材看板，不作为页面还原目标 URL 的 reference；它们只进入 `design-dna.json`。8 张业务页面的 visual QA reference 均指向 `normalized/` 下的 confirmed PNG。
+
 ## 页面功能与交互
 
 1. 启动 / 恢复会话：进入 H5 后创建或恢复匿名会话；若 `GET /api/session` 返回 `active_game_id`，进入游戏页；无进行中游戏则进入首页。

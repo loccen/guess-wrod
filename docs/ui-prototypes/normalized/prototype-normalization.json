@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "1.0",
+  "mode": "manifest",
+  "confirmed": true,
+  "createdFrom": "image2code-skill/scripts/prototype-normalizer.mjs",
+  "notes": "每个输入图已用 --crop full 生成独立 confirmed normalization；页面规格应引用对应子目录内的 prototype-normalization.json。",
+  "items": [
+    {
+      "id": "00-session-restore",
+      "kind": "pure-page",
+      "normalization": "00-session-restore/prototype-normalization.json",
+      "normalizedImage": "00-session-restore/00-session-restore.normalized.png",
+      "cropPreview": "00-session-restore/00-session-restore.normalized.crop-preview.png",
+      "viewport": { "width": 390, "height": 844, "device": "mobile" }
+    },
+    {
+      "id": "01-home",
+      "kind": "pure-page",
+      "normalization": "01-home/prototype-normalization.json",
+      "normalizedImage": "01-home/01-home.normalized.png",
+      "cropPreview": "01-home/01-home.normalized.crop-preview.png",
+      "viewport": { "width": 390, "height": 844, "device": "mobile" }
+    },
+    {
+      "id": "02-game-playing",
+      "kind": "pure-page",
+      "normalization": "02-game-playing/prototype-normalization.json",
+      "normalizedImage": "02-game-playing/02-game-playing.normalized.png",
+      "cropPreview": "02-game-playing/02-game-playing.normalized.crop-preview.png",
+      "viewport": { "width": 390, "height": 844, "device": "mobile" }
+    },
+    {
+      "id": "03-score-feedback",
+      "kind": "pure-page",
+      "normalization": "03-score-feedback/prototype-normalization.json",
+      "normalizedImage": "03-score-feedback/03-score-feedback.normalized.png",
+      "cropPreview": "03-score-feedback/03-score-feedback.normalized.crop-preview.png",
+      "viewport": { "width": 390, "height": 844, "device": "mobile" }
+    },
+    {
+      "id": "04-result-success",
+      "kind": "pure-page",
+      "normalization": "04-result-success/prototype-normalization.json",
+      "normalizedImage": "04-result-success/04-result-success.normalized.png",
+      "cropPreview": "04-result-success/04-result-success.normalized.crop-preview.png",
+      "viewport": { "width": 390, "height": 844, "device": "mobile" }
+    },
+    {
+      "id": "05-result-give-up",
+      "kind": "pure-page",
+      "normalization": "05-result-give-up/prototype-normalization.json",
+      "normalizedImage": "05-result-give-up/05-result-give-up.normalized.png",
+      "cropPreview": "05-result-give-up/05-result-give-up.normalized.crop-preview.png",
+      "viewport": { "width": 390, "height": 844, "device": "mobile" }
+    },
+    {
+      "id": "06-result-expired",
+      "kind": "pure-page",
+      "normalization": "06-result-expired/prototype-normalization.json",
+      "normalizedImage": "06-result-expired/06-result-expired.normalized.png",
+      "cropPreview": "06-result-expired/06-result-expired.normalized.crop-preview.png",
+      "viewport": { "width": 390, "height": 844, "device": "mobile" }
+    },
+    {
+      "id": "07-rules-privacy",
+      "kind": "pure-page",
+      "normalization": "07-rules-privacy/prototype-normalization.json",
+      "normalizedImage": "07-rules-privacy/07-rules-privacy.normalized.png",
+      "cropPreview": "07-rules-privacy/07-rules-privacy.normalized.crop-preview.png",
+      "viewport": { "width": 390, "height": 844, "device": "mobile" }
+    },
+    {
+      "id": "08-design-spec-board",
+      "kind": "design-canvas",
+      "normalization": "08-design-spec-board/prototype-normalization.json",
+      "normalizedImage": "08-design-spec-board/08-design-spec-board.normalized.png",
+      "cropPreview": "08-design-spec-board/08-design-spec-board.normalized.crop-preview.png",
+      "viewport": { "width": 853, "height": 1844, "device": "reference-board" }
+    },
+    {
+      "id": "09-module-assets-board",
+      "kind": "design-canvas",
+      "normalization": "09-module-assets-board/prototype-normalization.json",
+      "normalizedImage": "09-module-assets-board/09-module-assets-board.normalized.png",
+      "cropPreview": "09-module-assets-board/09-module-assets-board.normalized.crop-preview.png",
+      "viewport": { "width": 864, "height": 1821, "device": "reference-board" }
+    }
+  ]
+}

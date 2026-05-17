@@ -1,0 +1,406 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "images": [
+      "../../normalized/06-result-expired/06-result-expired.normalized.png"
+    ],
+    "rawImages": [
+      "../../images/06-result-expired.png"
+    ],
+    "normalization": "../../normalized/06-result-expired/prototype-normalization.json",
+    "analysisAt": "2026-05-17T00:00:00.000+08:00",
+    "notes": "过期结果页。"
+  },
+  "target": {
+    "platform": "mobile-web",
+    "framework": "unknown",
+    "implementationMode": "static"
+  },
+  "page": {
+    "name": "过期结果",
+    "route": "/games/:gameId/result/expired",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "device": "mobile"
+    }
+  },
+  "layout": {
+    "coordinateSystem": {
+      "unit": "px",
+      "origin": "top-left",
+      "precision": "estimated"
+    },
+    "nodes": [
+      {
+        "id": "result-heading",
+        "type": "text",
+        "component": "heading",
+        "bbox": {
+          "x": 93,
+          "y": 99,
+          "width": 204,
+          "height": 49,
+          "source": "06-result-expired",
+          "confidence": 0.76
+        }
+      },
+      {
+        "id": "answer-card",
+        "type": "region",
+        "component": "answerCard",
+        "bbox": {
+          "x": 24,
+          "y": 177,
+          "width": 342,
+          "height": 171,
+          "source": "06-result-expired",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "expired-reason-card",
+        "type": "region",
+        "component": "noticeCard",
+        "bbox": {
+          "x": 24,
+          "y": 364,
+          "width": 342,
+          "height": 112,
+          "source": "06-result-expired",
+          "confidence": 0.82
+        }
+      },
+      {
+        "id": "stats-row",
+        "type": "region",
+        "component": "statCards",
+        "bbox": {
+          "x": 24,
+          "y": 495,
+          "width": 342,
+          "height": 102,
+          "source": "06-result-expired",
+          "confidence": 0.8
+        }
+      },
+      {
+        "id": "best-path-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 24,
+          "y": 608,
+          "width": 342,
+          "height": 137,
+          "source": "06-result-expired",
+          "confidence": 0.82
+        }
+      },
+      {
+        "id": "play-again-button",
+        "type": "control",
+        "component": "button",
+        "bbox": {
+          "x": 61,
+          "y": 766,
+          "width": 268,
+          "height": 51,
+          "source": "06-result-expired",
+          "confidence": 0.82
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "best-path-list",
+        "type": "list",
+        "children": [
+          "best-path-1",
+          "best-path-2",
+          "best-path-3"
+        ],
+        "gapYApproxPx": 0,
+        "alignment": "stretch",
+        "source": "06-result-expired",
+        "confidence": 0.78
+      }
+    ],
+    "relations": [
+      {
+        "type": "below",
+        "from": "expired-reason-card",
+        "to": "answer-card",
+        "approxGapPx": 16,
+        "confidence": 0.78
+      }
+    ],
+    "constraints": [
+      "过期原因卡为独立视觉模块，需高于统计卡显示。"
+    ]
+  },
+  "content": {
+    "texts": [
+      "本局已过期",
+      "答案已揭晓",
+      "答案",
+      "手机",
+      "过期原因",
+      "达到 100 次有效猜词",
+      "或超过 24 小时未完成",
+      "有效猜词",
+      "100次",
+      "最高分",
+      "92%",
+      "状态",
+      "过期",
+      "最高分路径",
+      "电话",
+      "平板",
+      "充电器",
+      "再来一局",
+      "返回首页"
+    ],
+    "images": [],
+    "icons": [
+      "clock",
+      "phone",
+      "calendar",
+      "target",
+      "trophy",
+      "flag",
+      "refresh",
+      "home"
+    ]
+  },
+  "visual": {
+    "colors": [
+      {
+        "token": "warmWhite",
+        "value": "#FFF8EA",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "mint",
+        "value": "#B8F3D4",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "primaryTeal",
+        "value": "#1B9AAA",
+        "source": "design-dna",
+        "confidence": 0.98
+      },
+      {
+        "token": "dangerCoral",
+        "value": "#FF7A6B",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "sunYellow",
+        "value": "#FFD166",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "ink",
+        "value": "#243447",
+        "source": "design-dna",
+        "confidence": 0.98
+      }
+    ],
+    "typography": [
+      {
+        "role": "heroTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          42,
+          54
+        ],
+        "source": "design-dna",
+        "confidence": 0.84
+      },
+      {
+        "role": "sectionTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          18,
+          24
+        ],
+        "source": "design-dna",
+        "confidence": 0.8
+      },
+      {
+        "role": "body",
+        "fontWeight": 400,
+        "sizeRangePx": [
+          13,
+          16
+        ],
+        "source": "design-dna",
+        "confidence": 0.78
+      }
+    ],
+    "spacing": [
+      {
+        "token": "pageGutter",
+        "valuePx": 20,
+        "source": "06-result-expired",
+        "confidence": 0.76
+      },
+      {
+        "token": "cardGap",
+        "valuePx": 14,
+        "source": "06-result-expired",
+        "confidence": 0.72
+      }
+    ],
+    "radius": [
+      {
+        "token": "cardRadius",
+        "valuePx": 20,
+        "source": "design-dna",
+        "confidence": 0.86
+      },
+      {
+        "token": "pillRadius",
+        "valuePx": 999,
+        "source": "design-dna",
+        "confidence": 0.86
+      }
+    ],
+    "shadows": [
+      {
+        "token": "cardShadow",
+        "value": "0 8px 24px rgba(36,52,71,0.10)",
+        "source": "normalized pages",
+        "confidence": 0.68
+      }
+    ]
+  },
+  "states": {
+    "loading": [],
+    "empty": [],
+    "error": [],
+    "interactive": []
+  },
+  "data": {
+    "mockData": [],
+    "apiNeeds": [],
+    "bindings": []
+  },
+  "responsive": {
+    "breakpoints": [
+      {
+        "name": "mobile-base",
+        "widthPx": 390,
+        "source": "06-result-expired",
+        "confidence": 0.95
+      }
+    ],
+    "rules": [
+      "390px 视口为视觉基准；窄屏保持 20-24px 页面边距，主卡片宽度使用 calc(100% - 40px)。"
+    ]
+  },
+  "implementationHints": [
+    "主体布局使用普通文档流、flex 或 grid，不要用绝对定位复刻整页。",
+    "关键节点需添加 validation.visualQa.requiredNodes 中声明的 data-ui-id。",
+    "业务数据先按 README 样例做静态 fixture，后续接 API 时替换绑定。"
+  ],
+  "validation": {
+    "visualQa": {
+      "referenceImage": "../../normalized/06-result-expired/06-result-expired.normalized.png",
+      "targetUrl": "http://localhost:8788/games/demo/result/expired",
+      "allowNoReference": false,
+      "allowNoNormalization": false,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 1
+      },
+      "thresholds": {
+        "bboxTolerancePx": 8,
+        "relationTolerancePx": 6,
+        "colorDeltaMax": 12,
+        "regionDiffMax": 0.08,
+        "pageDiffMax": 0.06,
+        "pageDiffPixelsMax": 20000
+      },
+      "requiredNodes": [
+        {
+          "id": "result-heading",
+          "selector": "[data-ui-id='result-heading']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "本局已过期",
+          "priority": "high"
+        },
+        {
+          "id": "answer-card",
+          "selector": "[data-ui-id='answer-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style",
+            "region-diff"
+          ],
+          "expectedText": "手机",
+          "priority": "high"
+        },
+        {
+          "id": "expired-reason-card",
+          "selector": "[data-ui-id='expired-reason-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "达到 100 次有效猜词",
+          "priority": "high"
+        },
+        {
+          "id": "best-path-card",
+          "selector": "[data-ui-id='best-path-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox"
+          ],
+          "expectedText": "最高分路径",
+          "priority": "medium"
+        },
+        {
+          "id": "play-again-button",
+          "selector": "[data-ui-id='play-again-button']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "再来一局",
+          "expectedStyle": {
+            "backgroundColor": "#1B9AAA"
+          },
+          "priority": "high"
+        }
+      ],
+      "masks": [
+        {
+          "id": "decorative-background",
+          "reason": "背景装饰低优先级。"
+        }
+      ]
+    }
+  },
+  "unknowns": []
+}

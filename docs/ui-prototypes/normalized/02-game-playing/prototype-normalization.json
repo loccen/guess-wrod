@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0",
+  "mode": "single",
+  "rawImage": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-spec/docs/ui-prototypes/images/02-game-playing.png",
+  "normalizedImage": "02-game-playing.normalized.png",
+  "cropPreview": "02-game-playing.normalized.crop-preview.png",
+  "kind": "pure-page",
+  "confirmed": true,
+  "crop": {
+    "x": 0,
+    "y": 0,
+    "width": 390,
+    "height": 844
+  },
+  "sourceImageSize": {
+    "width": 390,
+    "height": 844
+  },
+  "normalizedImageSize": {
+    "width": 390,
+    "height": 844
+  },
+  "attempts": [
+    {
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "result": "accepted",
+      "reason": "full image accepted for prototype specification",
+      "createdAt": "2026-05-17T15:28:37.621Z"
+    }
+  ]
+}

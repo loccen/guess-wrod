@@ -1,0 +1,457 @@
+{
+  "schemaVersion": "1.0",
+  "sourceIndex": "../normalized/prototype-normalization.json",
+  "target": {
+    "platform": "mobile-web",
+    "framework": "unknown",
+    "implementationMode": "static"
+  },
+  "sharedVisualQa": {
+    "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 1 },
+    "thresholds": {
+      "bboxTolerancePx": 8,
+      "relationTolerancePx": 6,
+      "colorDeltaMax": 12,
+      "regionDiffMax": 0.08,
+      "pageDiffMax": 0.06,
+      "pageDiffPixelsMax": 20000
+    },
+    "maskGuidance": [
+      { "id": "decorative-background", "reason": "点阵、圆环、星星等装饰可允许轻微位置差异。", "priority": "low" },
+      { "id": "dynamic-timing", "reason": "AI 评分秒数、剩余时间等运行时文本可能变化。", "priority": "medium" }
+    ]
+  },
+  "pages": [
+    {
+      "id": "00-session-restore",
+      "source": {
+        "images": ["../normalized/00-session-restore/00-session-restore.normalized.png"],
+        "rawImages": ["../images/00-session-restore.png"],
+        "normalization": "../normalized/00-session-restore/prototype-normalization.json",
+        "analysisAt": "2026-05-17T00:00:00.000+08:00",
+        "notes": "启动/恢复会话页面，纯页面图已 full crop confirmed。"
+      },
+      "page": { "name": "启动 / 恢复会话", "route": "/session", "viewport": { "width": 390, "height": 844, "device": "mobile" } },
+      "layout": {
+        "nodes": [
+          { "id": "app-title", "type": "text", "component": "heading", "bbox": { "x": 78, "y": 92, "width": 239, "height": 56, "source": "00-session-restore", "confidence": 0.78 } },
+          { "id": "restore-card", "type": "region", "component": "card", "bbox": { "x": 30, "y": 215, "width": 330, "height": 356, "source": "00-session-restore", "confidence": 0.82 } },
+          { "id": "loading-orbit", "type": "component", "component": "loadingIndicator", "bbox": { "x": 103, "y": 244, "width": 186, "height": 186, "source": "00-session-restore", "confidence": 0.72 } },
+          { "id": "identity-row", "type": "region", "component": "infoRow", "bbox": { "x": 31, "y": 596, "width": 328, "height": 55, "source": "00-session-restore", "confidence": 0.76 } },
+          { "id": "security-note", "type": "component", "component": "notice", "bbox": { "x": 31, "y": 669, "width": 328, "height": 57, "source": "00-session-restore", "confidence": 0.76 } }
+        ],
+        "groups": [
+          { "id": "restore-status-stack", "type": "vertical-stack", "children": ["loading-orbit", "identity-row", "security-note"], "gapYApproxPx": 18, "alignment": "center", "source": "00-session-restore", "confidence": 0.72 }
+        ],
+        "relations": [
+          { "type": "below", "from": "restore-card", "to": "app-title", "approxGapPx": 60, "confidence": 0.72 }
+        ],
+        "constraints": ["内容在 390px 视口内水平居中，卡片宽度约 330px。"]
+      },
+      "content": {
+        "texts": ["猜不到的词", "猜一个词，看它离答案有多近", "正在进入游戏", "恢复上局中", "匿名会话", "不需要登录", "如需验证，将自动完成安全校验", "不会收集姓名、手机号或微信信息"],
+        "images": [],
+        "icons": ["shield", "lock", "anonymous-user", "loading"]
+      },
+      "validation": {
+        "visualQa": {
+          "referenceImage": "../normalized/00-session-restore/00-session-restore.normalized.png",
+          "targetUrl": "http://localhost:8788/session",
+          "allowNoReference": false,
+          "allowNoNormalization": false,
+          "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 1 },
+          "thresholds": { "bboxTolerancePx": 8, "relationTolerancePx": 6, "colorDeltaMax": 12, "regionDiffMax": 0.08, "pageDiffMax": 0.06, "pageDiffPixelsMax": 20000 },
+          "requiredNodes": [
+            { "id": "app-title", "selector": "[data-ui-id='app-title']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "猜不到的词", "expectedStyle": { "color": "#243447", "fontWeight": "700" }, "priority": "high" },
+            { "id": "restore-card", "selector": "[data-ui-id='restore-card']", "checks": ["visible", "bbox", "style", "region-diff"], "expectedStyle": { "backgroundColor": "#FFFFFF", "borderRadius": "24px" }, "priority": "high" },
+            { "id": "security-note", "selector": "[data-ui-id='security-note']", "checks": ["visible", "text", "bbox"], "expectedText": "如需验证，将自动完成安全校验", "priority": "medium" }
+          ],
+          "masks": [{ "id": "loading-orbit", "reason": "加载动效实现可与静态图不同，需单独检查尺寸与位置。" }]
+        }
+      },
+      "unknowns": []
+    },
+    {
+      "id": "01-home",
+      "source": {
+        "images": ["../normalized/01-home/01-home.normalized.png"],
+        "rawImages": ["../images/01-home.png"],
+        "normalization": "../normalized/01-home/prototype-normalization.json",
+        "analysisAt": "2026-05-17T00:00:00.000+08:00",
+        "notes": "首页页面，纯页面图已 full crop confirmed。"
+      },
+      "page": { "name": "首页", "route": "/", "viewport": { "width": 390, "height": 844, "device": "mobile" } },
+      "layout": {
+        "nodes": [
+          { "id": "home-hero-title", "type": "text", "component": "heading", "bbox": { "x": 77, "y": 71, "width": 242, "height": 55, "source": "01-home", "confidence": 0.78 } },
+          { "id": "start-game-button", "type": "control", "component": "button", "bbox": { "x": 38, "y": 177, "width": 314, "height": 82, "source": "01-home", "confidence": 0.86 } },
+          { "id": "random-pill", "type": "control", "component": "button", "bbox": { "x": 130, "y": 276, "width": 130, "height": 35, "source": "01-home", "confidence": 0.78 } },
+          { "id": "rules-card", "type": "region", "component": "card", "bbox": { "x": 24, "y": 326, "width": 342, "height": 249, "source": "01-home", "confidence": 0.83 } },
+          { "id": "recent-card", "type": "region", "component": "card", "bbox": { "x": 24, "y": 590, "width": 342, "height": 166, "source": "01-home", "confidence": 0.83 } },
+          { "id": "privacy-link", "type": "control", "component": "link", "bbox": { "x": 142, "y": 784, "width": 117, "height": 26, "source": "01-home", "confidence": 0.7 } }
+        ],
+        "groups": [
+          { "id": "rules-steps", "type": "list", "children": ["step-input", "step-score", "step-hit"], "gapYApproxPx": 0, "alignment": "stretch", "source": "01-home", "confidence": 0.78 },
+          { "id": "recent-results", "type": "list", "children": ["recent-success", "recent-give-up", "recent-expired"], "gapYApproxPx": 0, "alignment": "stretch", "source": "01-home", "confidence": 0.78 }
+        ],
+        "relations": [
+          { "type": "below", "from": "start-game-button", "to": "home-hero-title", "approxGapPx": 48, "confidence": 0.74 },
+          { "type": "below", "from": "rules-card", "to": "random-pill", "approxGapPx": 15, "confidence": 0.72 }
+        ],
+        "constraints": ["主按钮是首页最高视觉层级；玩法说明和最近成绩为等宽卡片。"]
+      },
+      "content": {
+        "texts": ["猜不到的词", "AI 只返回百分比，你来推理答案", "开始一局", "随机局", "玩法说明", "输入一个词", "只看接近百分比", "100% 即猜中", "最近成绩", "隐私说明"],
+        "images": [],
+        "icons": ["zap", "shuffle", "book-open", "edit", "bar-chart", "target", "trophy", "shield"]
+      },
+      "validation": {
+        "visualQa": {
+          "referenceImage": "../normalized/01-home/01-home.normalized.png",
+          "targetUrl": "http://localhost:8788/",
+          "allowNoReference": false,
+          "allowNoNormalization": false,
+          "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 1 },
+          "thresholds": { "bboxTolerancePx": 8, "relationTolerancePx": 6, "colorDeltaMax": 12, "regionDiffMax": 0.08, "pageDiffMax": 0.06, "pageDiffPixelsMax": 20000 },
+          "requiredNodes": [
+            { "id": "home-hero-title", "selector": "[data-ui-id='home-hero-title']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "猜不到的词", "expectedStyle": { "color": "#243447", "fontWeight": "700" }, "priority": "high" },
+            { "id": "start-game-button", "selector": "[data-ui-id='start-game-button']", "checks": ["visible", "text", "bbox", "style", "region-diff"], "expectedText": "开始一局", "expectedStyle": { "backgroundColor": "#1B9AAA", "borderRadius": "40px" }, "priority": "high" },
+            { "id": "rules-card", "selector": "[data-ui-id='rules-card']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "玩法说明", "expectedStyle": { "borderRadius": "20px" }, "priority": "medium" },
+            { "id": "recent-card", "selector": "[data-ui-id='recent-card']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "最近成绩", "priority": "medium" },
+            { "id": "privacy-link", "selector": "[data-ui-id='privacy-link']", "checks": ["visible", "text", "bbox"], "expectedText": "隐私说明", "priority": "medium" }
+          ],
+          "masks": [{ "id": "decorative-background", "reason": "背景点阵和星形装饰不影响核心布局。" }]
+        }
+      },
+      "unknowns": []
+    },
+    {
+      "id": "02-game-playing",
+      "source": {
+        "images": ["../normalized/02-game-playing/02-game-playing.normalized.png"],
+        "rawImages": ["../images/02-game-playing.png"],
+        "normalization": "../normalized/02-game-playing/prototype-normalization.json",
+        "analysisAt": "2026-05-17T00:00:00.000+08:00",
+        "notes": "游戏进行页，包含 AI 评分中状态。"
+      },
+      "page": { "name": "游戏页", "route": "/games/:gameId", "viewport": { "width": 390, "height": 844, "device": "mobile" } },
+      "layout": {
+        "nodes": [
+          { "id": "game-title", "type": "text", "component": "heading", "bbox": { "x": 88, "y": 43, "width": 214, "height": 53, "source": "02-game-playing", "confidence": 0.78 } },
+          { "id": "status-pills", "type": "region", "component": "statusPillGroup", "bbox": { "x": 72, "y": 123, "width": 250, "height": 31, "source": "02-game-playing", "confidence": 0.8 } },
+          { "id": "best-card", "type": "region", "component": "card", "bbox": { "x": 20, "y": 170, "width": 350, "height": 197, "source": "02-game-playing", "confidence": 0.84 } },
+          { "id": "score-ring", "type": "component", "component": "scoreRing", "bbox": { "x": 218, "y": 194, "width": 117, "height": 123, "source": "02-game-playing", "confidence": 0.76 } },
+          { "id": "guess-form", "type": "region", "component": "form", "bbox": { "x": 20, "y": 380, "width": 350, "height": 110, "source": "02-game-playing", "confidence": 0.84 } },
+          { "id": "guess-input", "type": "control", "component": "input", "bbox": { "x": 32, "y": 398, "width": 229, "height": 52, "source": "02-game-playing", "confidence": 0.84 } },
+          { "id": "submit-button", "type": "control", "component": "button", "bbox": { "x": 272, "y": 398, "width": 82, "height": 52, "source": "02-game-playing", "confidence": 0.84 } },
+          { "id": "history-card", "type": "region", "component": "card", "bbox": { "x": 20, "y": 509, "width": 350, "height": 236, "source": "02-game-playing", "confidence": 0.84 } },
+          { "id": "give-up-button", "type": "control", "component": "button", "bbox": { "x": 75, "y": 768, "width": 238, "height": 52, "source": "02-game-playing", "confidence": 0.82 } }
+        ],
+        "groups": [
+          { "id": "status-pill-row", "type": "horizontal-stack", "children": ["guess-count-pill", "expires-pill"], "gapXApproxPx": 12, "alignment": "center", "source": "02-game-playing", "confidence": 0.78 },
+          { "id": "guess-history-list", "type": "list", "children": ["guess-row-1", "guess-row-2", "guess-row-3", "guess-row-4"], "gapYApproxPx": 0, "alignment": "stretch", "source": "02-game-playing", "confidence": 0.8 }
+        ],
+        "relations": [
+          { "type": "right-of", "from": "score-ring", "to": "best-guess-text", "approxGapPx": 24, "confidence": 0.66 },
+          { "type": "below", "from": "guess-form", "to": "best-card", "approxGapPx": 14, "confidence": 0.82 },
+          { "type": "below", "from": "history-card", "to": "guess-form", "approxGapPx": 19, "confidence": 0.82 }
+        ],
+        "constraints": ["输入框与提交按钮同一行；历史列表每行高度约 44px；放弃按钮固定在底部可见区域附近。"]
+      },
+      "content": {
+        "texts": ["猜不到的词", "第 7 次 / 100", "剩余 23 小时", "当前最高", "平板", "76%", "输入一个猜词", "提交", "AI 评分中 · 约 2 秒", "猜词历史", "反馈", "放弃看答案"],
+        "images": [],
+        "icons": ["target", "clock", "bar-chart", "search", "chat", "flag"]
+      },
+      "validation": {
+        "visualQa": {
+          "referenceImage": "../normalized/02-game-playing/02-game-playing.normalized.png",
+          "targetUrl": "http://localhost:8788/games/demo-playing",
+          "allowNoReference": false,
+          "allowNoNormalization": false,
+          "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 1 },
+          "thresholds": { "bboxTolerancePx": 8, "relationTolerancePx": 6, "colorDeltaMax": 12, "regionDiffMax": 0.08, "pageDiffMax": 0.06, "pageDiffPixelsMax": 20000 },
+          "requiredNodes": [
+            { "id": "best-card", "selector": "[data-ui-id='best-card']", "checks": ["visible", "text", "bbox", "style", "region-diff"], "expectedText": "平板", "expectedStyle": { "borderRadius": "20px" }, "priority": "high" },
+            { "id": "score-ring", "selector": "[data-ui-id='score-ring']", "checks": ["visible", "text", "bbox", "region-diff"], "expectedText": "76%", "priority": "high" },
+            { "id": "guess-input", "selector": "[data-ui-id='guess-input']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "输入一个猜词", "expectedStyle": { "borderRadius": "10px" }, "priority": "high" },
+            { "id": "submit-button", "selector": "[data-ui-id='submit-button']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "提交", "expectedStyle": { "backgroundColor": "#1B9AAA" }, "priority": "high" },
+            { "id": "history-card", "selector": "[data-ui-id='history-card']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "猜词历史", "priority": "medium" },
+            { "id": "give-up-button", "selector": "[data-ui-id='give-up-button']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "放弃看答案", "expectedStyle": { "color": "#FF7A6B" }, "priority": "medium" }
+          ],
+          "masks": [{ "id": "dynamic-timing", "reason": "AI 评分耗时和剩余时间可变。" }]
+        }
+      },
+      "unknowns": []
+    },
+    {
+      "id": "03-score-feedback",
+      "source": {
+        "images": ["../normalized/03-score-feedback/03-score-feedback.normalized.png"],
+        "rawImages": ["../images/03-score-feedback.png"],
+        "normalization": "../normalized/03-score-feedback/prototype-normalization.json",
+        "analysisAt": "2026-05-17T00:00:00.000+08:00",
+        "notes": "评分反馈弹层叠加在游戏页上，reference 已包含遮罩后的整页状态。"
+      },
+      "page": { "name": "评分反馈弹层", "route": "/games/:gameId?feedback=guessId", "viewport": { "width": 390, "height": 844, "device": "mobile" } },
+      "layout": {
+        "nodes": [
+          { "id": "feedback-backdrop", "type": "overlay", "component": "backdrop", "bbox": { "x": 0, "y": 0, "width": 390, "height": 844, "source": "03-score-feedback", "confidence": 0.86 } },
+          { "id": "feedback-sheet", "type": "overlay", "component": "bottomSheet", "bbox": { "x": 0, "y": 424, "width": 390, "height": 420, "source": "03-score-feedback", "confidence": 0.84 } },
+          { "id": "feedback-title", "type": "text", "component": "heading", "bbox": { "x": 72, "y": 466, "width": 218, "height": 28, "source": "03-score-feedback", "confidence": 0.76 } },
+          { "id": "feedback-summary", "type": "region", "component": "summaryCard", "bbox": { "x": 22, "y": 524, "width": 346, "height": 65, "source": "03-score-feedback", "confidence": 0.78 } },
+          { "id": "feedback-options", "type": "region", "component": "segmentedOptions", "bbox": { "x": 21, "y": 605, "width": 346, "height": 55, "source": "03-score-feedback", "confidence": 0.8 } },
+          { "id": "feedback-note", "type": "control", "component": "textarea", "bbox": { "x": 21, "y": 669, "width": 346, "height": 88, "source": "03-score-feedback", "confidence": 0.8 } },
+          { "id": "feedback-submit", "type": "control", "component": "button", "bbox": { "x": 178, "y": 769, "width": 187, "height": 48, "source": "03-score-feedback", "confidence": 0.82 } }
+        ],
+        "groups": [
+          { "id": "feedback-option-row", "type": "horizontal-stack", "children": ["option-high", "option-low", "option-relation"], "gapXApproxPx": 9, "alignment": "stretch", "source": "03-score-feedback", "confidence": 0.78 },
+          { "id": "feedback-action-row", "type": "horizontal-stack", "children": ["feedback-cancel", "feedback-submit"], "gapXApproxPx": 17, "alignment": "stretch", "source": "03-score-feedback", "confidence": 0.78 }
+        ],
+        "relations": [
+          { "type": "above", "from": "feedback-sheet", "to": "viewport-bottom", "approxGapPx": 0, "confidence": 0.8 }
+        ],
+        "constraints": ["底部弹层贴底，顶部圆角；背景页面必须有半透明暗色遮罩。"]
+      },
+      "content": {
+        "texts": ["这个分数不合理吗？", "我们会用反馈改进评分", "你猜的词", "当前分数", "词与答案的关系", "平板", "76%", "同类", "分数偏高", "分数偏低", "关系不对", "补充说明（可选，最多100字）", "取消", "提交反馈"],
+        "images": [],
+        "icons": ["chat", "arrow-up", "arrow-down", "x", "shield"]
+      },
+      "validation": {
+        "visualQa": {
+          "referenceImage": "../normalized/03-score-feedback/03-score-feedback.normalized.png",
+          "targetUrl": "http://localhost:8788/games/demo-playing?feedback=1",
+          "allowNoReference": false,
+          "allowNoNormalization": false,
+          "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 1 },
+          "thresholds": { "bboxTolerancePx": 8, "relationTolerancePx": 6, "colorDeltaMax": 12, "regionDiffMax": 0.08, "pageDiffMax": 0.06, "pageDiffPixelsMax": 20000 },
+          "requiredNodes": [
+            { "id": "feedback-backdrop", "selector": "[data-ui-id='feedback-backdrop']", "checks": ["visible", "bbox", "style"], "expectedStyle": { "backgroundColor": "rgba(36,52,71,0.65)" }, "priority": "high" },
+            { "id": "feedback-sheet", "selector": "[data-ui-id='feedback-sheet']", "checks": ["visible", "bbox", "style", "region-diff"], "expectedStyle": { "backgroundColor": "#FFFFFF", "borderRadius": "24px 24px 0 0" }, "priority": "high" },
+            { "id": "feedback-title", "selector": "[data-ui-id='feedback-title']", "checks": ["visible", "text", "bbox"], "expectedText": "这个分数不合理吗？", "priority": "high" },
+            { "id": "feedback-options", "selector": "[data-ui-id='feedback-options']", "checks": ["visible", "text", "bbox", "region-diff"], "expectedText": "分数偏高", "priority": "medium" },
+            { "id": "feedback-submit", "selector": "[data-ui-id='feedback-submit']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "提交反馈", "expectedStyle": { "backgroundColor": "#1B9AAA" }, "priority": "high" }
+          ],
+          "masks": [{ "id": "underlay-page-dimmed", "reason": "底层游戏页可按独立游戏页规格验收，弹层规格重点检查遮罩和 sheet。" }]
+        }
+      },
+      "unknowns": []
+    },
+    {
+      "id": "04-result-success",
+      "source": {
+        "images": ["../normalized/04-result-success/04-result-success.normalized.png"],
+        "rawImages": ["../images/04-result-success.png"],
+        "normalization": "../normalized/04-result-success/prototype-normalization.json",
+        "analysisAt": "2026-05-17T00:00:00.000+08:00",
+        "notes": "猜中结果页。"
+      },
+      "page": { "name": "猜中结果", "route": "/games/:gameId/result/success", "viewport": { "width": 390, "height": 844, "device": "mobile" } },
+      "layout": {
+        "nodes": [
+          { "id": "result-heading", "type": "text", "component": "heading", "bbox": { "x": 94, "y": 78, "width": 202, "height": 56, "source": "04-result-success", "confidence": 0.76 } },
+          { "id": "answer-card", "type": "region", "component": "answerCard", "bbox": { "x": 23, "y": 178, "width": 344, "height": 173, "source": "04-result-success", "confidence": 0.84 } },
+          { "id": "stats-row", "type": "region", "component": "statCards", "bbox": { "x": 23, "y": 365, "width": 344, "height": 133, "source": "04-result-success", "confidence": 0.8 } },
+          { "id": "near-miss-card", "type": "region", "component": "card", "bbox": { "x": 23, "y": 514, "width": 344, "height": 203, "source": "04-result-success", "confidence": 0.82 } },
+          { "id": "play-again-button", "type": "control", "component": "button", "bbox": { "x": 49, "y": 750, "width": 291, "height": 56, "source": "04-result-success", "confidence": 0.84 } },
+          { "id": "back-home-link", "type": "control", "component": "link", "bbox": { "x": 146, "y": 823, "width": 96, "height": 18, "source": "04-result-success", "confidence": 0.62 } }
+        ],
+        "groups": [
+          { "id": "result-stat-cards", "type": "horizontal-stack", "children": ["stat-valid", "stat-duration", "stat-best"], "gapXApproxPx": 8, "alignment": "stretch", "source": "04-result-success", "confidence": 0.78 },
+          { "id": "near-miss-list", "type": "list", "children": ["near-miss-1", "near-miss-2", "near-miss-3"], "gapYApproxPx": 0, "alignment": "stretch", "source": "04-result-success", "confidence": 0.78 }
+        ],
+        "relations": [
+          { "type": "below", "from": "answer-card", "to": "result-heading", "approxGapPx": 35, "confidence": 0.72 }
+        ],
+        "constraints": ["结果页主按钮固定靠近底部；答案卡优先展示大号答案和别名。"]
+      },
+      "content": {
+        "texts": ["猜到了！", "你找到了答案", "答案", "手机", "也接受：智能手机 / 移动电话 / 📱", "有效猜词", "10次", "用时", "6分18秒", "最高分", "100%", "最接近未命中", "电话", "92%", "平板", "76%", "充电器", "74%", "再来一局", "返回首页"],
+        "images": [],
+        "icons": ["check", "phone", "target", "clock", "trophy", "refresh", "home"]
+      },
+      "validation": {
+        "visualQa": {
+          "referenceImage": "../normalized/04-result-success/04-result-success.normalized.png",
+          "targetUrl": "http://localhost:8788/games/demo/result/success",
+          "allowNoReference": false,
+          "allowNoNormalization": false,
+          "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 1 },
+          "thresholds": { "bboxTolerancePx": 8, "relationTolerancePx": 6, "colorDeltaMax": 12, "regionDiffMax": 0.08, "pageDiffMax": 0.06, "pageDiffPixelsMax": 20000 },
+          "requiredNodes": [
+            { "id": "result-heading", "selector": "[data-ui-id='result-heading']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "猜到了！", "expectedStyle": { "color": "#243447" }, "priority": "high" },
+            { "id": "answer-card", "selector": "[data-ui-id='answer-card']", "checks": ["visible", "text", "bbox", "style", "region-diff"], "expectedText": "手机", "expectedStyle": { "borderRadius": "20px" }, "priority": "high" },
+            { "id": "stats-row", "selector": "[data-ui-id='stats-row']", "checks": ["visible", "text", "bbox", "region-diff"], "expectedText": "100%", "priority": "medium" },
+            { "id": "near-miss-card", "selector": "[data-ui-id='near-miss-card']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "最接近未命中", "priority": "medium" },
+            { "id": "play-again-button", "selector": "[data-ui-id='play-again-button']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "再来一局", "expectedStyle": { "backgroundColor": "#1B9AAA" }, "priority": "high" }
+          ],
+          "masks": [{ "id": "confetti", "reason": "彩纸装饰可允许轻微差异。" }]
+        }
+      },
+      "unknowns": []
+    },
+    {
+      "id": "05-result-give-up",
+      "source": {
+        "images": ["../normalized/05-result-give-up/05-result-give-up.normalized.png"],
+        "rawImages": ["../images/05-result-give-up.png"],
+        "normalization": "../normalized/05-result-give-up/prototype-normalization.json",
+        "analysisAt": "2026-05-17T00:00:00.000+08:00",
+        "notes": "放弃结果页。"
+      },
+      "page": { "name": "放弃结果", "route": "/games/:gameId/result/give-up", "viewport": { "width": 390, "height": 844, "device": "mobile" } },
+      "layout": {
+        "nodes": [
+          { "id": "result-heading", "type": "text", "component": "heading", "bbox": { "x": 101, "y": 111, "width": 190, "height": 47, "source": "05-result-give-up", "confidence": 0.76 } },
+          { "id": "answer-card", "type": "region", "component": "answerCard", "bbox": { "x": 29, "y": 188, "width": 332, "height": 175, "source": "05-result-give-up", "confidence": 0.84 } },
+          { "id": "stats-row", "type": "region", "component": "statCards", "bbox": { "x": 29, "y": 376, "width": 332, "height": 124, "source": "05-result-give-up", "confidence": 0.8 } },
+          { "id": "clue-card", "type": "region", "component": "card", "bbox": { "x": 29, "y": 511, "width": 332, "height": 202, "source": "05-result-give-up", "confidence": 0.82 } },
+          { "id": "play-again-button", "type": "control", "component": "button", "bbox": { "x": 63, "y": 742, "width": 265, "height": 50, "source": "05-result-give-up", "confidence": 0.82 } }
+        ],
+        "groups": [
+          { "id": "clue-list", "type": "list", "children": ["clue-row-1", "clue-row-2", "clue-row-3"], "gapYApproxPx": 0, "alignment": "stretch", "source": "05-result-give-up", "confidence": 0.78 }
+        ],
+        "relations": [
+          { "type": "below", "from": "answer-card", "to": "result-heading", "approxGapPx": 26, "confidence": 0.72 }
+        ],
+        "constraints": ["放弃状态使用珊瑚旗帜图标和珊瑚文字，其他结构与结果页保持一致。"]
+      },
+      "content": {
+        "texts": ["本局已放弃", "答案已经揭晓", "答案", "手机", "有效猜词", "8次", "最高分", "76%", "状态", "放弃", "差一点的线索", "下次可以从功能、配件、使用场景继续猜", "再来一局", "返回首页"],
+        "images": [],
+        "icons": ["flag", "phone", "target", "trophy", "chat", "refresh", "home"]
+      },
+      "validation": {
+        "visualQa": {
+          "referenceImage": "../normalized/05-result-give-up/05-result-give-up.normalized.png",
+          "targetUrl": "http://localhost:8788/games/demo/result/give-up",
+          "allowNoReference": false,
+          "allowNoNormalization": false,
+          "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 1 },
+          "thresholds": { "bboxTolerancePx": 8, "relationTolerancePx": 6, "colorDeltaMax": 12, "regionDiffMax": 0.08, "pageDiffMax": 0.06, "pageDiffPixelsMax": 20000 },
+          "requiredNodes": [
+            { "id": "result-heading", "selector": "[data-ui-id='result-heading']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "本局已放弃", "priority": "high" },
+            { "id": "answer-card", "selector": "[data-ui-id='answer-card']", "checks": ["visible", "text", "bbox", "style", "region-diff"], "expectedText": "手机", "priority": "high" },
+            { "id": "stats-row", "selector": "[data-ui-id='stats-row']", "checks": ["visible", "text", "bbox", "region-diff"], "expectedText": "放弃", "priority": "medium" },
+            { "id": "clue-card", "selector": "[data-ui-id='clue-card']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "差一点的线索", "priority": "medium" },
+            { "id": "play-again-button", "selector": "[data-ui-id='play-again-button']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "再来一局", "expectedStyle": { "backgroundColor": "#1B9AAA" }, "priority": "high" }
+          ],
+          "masks": [{ "id": "decorative-background", "reason": "背景装饰低优先级。" }]
+        }
+      },
+      "unknowns": []
+    },
+    {
+      "id": "06-result-expired",
+      "source": {
+        "images": ["../normalized/06-result-expired/06-result-expired.normalized.png"],
+        "rawImages": ["../images/06-result-expired.png"],
+        "normalization": "../normalized/06-result-expired/prototype-normalization.json",
+        "analysisAt": "2026-05-17T00:00:00.000+08:00",
+        "notes": "过期结果页。"
+      },
+      "page": { "name": "过期结果", "route": "/games/:gameId/result/expired", "viewport": { "width": 390, "height": 844, "device": "mobile" } },
+      "layout": {
+        "nodes": [
+          { "id": "result-heading", "type": "text", "component": "heading", "bbox": { "x": 93, "y": 99, "width": 204, "height": 49, "source": "06-result-expired", "confidence": 0.76 } },
+          { "id": "answer-card", "type": "region", "component": "answerCard", "bbox": { "x": 24, "y": 177, "width": 342, "height": 171, "source": "06-result-expired", "confidence": 0.84 } },
+          { "id": "expired-reason-card", "type": "region", "component": "noticeCard", "bbox": { "x": 24, "y": 364, "width": 342, "height": 112, "source": "06-result-expired", "confidence": 0.82 } },
+          { "id": "stats-row", "type": "region", "component": "statCards", "bbox": { "x": 24, "y": 495, "width": 342, "height": 102, "source": "06-result-expired", "confidence": 0.8 } },
+          { "id": "best-path-card", "type": "region", "component": "card", "bbox": { "x": 24, "y": 608, "width": 342, "height": 137, "source": "06-result-expired", "confidence": 0.82 } },
+          { "id": "play-again-button", "type": "control", "component": "button", "bbox": { "x": 61, "y": 766, "width": 268, "height": 51, "source": "06-result-expired", "confidence": 0.82 } }
+        ],
+        "groups": [
+          { "id": "best-path-list", "type": "list", "children": ["best-path-1", "best-path-2", "best-path-3"], "gapYApproxPx": 0, "alignment": "stretch", "source": "06-result-expired", "confidence": 0.78 }
+        ],
+        "relations": [
+          { "type": "below", "from": "expired-reason-card", "to": "answer-card", "approxGapPx": 16, "confidence": 0.78 }
+        ],
+        "constraints": ["过期原因卡为独立视觉模块，需高于统计卡显示。"]
+      },
+      "content": {
+        "texts": ["本局已过期", "答案已揭晓", "答案", "手机", "过期原因", "达到 100 次有效猜词", "或超过 24 小时未完成", "有效猜词", "100次", "最高分", "92%", "状态", "过期", "最高分路径", "电话", "平板", "充电器", "再来一局", "返回首页"],
+        "images": [],
+        "icons": ["clock", "phone", "calendar", "target", "trophy", "flag", "refresh", "home"]
+      },
+      "validation": {
+        "visualQa": {
+          "referenceImage": "../normalized/06-result-expired/06-result-expired.normalized.png",
+          "targetUrl": "http://localhost:8788/games/demo/result/expired",
+          "allowNoReference": false,
+          "allowNoNormalization": false,
+          "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 1 },
+          "thresholds": { "bboxTolerancePx": 8, "relationTolerancePx": 6, "colorDeltaMax": 12, "regionDiffMax": 0.08, "pageDiffMax": 0.06, "pageDiffPixelsMax": 20000 },
+          "requiredNodes": [
+            { "id": "result-heading", "selector": "[data-ui-id='result-heading']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "本局已过期", "priority": "high" },
+            { "id": "answer-card", "selector": "[data-ui-id='answer-card']", "checks": ["visible", "text", "bbox", "style", "region-diff"], "expectedText": "手机", "priority": "high" },
+            { "id": "expired-reason-card", "selector": "[data-ui-id='expired-reason-card']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "达到 100 次有效猜词", "priority": "high" },
+            { "id": "best-path-card", "selector": "[data-ui-id='best-path-card']", "checks": ["visible", "text", "bbox"], "expectedText": "最高分路径", "priority": "medium" },
+            { "id": "play-again-button", "selector": "[data-ui-id='play-again-button']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "再来一局", "expectedStyle": { "backgroundColor": "#1B9AAA" }, "priority": "high" }
+          ],
+          "masks": [{ "id": "decorative-background", "reason": "背景装饰低优先级。" }]
+        }
+      },
+      "unknowns": []
+    },
+    {
+      "id": "07-rules-privacy",
+      "source": {
+        "images": ["../normalized/07-rules-privacy/07-rules-privacy.normalized.png"],
+        "rawImages": ["../images/07-rules-privacy.png"],
+        "normalization": "../normalized/07-rules-privacy/prototype-normalization.json",
+        "analysisAt": "2026-05-17T00:00:00.000+08:00",
+        "notes": "玩法与隐私说明页。"
+      },
+      "page": { "name": "玩法与隐私", "route": "/rules", "viewport": { "width": 390, "height": 844, "device": "mobile" } },
+      "layout": {
+        "nodes": [
+          { "id": "back-link", "type": "control", "component": "link", "bbox": { "x": 22, "y": 29, "width": 51, "height": 17, "source": "07-rules-privacy", "confidence": 0.72 } },
+          { "id": "rules-heading", "type": "text", "component": "heading", "bbox": { "x": 106, "y": 95, "width": 179, "height": 58, "source": "07-rules-privacy", "confidence": 0.78 } },
+          { "id": "rules-card", "type": "region", "component": "card", "bbox": { "x": 23, "y": 196, "width": 344, "height": 236, "source": "07-rules-privacy", "confidence": 0.84 } },
+          { "id": "ai-card", "type": "region", "component": "card", "bbox": { "x": 23, "y": 452, "width": 344, "height": 86, "source": "07-rules-privacy", "confidence": 0.82 } },
+          { "id": "privacy-card", "type": "region", "component": "card", "bbox": { "x": 23, "y": 554, "width": 344, "height": 122, "source": "07-rules-privacy", "confidence": 0.82 } },
+          { "id": "exceptions-card", "type": "region", "component": "card", "bbox": { "x": 23, "y": 696, "width": 344, "height": 70, "source": "07-rules-privacy", "confidence": 0.82 } },
+          { "id": "confirm-button", "type": "control", "component": "button", "bbox": { "x": 45, "y": 790, "width": 300, "height": 54, "source": "07-rules-privacy", "confidence": 0.84 } }
+        ],
+        "groups": [
+          { "id": "rule-list", "type": "list", "children": ["rule-1", "rule-2", "rule-3", "rule-4"], "gapYApproxPx": 0, "alignment": "stretch", "source": "07-rules-privacy", "confidence": 0.78 },
+          { "id": "exception-pills", "type": "horizontal-wrap", "children": ["exception-repeat", "exception-illegal", "exception-sensitive", "exception-rate-limit", "exception-ai-timeout"], "gapXApproxPx": 8, "gapYApproxPx": 8, "source": "07-rules-privacy", "confidence": 0.76 }
+        ],
+        "relations": [
+          { "type": "below", "from": "rules-card", "to": "rules-heading", "approxGapPx": 32, "confidence": 0.74 }
+        ],
+        "constraints": ["说明页内容较密，卡片间距需控制在 14-20px，底部主按钮保持可见。"]
+      },
+      "content": {
+        "texts": ["玩法与隐私", "怎么玩？", "输入一个词，看它离答案有多近。", "玩法规则", "每局一个隐藏答案", "输入猜词后只显示接近百分比", "100% 代表猜中答案或别名", "最多 100 次有效猜词，24 小时内完成", "AI 评分说明", "隐私说明", "异常不计次", "重复猜词", "非法输入", "敏感词", "限流", "AI 超时", "知道了"],
+        "images": [],
+        "icons": ["back", "book-open", "bar-chart", "target", "clock", "bot", "shield", "alert", "check"]
+      },
+      "validation": {
+        "visualQa": {
+          "referenceImage": "../normalized/07-rules-privacy/07-rules-privacy.normalized.png",
+          "targetUrl": "http://localhost:8788/rules",
+          "allowNoReference": false,
+          "allowNoNormalization": false,
+          "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 1 },
+          "thresholds": { "bboxTolerancePx": 8, "relationTolerancePx": 6, "colorDeltaMax": 12, "regionDiffMax": 0.08, "pageDiffMax": 0.06, "pageDiffPixelsMax": 20000 },
+          "requiredNodes": [
+            { "id": "back-link", "selector": "[data-ui-id='back-link']", "checks": ["visible", "text", "bbox"], "expectedText": "返回", "priority": "medium" },
+            { "id": "rules-heading", "selector": "[data-ui-id='rules-heading']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "怎么玩？", "expectedStyle": { "color": "#243447" }, "priority": "high" },
+            { "id": "rules-card", "selector": "[data-ui-id='rules-card']", "checks": ["visible", "text", "bbox", "style", "region-diff"], "expectedText": "玩法规则", "priority": "high" },
+            { "id": "privacy-card", "selector": "[data-ui-id='privacy-card']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "隐私说明", "priority": "medium" },
+            { "id": "confirm-button", "selector": "[data-ui-id='confirm-button']", "checks": ["visible", "text", "bbox", "style"], "expectedText": "知道了", "expectedStyle": { "backgroundColor": "#1B9AAA" }, "priority": "high" }
+          ],
+          "masks": [{ "id": "decorative-background", "reason": "背景装饰低优先级。" }]
+        }
+      },
+      "unknowns": []
+    }
+  ],
+  "unknowns": [
+    "仓库当前未包含前端路由实现，targetUrl 是后续实现建议。",
+    "03-score-feedback 是叠加态，后续实现需确保可通过 URL 或测试夹具稳定打开该状态。",
+    "所有 bbox 为从 390x844 normalized image 估算，实际实现应以布局关系和视觉验收报告微调。"
+  ]
+}

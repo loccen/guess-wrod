@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0",
+  "mode": "single",
+  "rawImage": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-spec/docs/ui-prototypes/images/04-result-success.png",
+  "normalizedImage": "04-result-success.normalized.png",
+  "cropPreview": "04-result-success.normalized.crop-preview.png",
+  "kind": "pure-page",
+  "confirmed": true,
+  "crop": {
+    "x": 0,
+    "y": 0,
+    "width": 390,
+    "height": 844
+  },
+  "sourceImageSize": {
+    "width": 390,
+    "height": 844
+  },
+  "normalizedImageSize": {
+    "width": 390,
+    "height": 844
+  },
+  "attempts": [
+    {
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "result": "accepted",
+      "reason": "full image accepted for prototype specification",
+      "createdAt": "2026-05-17T15:28:38.157Z"
+    }
+  ]
+}

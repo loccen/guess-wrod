@@ -1,0 +1,357 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "images": [
+      "../../normalized/00-session-restore/00-session-restore.normalized.png"
+    ],
+    "rawImages": [
+      "../../images/00-session-restore.png"
+    ],
+    "normalization": "../../normalized/00-session-restore/prototype-normalization.json",
+    "analysisAt": "2026-05-17T00:00:00.000+08:00",
+    "notes": "启动/恢复会话页面，纯页面图已 full crop confirmed。"
+  },
+  "target": {
+    "platform": "mobile-web",
+    "framework": "unknown",
+    "implementationMode": "static"
+  },
+  "page": {
+    "name": "启动 / 恢复会话",
+    "route": "/session",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "device": "mobile"
+    }
+  },
+  "layout": {
+    "coordinateSystem": {
+      "unit": "px",
+      "origin": "top-left",
+      "precision": "estimated"
+    },
+    "nodes": [
+      {
+        "id": "app-title",
+        "type": "text",
+        "component": "heading",
+        "bbox": {
+          "x": 78,
+          "y": 92,
+          "width": 239,
+          "height": 56,
+          "source": "00-session-restore",
+          "confidence": 0.78
+        }
+      },
+      {
+        "id": "restore-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 30,
+          "y": 215,
+          "width": 330,
+          "height": 356,
+          "source": "00-session-restore",
+          "confidence": 0.82
+        }
+      },
+      {
+        "id": "loading-orbit",
+        "type": "component",
+        "component": "loadingIndicator",
+        "bbox": {
+          "x": 103,
+          "y": 244,
+          "width": 186,
+          "height": 186,
+          "source": "00-session-restore",
+          "confidence": 0.72
+        }
+      },
+      {
+        "id": "identity-row",
+        "type": "region",
+        "component": "infoRow",
+        "bbox": {
+          "x": 31,
+          "y": 596,
+          "width": 328,
+          "height": 55,
+          "source": "00-session-restore",
+          "confidence": 0.76
+        }
+      },
+      {
+        "id": "security-note",
+        "type": "component",
+        "component": "notice",
+        "bbox": {
+          "x": 31,
+          "y": 669,
+          "width": 328,
+          "height": 57,
+          "source": "00-session-restore",
+          "confidence": 0.76
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "restore-status-stack",
+        "type": "vertical-stack",
+        "children": [
+          "loading-orbit",
+          "identity-row",
+          "security-note"
+        ],
+        "gapYApproxPx": 18,
+        "alignment": "center",
+        "source": "00-session-restore",
+        "confidence": 0.72
+      }
+    ],
+    "relations": [
+      {
+        "type": "below",
+        "from": "restore-card",
+        "to": "app-title",
+        "approxGapPx": 60,
+        "confidence": 0.72
+      }
+    ],
+    "constraints": [
+      "内容在 390px 视口内水平居中，卡片宽度约 330px。"
+    ]
+  },
+  "content": {
+    "texts": [
+      "猜不到的词",
+      "猜一个词，看它离答案有多近",
+      "正在进入游戏",
+      "恢复上局中",
+      "匿名会话",
+      "不需要登录",
+      "如需验证，将自动完成安全校验",
+      "不会收集姓名、手机号或微信信息"
+    ],
+    "images": [],
+    "icons": [
+      "shield",
+      "lock",
+      "anonymous-user",
+      "loading"
+    ]
+  },
+  "visual": {
+    "colors": [
+      {
+        "token": "warmWhite",
+        "value": "#FFF8EA",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "mint",
+        "value": "#B8F3D4",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "primaryTeal",
+        "value": "#1B9AAA",
+        "source": "design-dna",
+        "confidence": 0.98
+      },
+      {
+        "token": "dangerCoral",
+        "value": "#FF7A6B",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "sunYellow",
+        "value": "#FFD166",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "ink",
+        "value": "#243447",
+        "source": "design-dna",
+        "confidence": 0.98
+      }
+    ],
+    "typography": [
+      {
+        "role": "heroTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          42,
+          54
+        ],
+        "source": "design-dna",
+        "confidence": 0.84
+      },
+      {
+        "role": "sectionTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          18,
+          24
+        ],
+        "source": "design-dna",
+        "confidence": 0.8
+      },
+      {
+        "role": "body",
+        "fontWeight": 400,
+        "sizeRangePx": [
+          13,
+          16
+        ],
+        "source": "design-dna",
+        "confidence": 0.78
+      }
+    ],
+    "spacing": [
+      {
+        "token": "pageGutter",
+        "valuePx": 20,
+        "source": "00-session-restore",
+        "confidence": 0.76
+      },
+      {
+        "token": "cardGap",
+        "valuePx": 14,
+        "source": "00-session-restore",
+        "confidence": 0.72
+      }
+    ],
+    "radius": [
+      {
+        "token": "cardRadius",
+        "valuePx": 20,
+        "source": "design-dna",
+        "confidence": 0.86
+      },
+      {
+        "token": "pillRadius",
+        "valuePx": 999,
+        "source": "design-dna",
+        "confidence": 0.86
+      }
+    ],
+    "shadows": [
+      {
+        "token": "cardShadow",
+        "value": "0 8px 24px rgba(36,52,71,0.10)",
+        "source": "normalized pages",
+        "confidence": 0.68
+      }
+    ]
+  },
+  "states": {
+    "loading": [],
+    "empty": [],
+    "error": [],
+    "interactive": []
+  },
+  "data": {
+    "mockData": [],
+    "apiNeeds": [],
+    "bindings": []
+  },
+  "responsive": {
+    "breakpoints": [
+      {
+        "name": "mobile-base",
+        "widthPx": 390,
+        "source": "00-session-restore",
+        "confidence": 0.95
+      }
+    ],
+    "rules": [
+      "390px 视口为视觉基准；窄屏保持 20-24px 页面边距，主卡片宽度使用 calc(100% - 40px)。"
+    ]
+  },
+  "implementationHints": [
+    "主体布局使用普通文档流、flex 或 grid，不要用绝对定位复刻整页。",
+    "关键节点需添加 validation.visualQa.requiredNodes 中声明的 data-ui-id。",
+    "业务数据先按 README 样例做静态 fixture，后续接 API 时替换绑定。"
+  ],
+  "validation": {
+    "visualQa": {
+      "referenceImage": "../../normalized/00-session-restore/00-session-restore.normalized.png",
+      "targetUrl": "http://localhost:8788/session",
+      "allowNoReference": false,
+      "allowNoNormalization": false,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 1
+      },
+      "thresholds": {
+        "bboxTolerancePx": 8,
+        "relationTolerancePx": 6,
+        "colorDeltaMax": 12,
+        "regionDiffMax": 0.08,
+        "pageDiffMax": 0.06,
+        "pageDiffPixelsMax": 20000
+      },
+      "requiredNodes": [
+        {
+          "id": "app-title",
+          "selector": "[data-ui-id='app-title']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "猜不到的词",
+          "expectedStyle": {
+            "color": "#243447",
+            "fontWeight": "700"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "restore-card",
+          "selector": "[data-ui-id='restore-card']",
+          "checks": [
+            "visible",
+            "bbox",
+            "style",
+            "region-diff"
+          ],
+          "expectedStyle": {
+            "backgroundColor": "#FFFFFF",
+            "borderRadius": "24px"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "security-note",
+          "selector": "[data-ui-id='security-note']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox"
+          ],
+          "expectedText": "如需验证，将自动完成安全校验",
+          "priority": "medium"
+        }
+      ],
+      "masks": [
+        {
+          "id": "loading-orbit",
+          "reason": "加载动效实现可与静态图不同，需单独检查尺寸与位置。"
+        }
+      ]
+    }
+  },
+  "unknowns": []
+}

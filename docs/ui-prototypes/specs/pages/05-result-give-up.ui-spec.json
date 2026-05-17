@@ -1,0 +1,388 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "images": [
+      "../../normalized/05-result-give-up/05-result-give-up.normalized.png"
+    ],
+    "rawImages": [
+      "../../images/05-result-give-up.png"
+    ],
+    "normalization": "../../normalized/05-result-give-up/prototype-normalization.json",
+    "analysisAt": "2026-05-17T00:00:00.000+08:00",
+    "notes": "放弃结果页。"
+  },
+  "target": {
+    "platform": "mobile-web",
+    "framework": "unknown",
+    "implementationMode": "static"
+  },
+  "page": {
+    "name": "放弃结果",
+    "route": "/games/:gameId/result/give-up",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "device": "mobile"
+    }
+  },
+  "layout": {
+    "coordinateSystem": {
+      "unit": "px",
+      "origin": "top-left",
+      "precision": "estimated"
+    },
+    "nodes": [
+      {
+        "id": "result-heading",
+        "type": "text",
+        "component": "heading",
+        "bbox": {
+          "x": 101,
+          "y": 111,
+          "width": 190,
+          "height": 47,
+          "source": "05-result-give-up",
+          "confidence": 0.76
+        }
+      },
+      {
+        "id": "answer-card",
+        "type": "region",
+        "component": "answerCard",
+        "bbox": {
+          "x": 29,
+          "y": 188,
+          "width": 332,
+          "height": 175,
+          "source": "05-result-give-up",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "stats-row",
+        "type": "region",
+        "component": "statCards",
+        "bbox": {
+          "x": 29,
+          "y": 376,
+          "width": 332,
+          "height": 124,
+          "source": "05-result-give-up",
+          "confidence": 0.8
+        }
+      },
+      {
+        "id": "clue-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 29,
+          "y": 511,
+          "width": 332,
+          "height": 202,
+          "source": "05-result-give-up",
+          "confidence": 0.82
+        }
+      },
+      {
+        "id": "play-again-button",
+        "type": "control",
+        "component": "button",
+        "bbox": {
+          "x": 63,
+          "y": 742,
+          "width": 265,
+          "height": 50,
+          "source": "05-result-give-up",
+          "confidence": 0.82
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "clue-list",
+        "type": "list",
+        "children": [
+          "clue-row-1",
+          "clue-row-2",
+          "clue-row-3"
+        ],
+        "gapYApproxPx": 0,
+        "alignment": "stretch",
+        "source": "05-result-give-up",
+        "confidence": 0.78
+      }
+    ],
+    "relations": [
+      {
+        "type": "below",
+        "from": "answer-card",
+        "to": "result-heading",
+        "approxGapPx": 26,
+        "confidence": 0.72
+      }
+    ],
+    "constraints": [
+      "放弃状态使用珊瑚旗帜图标和珊瑚文字，其他结构与结果页保持一致。"
+    ]
+  },
+  "content": {
+    "texts": [
+      "本局已放弃",
+      "答案已经揭晓",
+      "答案",
+      "手机",
+      "有效猜词",
+      "8次",
+      "最高分",
+      "76%",
+      "状态",
+      "放弃",
+      "差一点的线索",
+      "下次可以从功能、配件、使用场景继续猜",
+      "再来一局",
+      "返回首页"
+    ],
+    "images": [],
+    "icons": [
+      "flag",
+      "phone",
+      "target",
+      "trophy",
+      "chat",
+      "refresh",
+      "home"
+    ]
+  },
+  "visual": {
+    "colors": [
+      {
+        "token": "warmWhite",
+        "value": "#FFF8EA",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "mint",
+        "value": "#B8F3D4",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "primaryTeal",
+        "value": "#1B9AAA",
+        "source": "design-dna",
+        "confidence": 0.98
+      },
+      {
+        "token": "dangerCoral",
+        "value": "#FF7A6B",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "sunYellow",
+        "value": "#FFD166",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "ink",
+        "value": "#243447",
+        "source": "design-dna",
+        "confidence": 0.98
+      }
+    ],
+    "typography": [
+      {
+        "role": "heroTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          42,
+          54
+        ],
+        "source": "design-dna",
+        "confidence": 0.84
+      },
+      {
+        "role": "sectionTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          18,
+          24
+        ],
+        "source": "design-dna",
+        "confidence": 0.8
+      },
+      {
+        "role": "body",
+        "fontWeight": 400,
+        "sizeRangePx": [
+          13,
+          16
+        ],
+        "source": "design-dna",
+        "confidence": 0.78
+      }
+    ],
+    "spacing": [
+      {
+        "token": "pageGutter",
+        "valuePx": 20,
+        "source": "05-result-give-up",
+        "confidence": 0.76
+      },
+      {
+        "token": "cardGap",
+        "valuePx": 14,
+        "source": "05-result-give-up",
+        "confidence": 0.72
+      }
+    ],
+    "radius": [
+      {
+        "token": "cardRadius",
+        "valuePx": 20,
+        "source": "design-dna",
+        "confidence": 0.86
+      },
+      {
+        "token": "pillRadius",
+        "valuePx": 999,
+        "source": "design-dna",
+        "confidence": 0.86
+      }
+    ],
+    "shadows": [
+      {
+        "token": "cardShadow",
+        "value": "0 8px 24px rgba(36,52,71,0.10)",
+        "source": "normalized pages",
+        "confidence": 0.68
+      }
+    ]
+  },
+  "states": {
+    "loading": [],
+    "empty": [],
+    "error": [],
+    "interactive": []
+  },
+  "data": {
+    "mockData": [],
+    "apiNeeds": [],
+    "bindings": []
+  },
+  "responsive": {
+    "breakpoints": [
+      {
+        "name": "mobile-base",
+        "widthPx": 390,
+        "source": "05-result-give-up",
+        "confidence": 0.95
+      }
+    ],
+    "rules": [
+      "390px 视口为视觉基准；窄屏保持 20-24px 页面边距，主卡片宽度使用 calc(100% - 40px)。"
+    ]
+  },
+  "implementationHints": [
+    "主体布局使用普通文档流、flex 或 grid，不要用绝对定位复刻整页。",
+    "关键节点需添加 validation.visualQa.requiredNodes 中声明的 data-ui-id。",
+    "业务数据先按 README 样例做静态 fixture，后续接 API 时替换绑定。"
+  ],
+  "validation": {
+    "visualQa": {
+      "referenceImage": "../../normalized/05-result-give-up/05-result-give-up.normalized.png",
+      "targetUrl": "http://localhost:8788/games/demo/result/give-up",
+      "allowNoReference": false,
+      "allowNoNormalization": false,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 1
+      },
+      "thresholds": {
+        "bboxTolerancePx": 8,
+        "relationTolerancePx": 6,
+        "colorDeltaMax": 12,
+        "regionDiffMax": 0.08,
+        "pageDiffMax": 0.06,
+        "pageDiffPixelsMax": 20000
+      },
+      "requiredNodes": [
+        {
+          "id": "result-heading",
+          "selector": "[data-ui-id='result-heading']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "本局已放弃",
+          "priority": "high"
+        },
+        {
+          "id": "answer-card",
+          "selector": "[data-ui-id='answer-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style",
+            "region-diff"
+          ],
+          "expectedText": "手机",
+          "priority": "high"
+        },
+        {
+          "id": "stats-row",
+          "selector": "[data-ui-id='stats-row']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "region-diff"
+          ],
+          "expectedText": "放弃",
+          "priority": "medium"
+        },
+        {
+          "id": "clue-card",
+          "selector": "[data-ui-id='clue-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "差一点的线索",
+          "priority": "medium"
+        },
+        {
+          "id": "play-again-button",
+          "selector": "[data-ui-id='play-again-button']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "再来一局",
+          "expectedStyle": {
+            "backgroundColor": "#1B9AAA"
+          },
+          "priority": "high"
+        }
+      ],
+      "masks": [
+        {
+          "id": "decorative-background",
+          "reason": "背景装饰低优先级。"
+        }
+      ]
+    }
+  },
+  "unknowns": []
+}

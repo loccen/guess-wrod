@@ -1,0 +1,485 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "images": [
+      "../../normalized/02-game-playing/02-game-playing.normalized.png"
+    ],
+    "rawImages": [
+      "../../images/02-game-playing.png"
+    ],
+    "normalization": "../../normalized/02-game-playing/prototype-normalization.json",
+    "analysisAt": "2026-05-17T00:00:00.000+08:00",
+    "notes": "游戏进行页，包含 AI 评分中状态。"
+  },
+  "target": {
+    "platform": "mobile-web",
+    "framework": "unknown",
+    "implementationMode": "static"
+  },
+  "page": {
+    "name": "游戏页",
+    "route": "/games/:gameId",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "device": "mobile"
+    }
+  },
+  "layout": {
+    "coordinateSystem": {
+      "unit": "px",
+      "origin": "top-left",
+      "precision": "estimated"
+    },
+    "nodes": [
+      {
+        "id": "game-title",
+        "type": "text",
+        "component": "heading",
+        "bbox": {
+          "x": 88,
+          "y": 43,
+          "width": 214,
+          "height": 53,
+          "source": "02-game-playing",
+          "confidence": 0.78
+        }
+      },
+      {
+        "id": "status-pills",
+        "type": "region",
+        "component": "statusPillGroup",
+        "bbox": {
+          "x": 72,
+          "y": 123,
+          "width": 250,
+          "height": 31,
+          "source": "02-game-playing",
+          "confidence": 0.8
+        }
+      },
+      {
+        "id": "best-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 20,
+          "y": 170,
+          "width": 350,
+          "height": 197,
+          "source": "02-game-playing",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "score-ring",
+        "type": "component",
+        "component": "scoreRing",
+        "bbox": {
+          "x": 218,
+          "y": 194,
+          "width": 117,
+          "height": 123,
+          "source": "02-game-playing",
+          "confidence": 0.76
+        }
+      },
+      {
+        "id": "guess-form",
+        "type": "region",
+        "component": "form",
+        "bbox": {
+          "x": 20,
+          "y": 380,
+          "width": 350,
+          "height": 110,
+          "source": "02-game-playing",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "guess-input",
+        "type": "control",
+        "component": "input",
+        "bbox": {
+          "x": 32,
+          "y": 398,
+          "width": 229,
+          "height": 52,
+          "source": "02-game-playing",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "submit-button",
+        "type": "control",
+        "component": "button",
+        "bbox": {
+          "x": 272,
+          "y": 398,
+          "width": 82,
+          "height": 52,
+          "source": "02-game-playing",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "history-card",
+        "type": "region",
+        "component": "card",
+        "bbox": {
+          "x": 20,
+          "y": 509,
+          "width": 350,
+          "height": 236,
+          "source": "02-game-playing",
+          "confidence": 0.84
+        }
+      },
+      {
+        "id": "give-up-button",
+        "type": "control",
+        "component": "button",
+        "bbox": {
+          "x": 75,
+          "y": 768,
+          "width": 238,
+          "height": 52,
+          "source": "02-game-playing",
+          "confidence": 0.82
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "status-pill-row",
+        "type": "horizontal-stack",
+        "children": [
+          "guess-count-pill",
+          "expires-pill"
+        ],
+        "gapXApproxPx": 12,
+        "alignment": "center",
+        "source": "02-game-playing",
+        "confidence": 0.78
+      },
+      {
+        "id": "guess-history-list",
+        "type": "list",
+        "children": [
+          "guess-row-1",
+          "guess-row-2",
+          "guess-row-3",
+          "guess-row-4"
+        ],
+        "gapYApproxPx": 0,
+        "alignment": "stretch",
+        "source": "02-game-playing",
+        "confidence": 0.8
+      }
+    ],
+    "relations": [
+      {
+        "type": "right-of",
+        "from": "score-ring",
+        "to": "best-guess-text",
+        "approxGapPx": 24,
+        "confidence": 0.66
+      },
+      {
+        "type": "below",
+        "from": "guess-form",
+        "to": "best-card",
+        "approxGapPx": 14,
+        "confidence": 0.82
+      },
+      {
+        "type": "below",
+        "from": "history-card",
+        "to": "guess-form",
+        "approxGapPx": 19,
+        "confidence": 0.82
+      }
+    ],
+    "constraints": [
+      "输入框与提交按钮同一行；历史列表每行高度约 44px；放弃按钮固定在底部可见区域附近。"
+    ]
+  },
+  "content": {
+    "texts": [
+      "猜不到的词",
+      "第 7 次 / 100",
+      "剩余 23 小时",
+      "当前最高",
+      "平板",
+      "76%",
+      "输入一个猜词",
+      "提交",
+      "AI 评分中 · 约 2 秒",
+      "猜词历史",
+      "反馈",
+      "放弃看答案"
+    ],
+    "images": [],
+    "icons": [
+      "target",
+      "clock",
+      "bar-chart",
+      "search",
+      "chat",
+      "flag"
+    ]
+  },
+  "visual": {
+    "colors": [
+      {
+        "token": "warmWhite",
+        "value": "#FFF8EA",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "mint",
+        "value": "#B8F3D4",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "primaryTeal",
+        "value": "#1B9AAA",
+        "source": "design-dna",
+        "confidence": 0.98
+      },
+      {
+        "token": "dangerCoral",
+        "value": "#FF7A6B",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "sunYellow",
+        "value": "#FFD166",
+        "source": "design-dna",
+        "confidence": 0.96
+      },
+      {
+        "token": "ink",
+        "value": "#243447",
+        "source": "design-dna",
+        "confidence": 0.98
+      }
+    ],
+    "typography": [
+      {
+        "role": "heroTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          42,
+          54
+        ],
+        "source": "design-dna",
+        "confidence": 0.84
+      },
+      {
+        "role": "sectionTitle",
+        "fontWeight": 700,
+        "sizeRangePx": [
+          18,
+          24
+        ],
+        "source": "design-dna",
+        "confidence": 0.8
+      },
+      {
+        "role": "body",
+        "fontWeight": 400,
+        "sizeRangePx": [
+          13,
+          16
+        ],
+        "source": "design-dna",
+        "confidence": 0.78
+      }
+    ],
+    "spacing": [
+      {
+        "token": "pageGutter",
+        "valuePx": 20,
+        "source": "02-game-playing",
+        "confidence": 0.76
+      },
+      {
+        "token": "cardGap",
+        "valuePx": 14,
+        "source": "02-game-playing",
+        "confidence": 0.72
+      }
+    ],
+    "radius": [
+      {
+        "token": "cardRadius",
+        "valuePx": 20,
+        "source": "design-dna",
+        "confidence": 0.86
+      },
+      {
+        "token": "pillRadius",
+        "valuePx": 999,
+        "source": "design-dna",
+        "confidence": 0.86
+      }
+    ],
+    "shadows": [
+      {
+        "token": "cardShadow",
+        "value": "0 8px 24px rgba(36,52,71,0.10)",
+        "source": "normalized pages",
+        "confidence": 0.68
+      }
+    ]
+  },
+  "states": {
+    "loading": [],
+    "empty": [],
+    "error": [],
+    "interactive": []
+  },
+  "data": {
+    "mockData": [],
+    "apiNeeds": [],
+    "bindings": []
+  },
+  "responsive": {
+    "breakpoints": [
+      {
+        "name": "mobile-base",
+        "widthPx": 390,
+        "source": "02-game-playing",
+        "confidence": 0.95
+      }
+    ],
+    "rules": [
+      "390px 视口为视觉基准；窄屏保持 20-24px 页面边距，主卡片宽度使用 calc(100% - 40px)。"
+    ]
+  },
+  "implementationHints": [
+    "主体布局使用普通文档流、flex 或 grid，不要用绝对定位复刻整页。",
+    "关键节点需添加 validation.visualQa.requiredNodes 中声明的 data-ui-id。",
+    "业务数据先按 README 样例做静态 fixture，后续接 API 时替换绑定。"
+  ],
+  "validation": {
+    "visualQa": {
+      "referenceImage": "../../normalized/02-game-playing/02-game-playing.normalized.png",
+      "targetUrl": "http://localhost:8788/games/demo-playing",
+      "allowNoReference": false,
+      "allowNoNormalization": false,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 1
+      },
+      "thresholds": {
+        "bboxTolerancePx": 8,
+        "relationTolerancePx": 6,
+        "colorDeltaMax": 12,
+        "regionDiffMax": 0.08,
+        "pageDiffMax": 0.06,
+        "pageDiffPixelsMax": 20000
+      },
+      "requiredNodes": [
+        {
+          "id": "best-card",
+          "selector": "[data-ui-id='best-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style",
+            "region-diff"
+          ],
+          "expectedText": "平板",
+          "expectedStyle": {
+            "borderRadius": "20px"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "score-ring",
+          "selector": "[data-ui-id='score-ring']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "region-diff"
+          ],
+          "expectedText": "76%",
+          "priority": "high"
+        },
+        {
+          "id": "guess-input",
+          "selector": "[data-ui-id='guess-input']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "输入一个猜词",
+          "expectedStyle": {
+            "borderRadius": "10px"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "submit-button",
+          "selector": "[data-ui-id='submit-button']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "提交",
+          "expectedStyle": {
+            "backgroundColor": "#1B9AAA"
+          },
+          "priority": "high"
+        },
+        {
+          "id": "history-card",
+          "selector": "[data-ui-id='history-card']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "猜词历史",
+          "priority": "medium"
+        },
+        {
+          "id": "give-up-button",
+          "selector": "[data-ui-id='give-up-button']",
+          "checks": [
+            "visible",
+            "text",
+            "bbox",
+            "style"
+          ],
+          "expectedText": "放弃看答案",
+          "expectedStyle": {
+            "color": "#FF7A6B"
+          },
+          "priority": "medium"
+        }
+      ],
+      "masks": [
+        {
+          "id": "dynamic-timing",
+          "reason": "AI 评分耗时和剩余时间可变。"
+        }
+      ]
+    }
+  },
+  "unknowns": []
+}
