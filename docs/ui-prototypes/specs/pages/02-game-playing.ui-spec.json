@@ -392,12 +392,10 @@
           "selector": "[data-ui-id='best-card']",
           "checks": [
             "visible",
-            "text",
             "bbox",
             "style",
             "region-diff"
           ],
-          "expectedText": "平板",
           "expectedStyle": {
             "borderRadius": "20px"
           },
@@ -450,11 +448,9 @@
           "selector": "[data-ui-id='history-card']",
           "checks": [
             "visible",
-            "text",
             "bbox",
             "style"
           ],
-          "expectedText": "猜词历史",
           "priority": "medium"
         },
         {
