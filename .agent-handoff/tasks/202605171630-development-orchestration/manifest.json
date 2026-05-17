@@ -3,7 +3,7 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T05:10:31+08:00",
+  "updated_at": "2026-05-18T06:39:03+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
@@ -16,11 +16,11 @@
     "docs/08-analytics-and-quality.md",
     "docs/ui-prototypes/images"
   ],
-  "next_step": "继续处理 AI Gateway custom provider/BYOK 401，并核对 Wrangler preview alias 与 production alias 的 deployment / DB 命中差异。",
+  "next_step": "继续处理 authenticated gateway token 与 custom provider secret/default 的 401，并决定是修复 token 链路还是回退到 provider secret/default 路线。",
   "blockers": [
-    "公网 POST /api/games/{id}/guesses 仍返回 500 system_error，当前主阻塞在 AI Gateway custom provider/BYOK 联动。",
-    "AI Gateway 现有 provider config 只有 alias=guess-word 且 default_config=0，Dashboard 改默认要求重新提供明文 secret。",
-    "Wrangler preview alias 已重新部署，但最新诊断字段仍未落进正式 D1，preview / production 的命中路径仍需进一步澄清。"
+    "公网 POST /api/games/{id}/guesses 仍返回 500 system_error，当前主阻塞已收敛到 authenticated gateway / custom provider 401。",
+    "最新外部探针使用新建 gateway token 直接请求 /openai 和 custom provider 路径，均返回 Cloudflare 2009 Unauthorized。",
+    "现有 provider config 只有 alias=guess-word 且 default_config=0，Dashboard 改默认要求重新提供明文 secret。"
   ],
   "evidence_paths": [
     ".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"
@@ -79,140 +79,38 @@
     "cdae1b0",
     "cf9883a",
     "a855b3c",
-    "21c93b8"
+    "21c93b8",
+    "2b07029",
+    "59ab35f",
+    "4995f2c",
+    "b29bfec",
+    "88183ff",
+    "6e764c9",
+    "20c450c",
+    "efe7a8a",
+    "9286cb0",
+    "bdc5cb5"
   ],
   "related_tasks": [
-    "codex/guessword-t01-skeleton",
-    "codex/guessword-data-seed",
-    "codex/guessword-scoring-rules",
-    "codex/guessword-frontend-spec",
-    "codex/guessword-storage-foundation",
-    "codex/guessword-scoring-client",
-    "codex/guessword-frontend-static-flow",
-    "codex/guessword-visual-qa-fix",
-    "codex/guessword-backend-base-api",
-    "codex/guessword-guess-api",
-    "codex/guessword-frontend-live-flow",
-    "codex/guessword-frontend-live-guess",
-    "codex/guessword-feedback-api",
-    "codex/guessword-frontend-feedback",
-    "codex/guessword-expiry-rules",
-    "codex/guessword-live-adapters",
-    "codex/guessword-cloudflare-bootstrap",
     "codex/guessword-expired-visual-qa",
-    "codex/guessword-deploy",
-    "codex/guessword-expired-finalize",
-    "codex/guessword-gateway-path-fix",
-    "codex/guessword-gateway-auth-header",
-    "codex/guessword-byok-alias",
-    "codex/guessword-prod-deploy-v4",
-    "codex/guessword-ai-diagnostic",
+    "codex/guessword-runtime-version",
+    "codex/guessword-health-config-flags",
+    "codex/guessword-guess-error-diag",
+    "codex/guessword-guess-error-diag2",
+    "codex/guessword-fetch-binding-fix",
     "codex/guessword-prod-deploy-v5",
-    "codex/guessword-prod-deploy-v6"
+    "codex/guessword-prod-deploy-v6",
+    "codex/guessword-prod-deploy-v7",
+    "codex/guessword-prod-deploy-v8",
+    "codex/guessword-prod-deploy-v9",
+    "codex/guessword-prod-deploy-v10",
+    "codex/guessword-prod-deploy-v11",
+    "codex/guessword-prod-deploy-v12"
   ],
   "supersedes": [],
   "protocol_version": 1,
   "skill_revision": "1.0.1",
   "integrations": {
-    "subagents": [
-      {
-        "agent_id": "019e368b-b9ef-72f1-ba5c-704cb858fe72",
-        "branch": "codex/guessword-t01-skeleton",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/t01-skeleton",
-        "scope": "T01 项目骨架"
-      },
-      {
-        "agent_id": "019e368b-f18e-7791-979e-25efe0161549",
-        "branch": "codex/guessword-data-seed",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/data-seed",
-        "scope": "数据与词库准备",
-        "status": "failed-before-commit",
-        "replacement_agent_id": "019e3691-940e-7110-80a8-d1ca0557516f"
-      },
-      {
-        "agent_id": "019e3691-940e-7110-80a8-d1ca0557516f",
-        "branch": "codex/guessword-data-seed",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/data-seed",
-        "scope": "数据与词库准备接手"
-      },
-      {
-        "agent_id": "019e368c-2d1b-71c2-ab33-5c29ca0c8ce6",
-        "branch": "codex/guessword-scoring-rules",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/scoring-rules",
-        "scope": "评分规则准备"
-      },
-      {
-        "agent_id": "019e368c-715f-75e1-ae1a-b7996614ff61",
-        "branch": "codex/guessword-frontend-spec",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-spec",
-        "scope": "前端原型规格准备"
-      },
-      {
-        "agent_id": "019e36a1-7c11-7d31-9808-11d64d446cf6",
-        "branch": "codex/guessword-storage-foundation",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/storage-foundation",
-        "scope": "存储基础"
-      },
-      {
-        "agent_id": "019e36a1-bdd4-7dc2-9e05-7b8708d5f178",
-        "branch": "codex/guessword-scoring-client",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/scoring-client",
-        "scope": "评分客户端"
-      },
-      {
-        "agent_id": "019e36a2-13da-7312-a54d-600c598c53ac",
-        "branch": "codex/guessword-frontend-static-flow",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-static-flow",
-        "scope": "前端静态主流程"
-      },
-      {
-        "agent_id": "019e36b5-e4ac-7742-8894-ed31d8cec553",
-        "branch": "codex/guessword-visual-qa-fix",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-fix",
-        "scope": "前端 visual QA 修复"
-      },
-      {
-        "agent_id": "019e36b6-2c62-7c73-b474-b73113c42756",
-        "branch": "codex/guessword-backend-base-api",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/backend-base-api",
-        "scope": "后端基础 API"
-      },
-      {
-        "agent_id": "019e36c5-e115-7043-b000-e727e8748d61",
-        "branch": "codex/guessword-guess-api",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/guess-api",
-        "scope": "猜词提交流程"
-      },
-      {
-        "agent_id": "019e36c6-2599-71e3-9080-3343412cf6fd",
-        "branch": "codex/guessword-frontend-live-flow",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-flow",
-        "scope": "前端真实 API 接入"
-      },
-      {
-        "agent_id": "019e36d5-8bc1-7213-8773-1c3380ae173e",
-        "branch": "codex/guessword-frontend-live-guess",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-live-guess",
-        "scope": "前端真实猜词流程"
-      },
-      {
-        "agent_id": "019e36d5-c1c6-75a3-855b-557b0120b230",
-        "branch": "codex/guessword-feedback-api",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/feedback-api",
-        "scope": "评分反馈后端链路"
-      },
-      {
-        "agent_id": "019e36e3-5d4b-7840-a91f-bd341824cc37",
-        "branch": "codex/guessword-frontend-feedback",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback",
-        "scope": "前端反馈接入与交互收尾"
-      },
-      {
-        "agent_id": "019e36e3-9f0c-7cf0-9613-7f6ad63495ce",
-        "branch": "codex/guessword-expiry-rules",
-        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/expiry-rules",
-        "scope": "过期与上限规则"
-      }
-    ]
+    "subagents": []
   }
 }

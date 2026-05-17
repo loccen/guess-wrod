@@ -2,64 +2,54 @@
 
 ## 已验证基线
 
-- 当前 `main` 已包含：React + Vite + Pages Functions 骨架、`/api/health`、migration/seed、评分规则、评分客户端抽象、存储 repository/adapter、前端真实主流程、image2code 规格与视觉报告。
-- 当前会话已合入 `main` 的关键主题：
-  - 后端 live adapter
-  - Cloudflare 资源基线
-  - expired 数据流与视觉收尾
-  - AI Gateway 请求路径修复
-  - AI Gateway 鉴权头修复
-  - AI Gateway BYOK alias 支持
-  - AI 失败最小诊断字段
+- 当前 `main` 已包含：React + Vite + Pages Functions 骨架、`/api/health`、migration/seed、评分规则、评分客户端抽象、前端真实主流程、D1/adapter 边界、视觉收尾与基础 observability。
 - 主仓本地验证仍通过：`npm run typecheck`、`npm test`、`npm run build`、`npm run cf:check`、handoff validate。
 - D1 正式库 `guess-wrod-prod` 已建表并导入 50 条 `words`。
-- Pages production env 已确认存在：
+- 当前主域名 `https://guess-wrod.pages.dev/api/health` 已明确命中最新 worker：
+  - `runtime.version = bdc5cb5a287b`
+  - `runtime.source = cf_pages_commit_sha`
+  - `aiRuntime.hasAiGatewayEndpoint = true`
+  - `aiRuntime.hasAiGatewayApiKey = false`
+  - `aiRuntime.hasAiGatewayByokAlias = true`
+- Pages production env 已确认存在过：
   - `AI_MODE=live`
   - `AI_MODEL_NAME=deepseek-v4-flash`
   - `AI_GATEWAY_ENDPOINT_URL=https://gateway.ai.cloudflare.com/v1/656612e8bac6e750ae630a5ad3320858/guess-wrod-gateway/custom-guessword-deepseek/v1`
-  - `AI_GATEWAY_API_KEY`（secret）
+  - `AI_GATEWAY_API_KEY`（后续为排查曾删除）
   - `AI_GATEWAY_BYOK_ALIAS=guess-word`
-- AI Gateway `guess-wrod-gateway` 已重新开启 authenticated gateway。
-- 公网 `https://guess-wrod.pages.dev/api/health` 返回 `status=ok`。
-- 公网 `POST /api/sessions`、`POST /api/games`、`POST /api/games/{id}/give-up`、`GET /api/games/{id}` 已可跑通。
-- `06-result-expired-live` 已收敛为 only-page-level-diff，视觉不再是当前主阻塞。
 
 ## 未完成
 
-- 公网 `POST /api/games/{id}/guesses` 仍返回 `500 system_error`，因此反馈链路无法真实触发。
-- AI Gateway 历史日志显示 `provider=custom-guessword-deepseek`、`status_code=401`、`response_head=Authentication Fails (governor)`，且 `byok=null`。
-- 现有 provider config 只有一条：`alias=guess-word`、`default_config=0`、`secret_preview=********ed5`。
-- API 无法直接把现有 config 改成默认；Dashboard 若想改默认会要求重新提供明文 secret。
-- 即使最新诊断代码已合入并发出新的 preview deployment，正式 D1 中最近的 `ai_call_logs` 仍没有非空诊断字段，说明 preview alias 触发的失败并未把新诊断写进正式库。
-- Direct Upload UI 仍无法稳定把 `_worker.js`、`index.html`、`assets` 作为根级站点内容上传；production alias 与最新 deployment 的根目录行为仍未统一。
-- `R2` 仍需先在 Dashboard 启用；Turnstile live 写操作仍未打通。
+- 公网 `POST /api/games/{id}/guesses` 仍返回 `500 system_error`，反馈链路无法真实触发。
+- 最新公网错误响应已能直接返回最小非敏感诊断：
+  - `response_status=401`
+  - `request_path=/v1/656612e8bac6e750ae630a5ad3320858/guess-wrod-gateway/custom-guessword-deepseek/v1/chat/completions`
+  - `response_summary_prefix=Authentication Fails (governor)`
+  - `has_gateway_auth=false`
+  - `has_byok_alias=true`
+  - `runtime.version=bdc5cb5a287b`
+- 使用浏览器最新创建的 Authenticated Gateway token 写入本地文件后，外部探针直接打：
+  - `/openai/chat/completions`
+  - custom provider 路径
+  都返回 Cloudflare `2009 Unauthorized`。
+- 现有 provider config 仍只有一条：`alias=guess-word`、`default_config=0`、`secret_preview=********ed5`；API 无法直接改默认，Dashboard 改默认要求明文 secret。
 
 ## 第一步该做什么
 
-- 当前主仓基线已提升到 `main` 的 `21c93b8`。
+- 当前主仓基线已提升到 `bdc5cb5`。
 - 下一步优先级：
-  1. 先继续解决 AI Gateway custom provider/BYOK 401；只要公网 `POST /guesses` 还 500，就不要宣称“公网可玩”。
-  2. 并行确认 Wrangler preview alias 与 production alias 的 deployment / DB 命中差异，解释为什么最新诊断字段没落进正式库。
-  3. 一旦猜词恢复，再补公网反馈提交和至少一轮完整实玩证据。
-
-## 先看哪些文件/命令
-
-- `AGENTS.md`
-- `.agent-handoff/ACTIVE.md`
-- `.agent-handoff/tasks/202605171630-development-orchestration/task.md`
-- `.agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md`
-- `docs/05-scoring-spec.md`
-- `docs/07-implementation-plan.md`
-- `git status --short --branch`
-- `git worktree list`
-- `ai-task show`
-- `docs/ui-prototypes/visual-qa/report/06-result-expired-live/visual-qa-report.json`
+  1. 先继续解决 authenticated gateway token 是否可用；这是当前最强阻塞。
+  2. 如果 token 路线继续 `2009 Unauthorized`，则优先回退到 provider secret/default 路线，继续验证 custom provider secret 本身是否有效。
+  3. 一旦公网 `POST /guesses` 恢复成功，再补公网反馈提交和完整实玩证据。
 
 ## 风险
 
-- 当前还不是可公网完整游玩的一局：公网猜词提交仍失败，反馈链路无法真实触发。
-- Direct Upload 与 production alias 的根目录行为仍不稳定，容易出现最新 deployment 成功但根页面继续返回旧资源或 404。
-- 仍存在两个需人工判断的残留现场：
+- 当前还不是可公网完整游玩的一局：猜词仍失败，反馈链路无法真实触发。
+- 当前保留的参考/实验现场：
   - `/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`
   - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v5`
-- 后续子代理不得发送 ntfy；最终通知只由主代理发送。
+  - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v6`
+  - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v7`
+  - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v10`
+  - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v11`
+  - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v12`
