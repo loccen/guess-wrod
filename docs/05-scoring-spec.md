@@ -1,0 +1,260 @@
+# AI 评分规格
+
+## 1. 评分目标
+
+AI 只负责判断普通猜词与答案之间的语义接近程度。后端负责答案、状态、缓存、计次和异常处理。
+
+## 2. 输入归一化
+
+后端收到 `guess` 后按顺序处理：
+
+1. `trim` 首尾空白。
+2. Unicode NFKC 归一化。
+3. 全角字符转半角。
+4. 拉丁字母转小写。
+
+V0.1 不做：
+
+1. 繁简转换。
+2. 拼音匹配。
+3. 错别字纠正。
+
+## 3. 输入限制
+
+| 项目 | 规则 |
+| --- | --- |
+| 最小长度 | 1 个字符 |
+| 最大长度 | 20 个字符 |
+| 非法输入 | 空字符串、纯控制字符、归一化后为空 |
+| emoji | 可提交；只有显式别名中的 emoji 可命中 100 分 |
+| 敏感词 | 直接拒绝，不调用 AI |
+
+## 4. 精确命中
+
+后端先用 `guess_normalized` 匹配：
+
+1. `word.word_normalized`
+2. `word.aliases` 归一化结果
+
+命中时：
+
+1. `score=100`
+2. `relation_type=exact` 或 `alias`
+3. `is_exact=true`
+4. `source=exact_match`
+5. `counted=true`
+6. 游戏状态变为 `success`
+7. 不调用 AI
+
+样例：
+
+```json
+{
+  "word": "手机",
+  "aliases": ["智能手机", "移动电话", "📱"]
+}
+```
+
+`电话` 不作为别名，它应由 AI 按 `synonym` 类型评分。
+
+## 5. 评分流水线
+
+```text
+校验会话和游戏状态
+  ↓
+归一化
+  ↓
+格式检查
+  ↓
+敏感词检查
+  ↓
+精确命中
+  ↓
+单局缓存
+  ↓
+全局缓存
+  ↓
+AI 评分
+  ↓
+后处理
+  ↓
+写入记录并返回
+```
+
+## 6. 关系类型
+
+| relation_type | 含义 | 示例，答案为“手机” |
+| --- | --- | --- |
+| `exact` | 标准答案 | 手机 |
+| `alias` | 显式别名 | 智能手机、移动电话、📱 |
+| `synonym` | 近义词但不直接接受 | 电话 |
+| `parent_category` | 上位类 | 电子产品 |
+| `same_category` | 同类事物 | 平板、电脑 |
+| `attribute` | 属性 | 智能、便携、触屏 |
+| `function` | 功能 | 通话、拍照、上网 |
+| `component` | 组成部件 | 屏幕、电池 |
+| `accessory` | 配件 | 充电器、手机壳 |
+| `service_context` | 服务或操作场景 | 维修、刷机 |
+| `usage_context` | 使用场景 | 社交、支付 |
+| `weak_context` | 弱相关 | 旅游、食物 |
+| `unrelated` | 基本无关 | 石头、云朵 |
+| `invalid` | 无效输入 | 乱码 |
+
+## 7. 分数区间
+
+| 分数 | 含义 |
+| --- | --- |
+| 100 | 标准答案或显式别名 |
+| 90-99 | 极近，但仍不是接受答案 |
+| 80-89 | 强相关 |
+| 65-79 | 中强相关 |
+| 45-64 | 中等相关 |
+| 20-44 | 弱相关 |
+| 0-19 | 基本无关 |
+
+## 8. 关系上限
+
+| relation_type | 上限 |
+| --- | --- |
+| `exact` / `alias` | 100 |
+| `synonym` | 95 |
+| `parent_category` | 80 |
+| `same_category` | 85 |
+| `attribute` | 82 |
+| `function` | 80 |
+| `component` | 82 |
+| `accessory` | 78 |
+| `service_context` | 78 |
+| `usage_context` | 75 |
+| `weak_context` | 55 |
+| `unrelated` | 25 |
+| `invalid` | 0 |
+
+后端必须按关系上限修正 AI 返回分数。
+
+## 9. 样例
+
+| 猜词 | 分数 | relation_type |
+| --- | --- | --- |
+| 手机 | 100 | `exact` |
+| 智能手机 | 100 | `alias` |
+| 移动电话 | 100 | `alias` |
+| 电话 | 92 | `synonym` |
+| 电子产品 | 78 | `parent_category` |
+| 平板 | 76 | `same_category` |
+| 屏幕 | 72 | `component` |
+| 充电器 | 74 | `accessory` |
+| 维修 | 72 | `service_context` |
+| 拍照 | 70 | `function` |
+| 社交 | 62 | `usage_context` |
+| 食物 | 18 | `weak_context` |
+| 石头 | 8 | `unrelated` |
+
+## 10. AI 输入输出
+
+### 10.1 请求体
+
+```json
+{
+  "answer": "手机",
+  "guess": "维修",
+  "language": "zh-CN",
+  "scoring_rules_version": "v0.1",
+  "relation_caps": {
+    "synonym": 95,
+    "parent_category": 80,
+    "same_category": 85,
+    "attribute": 82,
+    "function": 80,
+    "component": 82,
+    "accessory": 78,
+    "service_context": 78,
+    "usage_context": 75,
+    "weak_context": 55,
+    "unrelated": 25
+  }
+}
+```
+
+V0.1 默认不传完整猜词历史。
+
+### 10.2 响应体
+
+```json
+{
+  "score": 72,
+  "is_exact": false,
+  "relation_type": "service_context",
+  "reason": "维修是手机的常见服务场景，但不是同义词或同类物品。",
+  "confidence": 0.86
+}
+```
+
+前端只接收后端处理后的最终分数，不接收 `reason`。
+
+## 11. 后处理
+
+1. 非整数分数尝试转为整数。
+2. 小于 0 裁剪为 0。
+3. 大于 100 裁剪为 100。
+4. 按 `relation_type` 上限再次裁剪。
+5. `relation_type` 非法时重试一次。
+6. AI 返回 `is_exact=true` 时，后端仍以本地词库匹配结果为准。
+
+## 12. 重试与失败
+
+自动重试一次的情况：
+
+1. 非 JSON。
+2. 缺少 `score`。
+3. 缺少 `relation_type`。
+4. `relation_type` 不在枚举中。
+
+重试后仍失败：
+
+1. 返回 `system_error` 或 `ai_timeout`。
+2. 不增加有效次数。
+3. 不写入有效猜词。
+4. 写入 AI 错误日志。
+
+## 13. 缓存
+
+### 13.1 单局缓存
+
+```text
+game_id + guess_normalized
+```
+
+同一局重复猜词命中后返回原结果，`source=game_cache`，不增加有效次数。
+
+### 13.2 全局缓存
+
+```text
+answer_id + guess_normalized + scoring_rules_version
+```
+
+命中后作为新的有效猜词，`source=global_cache`，增加有效次数。
+
+## 14. 人工样本集
+
+上线前准备约 300 条人工样本，覆盖：
+
+1. `exact`
+2. `alias`
+3. `synonym`
+4. `parent_category`
+5. `same_category`
+6. `attribute`
+7. `function`
+8. `component`
+9. `accessory`
+10. `service_context`
+11. `usage_context`
+12. `weak_context`
+13. `unrelated`
+
+验收目标：
+
+1. 大多数样本落在预期分数区间。
+2. 明显无关词不能长期出现高分。
+3. 强搭配词不能普遍超过关系上限。
