@@ -212,3 +212,13 @@ T30 + T31 + T32 → T33
 2. 完成 T12-T14 的最小链路。
 3. 前端能通过接口完整猜一局。
 4. 至少有 50 个词条可用于本地测试。
+
+## 11. 当前资料基线
+
+本仓库已准备一组不依赖项目骨架的 T02/T04/T08 基础资料：
+
+1. `migrations/0001_initial_business_tables.sql` 可在 SQLite / 本地 D1 中创建首版业务主数据表。
+2. `data/seed-words.v0.1.json` 当前提供 50 条本地测试词条；T04 后续目标仍是扩充到 300-500 条。
+3. `data/sensitive-terms.v0.1.txt` 当前只是初筛清单，后续 T08 实现时应进入输入校验模块，并保证命中后不调用 AI。
+4. `scripts/validate-seed.mjs` 可在无第三方依赖的 Node 环境中检查 seed 重复、空值、归一化和敏感词命中。
+5. `scripts/print-word-seed-sql.mjs` 可把 JSON seed 转成 `words` 表插入语句，便于后续接入本地 D1 / SQLite 初始化流程。
