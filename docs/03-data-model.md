@@ -101,6 +101,7 @@ guesses 1 ── n ai_call_logs
 | `best_guess_id` | string nullable | 当前最高分猜词 |
 | `started_at` | datetime | 开始时间 |
 | `ended_at` | datetime nullable | 结束时间 |
+| `expires_at` | datetime nullable | 计划过期时间 |
 | `expire_reason` | string nullable | `guess_limit/ttl` |
 
 默认不保存 `answer_word` 明文快照。展示答案时按 `answer_id` 查询词库。
@@ -177,7 +178,7 @@ sha256(answer_id + ":" + guess_normalized + ":" + rule_version + ":" + model_nam
 | `provider` | string | AI 服务商，初期默认 `deepseek` |
 | `model_name` | string | 模型，初期默认 `deepseek-v4-flash` |
 | `thinking_mode` | string | `disabled/enabled` |
-| `gateway_slug` | string | AI Gateway 标识 |
+| `gateway_slug` | string nullable | AI Gateway 标识；本地 stub 模式可为空 |
 | `gateway_request_id` | string nullable | AI Gateway 请求 ID |
 | `provider_request_id` | string nullable | DeepSeek 请求 ID |
 | `rule_version` | string | 评分规则版本 |
@@ -195,6 +196,16 @@ sha256(answer_id + ":" + guess_normalized + ":" + rule_version + ":" + model_nam
 
 1. D1 里的 `ai_call_logs` 只保留最小镜像，方便和 `games`、`guesses` 关联。
 2. 完整 prompt、完整响应、思维链和大文本日志应保留在 AI Gateway 日志或 R2 归档里。
+
+## 4.9 本地 migration 与 seed 资料
+
+首版本地资料位置：
+
+1. `migrations/0001_initial_business_tables.sql`：SQLite / 本地 D1 可执行的业务主数据表草案，覆盖 `visitors`、`sessions`、`words`、`games`、`guesses`、`score_cache`、`score_feedback`、`ai_call_logs`。
+2. `data/seed-words.v0.1.json`：50 条本地测试词条，字段与 `words` 表一致。
+3. `data/sensitive-terms.v0.1.txt`：敏感词初筛清单，用于 seed 检查和后续输入过滤资料。
+4. `scripts/validate-seed.mjs`：无第三方依赖的 seed 校验脚本，检查重复、空值、归一化和敏感词命中。
+5. `scripts/print-word-seed-sql.mjs`：无第三方依赖的词库 SQL 生成脚本，可把 JSON seed 导入 `words` 表。
 
 ## 5. 分析与归档结构
 
