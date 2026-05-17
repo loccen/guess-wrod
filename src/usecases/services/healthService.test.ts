@@ -14,6 +14,11 @@ describe("getHealthStatus", () => {
         version: "abcdef123456",
         source: "cf_pages_commit_sha"
       },
+      {
+        hasAiGatewayEndpoint: true,
+        hasAiGatewayApiKey: false,
+        hasAiGatewayByokAlias: true
+      },
       new Date("2026-05-17T00:00:00.000Z")
     );
 
@@ -30,6 +35,11 @@ describe("getHealthStatus", () => {
       runtime: {
         version: "abcdef123456",
         source: "cf_pages_commit_sha"
+      },
+      aiRuntime: {
+        hasAiGatewayEndpoint: true,
+        hasAiGatewayApiKey: false,
+        hasAiGatewayByokAlias: true
       }
     });
   });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loadAppConfig, loadRuntimeVersion } from "./runtimeConfig";
+import { loadAiRuntimeConfigSummary, loadAppConfig, loadRuntimeVersion } from "./runtimeConfig";
 
 describe("loadAppConfig", () => {
   it("uses local development defaults when env is empty", () => {
@@ -41,6 +41,32 @@ describe("loadAppConfig", () => {
     expect(loadRuntimeVersion({})).toEqual({
       version: "unknown",
       source: "unknown"
+    });
+  });
+
+  it("returns non-secret boolean flags for ai gateway runtime config", () => {
+    expect(
+      loadAiRuntimeConfigSummary({
+        AI_GATEWAY_ENDPOINT: "https://gateway.ai.cloudflare.com/v1/demo/guess-word",
+        AI_GATEWAY_API_KEY: "token-value",
+        AI_GATEWAY_BYOK_ALIAS: "production"
+      })
+    ).toEqual({
+      hasAiGatewayEndpoint: true,
+      hasAiGatewayApiKey: true,
+      hasAiGatewayByokAlias: true
+    });
+
+    expect(
+      loadAiRuntimeConfigSummary({
+        AI_GATEWAY_ENDPOINT: " ",
+        AI_GATEWAY_API_KEY: "",
+        AI_GATEWAY_BYOK_ALIAS: undefined
+      })
+    ).toEqual({
+      hasAiGatewayEndpoint: false,
+      hasAiGatewayApiKey: false,
+      hasAiGatewayByokAlias: false
     });
   });
 });

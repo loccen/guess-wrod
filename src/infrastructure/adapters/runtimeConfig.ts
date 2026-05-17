@@ -5,13 +5,16 @@ import type {
   ArchiveMode,
   CaptchaMode
 } from "../../domain/models/appConfig";
-import type { RuntimeVersionInfo } from "../../domain/models/health";
+import type { AiRuntimeConfigSummary, RuntimeVersionInfo } from "../../domain/models/health";
 
 export interface RuntimeEnv {
   AI_MODE?: string;
   CAPTCHA_MODE?: string;
   ANALYTICS_MODE?: string;
   ARCHIVE_MODE?: string;
+  AI_GATEWAY_ENDPOINT?: string;
+  AI_GATEWAY_API_KEY?: string;
+  AI_GATEWAY_BYOK_ALIAS?: string;
   CF_PAGES_COMMIT_SHA?: string;
   GIT_COMMIT_SHA?: string;
   BUILD_ID?: string;
@@ -73,5 +76,17 @@ export function loadRuntimeVersion(env: RuntimeEnv = {}): RuntimeVersionInfo {
   return {
     version: "unknown",
     source: "unknown"
+  };
+}
+
+function hasNonEmptyValue(value: string | undefined): boolean {
+  return Boolean(value && value.trim().length > 0);
+}
+
+export function loadAiRuntimeConfigSummary(env: RuntimeEnv = {}): AiRuntimeConfigSummary {
+  return {
+    hasAiGatewayEndpoint: hasNonEmptyValue(env.AI_GATEWAY_ENDPOINT),
+    hasAiGatewayApiKey: hasNonEmptyValue(env.AI_GATEWAY_API_KEY),
+    hasAiGatewayByokAlias: hasNonEmptyValue(env.AI_GATEWAY_BYOK_ALIAS)
   };
 }
