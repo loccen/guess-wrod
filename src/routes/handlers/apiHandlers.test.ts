@@ -3,6 +3,7 @@ import { LocalSensitiveTermChecker } from "../../infrastructure/adapters/sensiti
 import { SignedSessionTokenService } from "../../infrastructure/adapters/sessionTokenService";
 import { Sha256ValueHasher } from "../../infrastructure/adapters/sha256ValueHasher";
 import { StubScoringClient, type StubScoringRule } from "../../infrastructure/adapters/stubScoringClient";
+import { AiGatewayRequestError } from "../../infrastructure/adapters/deepseekAiGatewayScoringClient";
 import type {
   AiCallLog,
   Game,
@@ -340,6 +341,7 @@ interface CreateServicesOptions {
   scoringRules?: StubScoringRule[];
   analyticsSink?: RecordingAnalyticsSink;
   archiveSink?: RecordingArchiveSink;
+  runtimeVersion?: string;
 }
 
 async function createServices(options: CreateServicesOptions = {}): Promise<AppServices> {
@@ -377,6 +379,7 @@ async function createServices(options: CreateServicesOptions = {}): Promise<AppS
       modelName: "deepseek-v4-flash",
       thinkingMode: "disabled"
     },
+    runtimeVersion: options.runtimeVersion ?? "test-runtime",
     analyticsSink: options.analyticsSink ?? new RecordingAnalyticsSink(),
     archiveSink: options.archiveSink ?? new RecordingArchiveSink()
   };
@@ -980,6 +983,48 @@ describe("session and game handlers", () => {
     expect(payload.data.counted).toBe(true);
     expect(payload.data.guess_count).toBe(1);
     expect(payload.data.best_guess.score).toBe(72);
+  });
+
+  it("returns non-sensitive debug details when AI request fails", async () => {
+    const services = await createServices({ runtimeVersion: "runtime-20260518" });
+    services.scoringGateway.score = async () => {
+      throw new AiGatewayRequestError("gateway failed", {
+        responseStatus: 502,
+        requestUrl: "https://gateway.example.com/chat/completions?token=secret",
+        requestPath: "/chat/completions",
+        responseSummaryPrefix: "bad gateway",
+        hasGatewayAuth: true,
+        hasByokAlias: false
+      });
+    };
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(500);
+    expect(payload.error.code).toBe("system_error");
+    expect(payload.error.details?.debug).toEqual({
+      response_status: 502,
+      request_path: "/chat/completions",
+      has_gateway_auth: true,
+      has_byok_alias: false,
+      runtime: {
+        version: "runtime-20260518"
+      }
+    });
+    expect(payload.error.details?.debug?.request_url).toBeUndefined();
   });
 
   it("rejects guesses after the game has already ended", async () => {

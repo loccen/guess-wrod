@@ -67,6 +67,7 @@ export interface AppServices {
   sensitiveTermChecker: SensitiveTermChecker;
   scoringGateway: ScoringGateway;
   scoringProfile: ScoringProfile;
+  runtimeVersion?: string;
   analyticsSink: AnalyticsSink;
   archiveSink: ArchiveSink;
 }

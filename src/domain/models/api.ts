@@ -16,12 +16,14 @@ export interface ApiErrorOptions {
   status: number;
   message: string;
   counted?: boolean;
+  details?: Record<string, unknown>;
 }
 
 export class ApiError extends Error {
   readonly code: ApiErrorCode;
   readonly status: number;
   readonly counted: boolean;
+  readonly details?: Record<string, unknown>;
 
   constructor(options: ApiErrorOptions) {
     super(options.message);
@@ -29,6 +31,7 @@ export class ApiError extends Error {
     this.code = options.code;
     this.status = options.status;
     this.counted = options.counted ?? false;
+    this.details = options.details;
   }
 }
 
