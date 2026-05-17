@@ -1,5 +1,6 @@
 import { DEFAULT_MODEL_NAME, DEFAULT_THINKING_MODE } from "../../domain/models/api";
 import { ArchiveMirroringAnalyticsSink } from "../../infrastructure/adapters/archiveMirroringAnalyticsSink";
+import { CompositeAnalyticsSink } from "../../infrastructure/adapters/compositeAnalyticsSink";
 import { DeepSeekAiGatewayScoringClient } from "../../infrastructure/adapters/deepseekAiGatewayScoringClient";
 import { LiveCaptchaVerifier } from "../../infrastructure/adapters/liveCaptchaVerifier";
 import { LiveAnalyticsSink, LiveArchiveSink } from "../../infrastructure/adapters/liveObservabilitySinks";
@@ -69,9 +70,7 @@ export function createAppServices(env: ApiRuntimeEnv): AppServices {
     scoringProfile,
     analyticsSink:
       config.analyticsMode === "live"
-        ? config.archiveMode === "live"
-          ? new LiveAnalyticsSink()
-          : new ArchiveMirroringAnalyticsSink(archiveSink)
+        ? new CompositeAnalyticsSink([new LiveAnalyticsSink(), new ArchiveMirroringAnalyticsSink(archiveSink)])
         : new NoopAnalyticsSink(),
     archiveSink
   };
