@@ -190,12 +190,16 @@ V0.1 默认不传完整猜词历史。
 
 ### 10.2 模型调用约定
 
-1. 统一通过 Cloudflare AI Gateway 发起请求。
-2. `model` 固定为 `deepseek-v4-flash`。
-3. 默认使用非思考模式，以控制延迟和成本。
-4. 要求模型返回合法 JSON；如果返回非法 JSON，后端按重试规则处理。
-5. 不启用工具调用，不把完整猜词历史拼进提示词。
-6. AI Gateway 日志、缓存和成本观测只作为基础设施能力，不替代业务侧 D1 缓存语义。
+1. 业务层只依赖平台中立的 `AiScoringClient` / `ScoringGateway` 接口。
+2. 本地默认 `AI_MODE=stub`，使用 stub scoring client 返回结构化评分，不调用真实模型。
+3. live 模式由 adapter 层通过 AI Gateway 转发到 DeepSeek；usecase 不拼接 AI Gateway 请求，也不读取 env。
+4. `model` 默认值为 `deepseek-v4-flash`，由 adapter 配置注入。
+5. 默认使用非思考模式，以控制延迟和成本。
+6. 要求模型返回合法 JSON；如果返回非法 JSON，后端按重试规则处理。
+7. 不启用工具调用，不把完整猜词历史拼进提示词。
+8. AI Gateway 日志、缓存和成本观测只作为基础设施能力，不替代业务侧 D1 缓存语义。
+
+当前 live adapter 只完成边界骨架和最小请求封装，密钥、endpoint、fetch 实现都必须由入口层或配置 adapter 注入；仓库内不得写入真实密钥。
 
 ### 10.3 模型输出
 
@@ -229,6 +233,8 @@ V0.1 默认不传完整猜词历史。
 2. 缺少 `score`。
 3. 缺少 `relation_type`。
 4. `relation_type` 不在枚举中。
+5. 未命中本地标准答案或显式别名时，AI 返回 `relation_type=exact` 或 `relation_type=alias`。
+6. `score` 不是可转换为有限数字的值。
 
 重试后仍失败：
 
@@ -236,6 +242,8 @@ V0.1 默认不传完整猜词历史。
 2. 不增加有效次数。
 3. 不写入有效猜词。
 4. 写入 AI 错误日志。
+
+当前 `ScoringGateway` 已保留 retryable 错误判定和最大尝试次数；提交猜词 API、计次、缓存写入和 AI 错误日志仍由后续主流程接入。
 
 ## 13. 缓存
 
