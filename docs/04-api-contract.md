@@ -447,6 +447,7 @@ Response:
       "debug": {
         "response_status": 502,
         "request_path": "/chat/completions",
+        "response_summary_prefix": "upstream failed: [redacted-url] Authorization=[redacted]",
         "has_gateway_auth": true,
         "has_byok_alias": false,
         "runtime": {
@@ -461,7 +462,8 @@ Response:
 说明：
 
 1. `details.debug` 仅用于定位失败层级，不包含密钥、token、完整上游 URL、完整响应体。
-2. `runtime.version` 来源于运行时版本摘要（commit/build 标识），用于区分部署版本。
+2. `response_summary_prefix` 来自上游失败摘要（含 fetch 前异常），会做 URL/凭据脱敏并截断到 160 字符。
+3. `runtime.version` 来源于运行时版本摘要（commit/build 标识），用于区分部署版本。
 
 ## 5. 前端处理要求
 

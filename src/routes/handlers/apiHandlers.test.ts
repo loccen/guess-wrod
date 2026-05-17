@@ -1018,6 +1018,7 @@ describe("session and game handlers", () => {
     expect(payload.error.details?.debug).toEqual({
       response_status: 502,
       request_path: "/chat/completions",
+      response_summary_prefix: "bad gateway",
       has_gateway_auth: true,
       has_byok_alias: false,
       runtime: {
@@ -1025,6 +1026,78 @@ describe("session and game handlers", () => {
       }
     });
     expect(payload.error.details?.debug?.request_url).toBeUndefined();
+  });
+
+  it("sanitizes response summary prefix in public debug details", async () => {
+    const services = await createServices({ runtimeVersion: "runtime-20260518" });
+    services.scoringGateway.score = async () => {
+      throw new AiGatewayRequestError("gateway failed", {
+        responseStatus: 502,
+        requestUrl: "https://gateway.example.com/chat/completions?token=secret",
+        requestPath: "/chat/completions",
+        responseSummaryPrefix:
+          "upstream failed: https://gateway.example.com/chat/completions?token=secret Authorization=Bearer abcdefghijklmnopqrstuvwxyz0123456789",
+        hasGatewayAuth: true,
+        hasByokAlias: false
+      });
+    };
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+    const summary = payload.error.details?.debug?.response_summary_prefix;
+
+    expect(response.status).toBe(500);
+    expect(summary).toContain("[redacted-url]");
+    expect(summary).toContain("Authorization=[redacted]");
+    expect(summary).not.toContain("https://gateway.example.com");
+    expect(summary).not.toContain("abcdefghijklmnopqrstuvwxyz0123456789");
+    expect(typeof summary).toBe("string");
+    expect(summary.length).toBeLessThanOrEqual(160);
+  });
+
+  it("exposes pre-fetch AiGatewayRequestError summary in public debug details", async () => {
+    const services = await createServices({ runtimeVersion: "runtime-20260518" });
+    services.scoringGateway.score = async () => {
+      throw new AiGatewayRequestError("gateway failed before response", {
+        responseStatus: null,
+        requestUrl: "https://gateway.example.com/chat/completions",
+        requestPath: "/chat/completions",
+        responseSummaryPrefix: "TypeError: fetch failed",
+        hasGatewayAuth: true,
+        hasByokAlias: false
+      });
+    };
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(500);
+    expect(payload.error.details?.debug?.response_status).toBeNull();
+    expect(payload.error.details?.debug?.response_summary_prefix).toBe("TypeError: fetch failed");
   });
 
   it("rejects guesses after the game has already ended", async () => {
