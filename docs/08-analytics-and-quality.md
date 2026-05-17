@@ -62,7 +62,7 @@
 3. `session_created`、`game_created`、`guess_submitted`、`guess_reused`、`score_feedback_submitted`、`game_give_up`、`game_success`、`game_expired`、`ai_error` 已在关键 use case 中接入 best-effort 调用。
 4. 模型评分路径现在会写入 D1 `ai_call_logs` 最小镜像，并尝试把原始镜像交给 `ArchiveSink`。
 5. 默认本地模式仍是 `ANALYTICS_MODE=noop`，因此 `wrangler pages dev` 下不会自动产出真实事件文件；`JsonLineArchiveSink` 已可用于本地文件写入测试或后续 CLI/宿主注入。
-6. 真实 Workers Analytics Engine、R2 归档对象和 AI Gateway token 成本字段仍未接通，当前还不能直接产出完整日报或线上成本报表。
+6. `ANALYTICS_MODE=live` 与 `ARCHIVE_MODE=live` 已有最小可用 sink（运行时输出事件与归档日志）；真实 Workers Analytics Engine、R2 归档对象和 AI Gateway token 成本字段仍未接通，当前还不能直接产出完整日报或线上成本报表。
 
 ## 4. AI 调用观测
 
