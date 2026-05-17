@@ -60,12 +60,14 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
   const copy = modeCopy[mode];
   const [screenState, setScreenState] = useState<ResultScreenState>(route.demo ? {
     status: "ready",
-    model: {
+      model: {
       answer: demoResultBase.answer,
       aliasesText: demoResultBase.aliasesText,
       statAValue: mode === "expired" ? "100次" : mode === "success" ? "10次" : "8次",
       statBValue: mode === "success" ? "6分18秒" : mode === "expired" ? "92%" : "76%",
       statCValue: mode === "success" ? "100%" : mode === "expired" ? "过期" : "放弃",
+      expiredReasonTitle: "达到 100 次有效猜词",
+      expiredReasonDetail: "本局已触发猜词次数上限。",
       guesses: demoResultBase.guesses
     }
   } : { status: "loading" });
@@ -141,8 +143,8 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
       {mode === "expired" && (
         <section className="card reason-card" data-ui-id="expired-reason-card">
           <h2>过期原因</h2>
-          <strong>达到 100 次有效猜词</strong>
-          <p>或超过 24 小时未完成</p>
+          <strong>{screenState.status === "ready" ? screenState.model.expiredReasonTitle : "读取中"}</strong>
+          <p>{screenState.status === "ready" ? screenState.model.expiredReasonDetail : "正在加载过期原因"}</p>
         </section>
       )}
 

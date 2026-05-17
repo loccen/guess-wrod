@@ -24,16 +24,16 @@
   "failures": [],
   "warnings": [],
   "artifacts": {
-    "actualScreenshot": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/01-home/actual.png",
-    "pageDiff": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/01-home/page-diff.png",
+    "actualScreenshot": "docs/ui-prototypes/visual-qa/report/01-home/actual.png",
+    "pageDiff": "docs/ui-prototypes/visual-qa/report/01-home/page-diff.png",
     "failedRegions": [],
-    "report": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/01-home/visual-qa-report.json"
+    "report": "docs/ui-prototypes/visual-qa/report/01-home/visual-qa-report.json"
   },
   "pageDiff": {
     "compared": true,
     "diffPixels": 37113,
     "totalPixels": 329160,
     "diffRatio": 0.11275063798760482,
-    "diffFile": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/01-home/page-diff.png"
+    "diffFile": "docs/ui-prototypes/visual-qa/report/01-home/page-diff.png"
   }
 }

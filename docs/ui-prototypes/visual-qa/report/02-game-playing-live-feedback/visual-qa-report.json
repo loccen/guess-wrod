@@ -144,7 +144,7 @@
       "type": "region-diff",
       "message": "region diff 0.2011 exceeds 0.08",
       "diffRatio": 0.20113125453226977,
-      "artifact": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/regions/best-card-diff.png"
+      "artifact": "docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/regions/best-card-diff.png"
     },
     {
       "priority": "high",
@@ -152,7 +152,7 @@
       "type": "region-diff",
       "message": "region diff 0.2448 exceeds 0.08",
       "diffRatio": 0.24480578139114725,
-      "artifact": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/regions/score-ring-diff.png"
+      "artifact": "docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/regions/score-ring-diff.png"
     }
   ],
   "warnings": [
@@ -163,19 +163,19 @@
     }
   ],
   "artifacts": {
-    "actualScreenshot": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/actual.png",
-    "pageDiff": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/page-diff.png",
+    "actualScreenshot": "docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/actual.png",
+    "pageDiff": "docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/page-diff.png",
     "failedRegions": [
-      "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/regions/best-card-diff.png",
-      "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/regions/score-ring-diff.png"
+      "docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/regions/best-card-diff.png",
+      "docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/regions/score-ring-diff.png"
     ],
-    "report": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/visual-qa-report.json"
+    "report": "docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/visual-qa-report.json"
   },
   "pageDiff": {
     "compared": true,
     "diffPixels": 44962,
     "totalPixels": 329160,
     "diffRatio": 0.13659618422651598,
-    "diffFile": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/page-diff.png"
+    "diffFile": "docs/ui-prototypes/visual-qa/report/02-game-playing-live-feedback/page-diff.png"
   }
 }

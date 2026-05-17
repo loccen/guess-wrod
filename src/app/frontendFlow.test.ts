@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDurationText, formatExpiresText, getErrorMessage, mapRelationLabel, toGuessHistoryItems, toGuessSubmitNotice } from "./frontendFlow";
+import { formatDurationText, formatExpiresText, getErrorMessage, mapRelationLabel, toGuessHistoryItems, toGuessSubmitNotice, toResultPageModel } from "./frontendFlow";
 import { buildFeedbackNote, validateFeedbackNote } from "./feedbackFlow";
 import { FrontendApiError } from "./apiClient";
 import { buildGamePath, buildResultPath, readRoute, toResultMode } from "../routes/routeState";
@@ -147,6 +147,28 @@ describe("frontendFlow helpers", () => {
     });
 
     expect(getErrorMessage(invalidGuessError)).toBe("请输入 1 到 20 个字符的有效猜词。");
+  });
+
+  it("maps expired reason from game status into result model", () => {
+    const model = toResultPageModel("expired", {
+      game_id: "game_1",
+      status: "expired",
+      expire_reason: "ttl",
+      guess_count: 24,
+      best_guess: {
+        guess_id: "guess_1",
+        guess: "手机",
+        score: 88
+      },
+      guesses: [],
+      started_at: "2026-05-18T00:00:00.000Z",
+      ended_at: "2026-05-18T01:00:00.000Z",
+      answer: "智能手机",
+      answer_aliases: ["手机"]
+    });
+
+    expect(model.expiredReasonTitle).toBe("超过 24 小时未完成");
+    expect(model.expiredReasonDetail).toBe("本局已触发时长上限。");
   });
 
   it("builds feedback note payloads for unsupported directions", () => {
