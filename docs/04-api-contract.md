@@ -124,6 +124,13 @@ Request:
 可选字段：
 
 1. `turnstile_token`：当服务端要求二次校验时必填。
+2. `note`：可为空；若传入，服务端会做 trim，长度上限 200 字符。
+
+服务端校验：
+
+1. `guess_id` 必须属于当前 `game_id`，且对应的是当前会话访客自己的有效计次猜词。
+2. 同一访客对同一 `guess_id` 和 `feedback_type` 只允许提交一次。
+3. 当前只支持 `feedback_type = score_unreasonable`。
 
 Response:
 
@@ -341,7 +348,7 @@ Response:
 | `unauthorized` | 401 | false | 无会话或会话失效 |
 | `turnstile_required` | 403 | false | 需要补做人机校验 |
 | `turnstile_failed` | 400 | false | Turnstile token 无效、过期或校验失败 |
-| `invalid_request` | 400 | false | 请求体缺字段、字段值不支持或模式非法 |
+| `invalid_request` | 400 | false | 请求体缺字段、字段值不支持、`guess_id` 不匹配、重复反馈或模式非法 |
 | `invalid_guess` | 400 | false | 空输入、超长、格式非法 |
 | `sensitive_word` | 400 | false | 命中敏感词 |
 | `game_not_found` | 404 | false | 游戏不存在或无权访问 |

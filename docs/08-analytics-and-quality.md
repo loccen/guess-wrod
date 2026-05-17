@@ -58,8 +58,9 @@
 当前代码状态说明：
 
 1. `guesses`、`games`、`score_cache` 已能支撑最小业务复验。
-2. `guess_events` 与 `ai_call_logs` 仍未在 `POST /api/games/{game_id}/guesses` 中真实写入。
-3. 因此当前只能依赖业务表验证计次、缓存和状态，不足以产出完整行为报表或 AI 成本统计。
+2. `POST /api/games/{game_id}/feedback` 已写入 `score_feedback` 业务表，并阻止同一访客对同一猜词重复提交同类反馈。
+3. `guess_events` 与 `ai_call_logs` 仍未在 `POST /api/games/{game_id}/guesses` / `POST /api/games/{game_id}/feedback` 中真实写入。
+4. 因此当前只能依赖业务表验证计次、缓存、状态和反馈写入，不足以产出完整行为报表或 AI 成本统计。
 
 ## 4. AI 调用观测
 

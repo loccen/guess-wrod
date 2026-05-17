@@ -161,6 +161,55 @@ describe("createSqliteStorageRepositories", () => {
     expect(db.calls[1]?.values).toEqual(["2026-05-17T00:01:00.000Z", "cache_1"]);
   });
 
+  it("writes score feedback and can list feedback by guess", async () => {
+    const db = new FakeExecutor();
+    db.allRows.push({
+      id: "feedback_1",
+      game_id: "game_1",
+      guess_id: "guess_1",
+      visitor_id: "visitor_1",
+      feedback_type: "score_unreasonable",
+      note: "这个词给高了",
+      created_at: "2026-05-17T00:00:00.000Z"
+    });
+
+    const repositories = createSqliteStorageRepositories(db);
+    await repositories.feedback.createFeedback({
+      id: "feedback_1",
+      gameId: "game_1",
+      guessId: "guess_1",
+      visitorId: "visitor_1",
+      feedbackType: "score_unreasonable",
+      note: "这个词给高了",
+      createdAt: "2026-05-17T00:00:00.000Z"
+    });
+    const feedbackItems = await repositories.feedback.listFeedbackByGuess("guess_1", { limit: 20 });
+
+    expect(db.calls[0]?.sql).toContain("INSERT INTO score_feedback");
+    expect(db.calls[0]?.values).toEqual([
+      "feedback_1",
+      "game_1",
+      "guess_1",
+      "visitor_1",
+      "score_unreasonable",
+      "这个词给高了",
+      "2026-05-17T00:00:00.000Z"
+    ]);
+    expect(db.calls[1]?.sql).toContain("SELECT * FROM score_feedback WHERE guess_id = ?");
+    expect(db.calls[1]?.values).toEqual(["guess_1", 20]);
+    expect(feedbackItems).toEqual([
+      {
+        id: "feedback_1",
+        gameId: "game_1",
+        guessId: "guess_1",
+        visitorId: "visitor_1",
+        feedbackType: "score_unreasonable",
+        note: "这个词给高了",
+        createdAt: "2026-05-17T00:00:00.000Z"
+      }
+    ]);
+  });
+
   it("keeps AI call logs as minimal mirrors and preserves nullable gateway fields", async () => {
     const db = new FakeExecutor();
     const repositories = createSqliteStorageRepositories(db);
