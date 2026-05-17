@@ -1,14 +1,14 @@
 {
   "protocol_version": 1,
   "skill_revision": "1.0.1",
-  "generated_at": "2026-05-17T23:23:53+08:00",
+  "generated_at": "2026-05-17T23:25:46+08:00",
   "active_tasks": [
     {
       "task_id": "202605171630-development-orchestration",
       "title": "实际开发阶段编排",
       "status": "active",
-      "updated_at": "2026-05-17T23:22:54+08:00",
-      "next_step": "创建首批 worktree，并派发：T01 项目骨架、数据与词库准备、评分规则准备、前端原型规格准备。",
+      "updated_at": "2026-05-17T23:24:30+08:00",
+      "next_step": "派发四个子代理：T01 项目骨架、数据与词库准备、评分规则准备、前端原型规格准备。",
       "manifest_path": "/Users/loccen/Documents/guess-wrod/.agent-handoff/tasks/202605171630-development-orchestration/manifest.json",
       "task_path": "/Users/loccen/Documents/guess-wrod/.agent-handoff/tasks/202605171630-development-orchestration",
       "bucket": "tasks"

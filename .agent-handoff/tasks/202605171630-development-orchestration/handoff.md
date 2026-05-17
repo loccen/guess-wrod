@@ -5,16 +5,16 @@
 - 当前仓库只有文档和原型图，没有 `package.json`、Wrangler 配置、前端入口或 Functions 入口。
 - 已读取 `AGENTS.md`、关键设计文档、实施计划和原型说明。
 - `.agent-handoff` task bundle 已创建：`202605171630-development-orchestration`。
+- 首批四个独立 worktree 已创建，路径和分支见 `evidence/dispatch-plan.md`。
 
 ## 未完成
 
-- 创建首批独立 worktree。
 - 派发子代理执行 T01 项目骨架、数据与词库准备、评分规则准备、前端原型规格准备。
 - 等待子代理提交后验收、合并、清理。
 
 ## 第一步该做什么
 
-- 创建首批 worktree，并派发子代理；T01 项目骨架是主要阻塞项。
+- 派发四个子代理；T01 项目骨架是主要阻塞项。
 
 ## 先看哪些文件/命令
 
