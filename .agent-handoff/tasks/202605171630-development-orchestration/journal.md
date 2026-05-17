@@ -89,3 +89,9 @@
 - 动作：从最新 `main` 的 `359fb62` 创建两个 worktree，并派发前端真实猜词流程和评分反馈后端链路子代理。
 - 结果：第五批子代理 ID、branch、worktree 已登记到 `evidence/dispatch-plan.md`。
 - 遗留：等待第五批子任务完成；完成一个验收一个并及时合入 `main`。
+
+## 2026-05-18T00:59:40+08:00 第五批验收并合入
+
+- 动作：验收并合入前端真实猜词流程与评分反馈后端链路两个子任务。
+- 结果：两个子任务已通过 no-ff merge 合入 `main`；主仓已具备 session -> game -> guess -> feedback -> give-up -> status 的本地 HTTP 链路。
+- 遗留：继续派发前端反馈接入与过期/上限规则实现。

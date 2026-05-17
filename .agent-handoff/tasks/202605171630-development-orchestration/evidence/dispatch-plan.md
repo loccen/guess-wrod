@@ -281,3 +281,33 @@
 - 子代理不得发送 ntfy。
 - 完成后主代理应及时验收并合入 `main`。
 - 后续新任务必须继续从合入后的最新 `main` 创建 worktree。
+
+## 第五批合并状态
+
+- 前端真实猜词流程：
+  - 子任务提交：`6a7a062` 与补充报告提交 `5054767`
+  - merge commit：`dbdf55e`
+  - 结果：游戏页真实接入 `POST /api/games/{id}/guesses`，提交、加载、历史刷新、重复猜词提示与猜中跳转已接通。
+- 评分反馈后端链路：
+  - 子任务提交：`84cc92787e4017668cae4a1d601e7560abaeb611`
+  - merge commit：`bd3d226`
+  - 结果：`POST /api/games/{id}/feedback` 已接通，支持 `score_unreasonable`、guess 归属校验、重复反馈拦截和 note 校验。
+- 第五批合并后主验证：
+  - `npm run typecheck` 通过
+  - `npm test` 通过，8 个文件 46 个用例
+  - `node --test tests/domain/scoring.test.mjs` 通过，14 项
+  - `npm run build` 通过
+  - `npm run cf:check` 通过
+  - seed/migration 校验通过
+  - `.agent-handoff` 校验通过
+  - `npm run dev:pages` 下，`POST /api/sessions -> POST /api/games -> POST /api/games/{id}/guesses -> GET /api/games/{id} -> POST /api/games/{id}/feedback -> POST /api/games/{id}/give-up -> GET /api/games/{id}` 真实链路通过
+- 清理结果：第五批两个 worktree 与临时分支已删除。
+
+## 第六批建议
+
+基于第五批后的最新 `main`，优先拆这两条：
+
+1. `前端反馈接入与交互收尾`
+   - 范围：把反馈弹层/按钮接到真实 `POST /api/games/{id}/feedback`，把 disabled 占位替换成真实提交与失败态；视需要同步结果页/历史展示。
+2. `过期与上限规则`
+   - 范围：实现单局 100 次上限、TTL 过期状态、相关状态查询和结果页支持；必要时补最小 cron/usecase 边界，但不强求真实计划任务部署。

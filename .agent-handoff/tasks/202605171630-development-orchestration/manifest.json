@@ -3,12 +3,12 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T00:47:32+08:00",
+  "updated_at": "2026-05-18T00:59:40+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
   "truth_sources": ["AGENTS.md", "docs/02-architecture.md", "docs/04-api-contract.md", "docs/05-scoring-spec.md", "docs/07-implementation-plan.md", "docs/08-analytics-and-quality.md", "docs/ui-prototypes/images"],
-  "next_step": "等待第五批子代理完成；完成一个验收一个并及时合入 main。",
+  "next_step": "基于最新 main 创建第六批 worktree，派发前端反馈接入与过期/上限规则子任务。",
   "blockers": [],
   "evidence_paths": [".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"],
   "related_commits": [
@@ -33,7 +33,12 @@
     "1488646432bfcbd3dc48523bebcf26db03d35fdd",
     "166d10c",
     "b845f626a630662e060e4d34a70c137a63bacf0e",
-    "51ff6f5"
+    "51ff6f5",
+    "6a7a062",
+    "5054767",
+    "dbdf55e",
+    "84cc92787e4017668cae4a1d601e7560abaeb611",
+    "bd3d226"
   ],
   "related_tasks": [
     "codex/guessword-t01-skeleton",
