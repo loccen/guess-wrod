@@ -207,6 +207,32 @@ sha256(answer_id + ":" + guess_normalized + ":" + rule_version + ":" + model_nam
 4. `scripts/validate-seed.mjs`：无第三方依赖的 seed 校验脚本，检查重复、空值、归一化和敏感词命中。
 5. `scripts/print-word-seed-sql.mjs`：无第三方依赖的词库 SQL 生成脚本，可把 JSON seed 导入 `words` 表。
 
+## 4.10 Repository 与 adapter 基线
+
+当前代码已按首版业务表提供平台中立 repository 接口：
+
+| 接口 | 主要表 | 说明 |
+| --- | --- | --- |
+| `SessionRepository` | `visitors`、`sessions` | 访客 upsert、会话创建、token hash 查询、撤销 |
+| `WordRepository` | `words` | 词条 upsert、按 ID 查询、按归一化答案查询、启用词列表 |
+| `GameRepository` | `games` | 创建游戏、按 ID 查询、访客游戏列表、计数和结束状态更新 |
+| `GuessRepository` | `guesses` | 写入猜词、查重、按游戏读取历史 |
+| `ScoreCacheRepository` | `score_cache` | 写入全局评分缓存、按身份字段查询、记录命中 |
+| `FeedbackRepository` | `score_feedback` | 写入和读取评分反馈 |
+| `AiCallLogRepository` | `ai_call_logs` | 写入和读取 AI 调用最小镜像 |
+
+接口位置为 `src/usecases/repositories/storageRepositories.ts`，领域类型位置为 `src/domain/models/storage.ts`。业务层只依赖这些类型，不依赖 D1 或 Workers runtime。
+
+当前 adapter 位置为 `src/infrastructure/adapters/storage/sqliteStorageRepositories.ts`，它只依赖最小 `SqlExecutor`：
+
+```ts
+prepare(sql).bind(...values).first/all/run
+```
+
+该形状与 D1 prepared statement 兼容，也方便用本地 SQLite 或 fake executor 做测试。JSON 数组、`0/1` 布尔值和 snake_case/camelCase 字段转换都限制在 adapter 内。
+
+`wrangler.jsonc` 已声明本地开发 `DB` binding。当前没有创建真实 Cloudflare D1 数据库；线上资源创建和真实 ID 回填应由专门部署任务处理。
+
 ## 5. 分析与归档结构
 
 ### 5.1 `guess_events`（Workers Analytics Engine 数据集）

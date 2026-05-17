@@ -235,6 +235,7 @@ T01 项目骨架使用 React + Vite + TypeScript + Cloudflare Pages Functions。
 | `CAPTCHA_MODE` | `bypass` | 本地默认不接真实验证码 |
 | `ANALYTICS_MODE` | `noop` | 本地默认不写真实分析数据 |
 | `ARCHIVE_MODE` | `file` | 本地默认预留文件归档 adapter |
+| `DB` | `guess-wrod-local` | 本地 D1 binding，当前只用于 `wrangler pages dev` / 本地 D1 验证 |
 
 当前健康检查地址为 `GET /api/health`。该接口用于验证 Pages Functions、routes handler、use case 和运行时配置 adapter 的最小链路；不包含业务主流程、数据库、词库 seed、评分规则或真实 AI 调用。
 
@@ -257,3 +258,27 @@ T12/T13 当前完成最小前置：
 3. `data/sensitive-terms.v0.1.txt` 当前只是初筛清单，后续 T08 实现时应进入输入校验模块，并保证命中后不调用 AI。
 4. `scripts/validate-seed.mjs` 可在无第三方依赖的 Node 环境中检查 seed 重复、空值、归一化和敏感词命中。
 5. `scripts/print-word-seed-sql.mjs` 可把 JSON seed 转成 `words` 表插入语句，便于后续接入本地 D1 / SQLite 初始化流程。
+
+## 13. 存储基础当前状态
+
+T02 后半和 T03/T05/T14 前置存储基础已具备：
+
+1. `src/domain/models/storage.ts` 定义会话、词条、游戏、猜词、反馈、评分缓存和 AI 调用镜像类型。
+2. `src/usecases/repositories/storageRepositories.ts` 定义平台中立 repository 接口。
+3. `src/infrastructure/adapters/storage/sqliteStorageRepositories.ts` 提供 D1/SQLite 风格 adapter，使用 `migrations/0001_initial_business_tables.sql` 的表和列。
+4. `src/routes/handlers/storage/createStorageRepositories.ts` 提供入口层依赖装配辅助，但没有实现 `POST /api/sessions`、`POST /api/games` 或猜词 API。
+5. `src/infrastructure/adapters/storage/sqliteStorageRepositories.test.ts` 用 fake executor 覆盖 SQL 映射、JSON 字段、空值、布尔值和缓存命中更新。
+
+后续 T03/T05/T14 实现业务 API 时，应从 handler 层创建 repositories，再注入 use case。use case 不得 import `SqlExecutor`、D1 binding 或 Cloudflare runtime 类型。
+
+本地 D1 复验建议：
+
+```sh
+npx wrangler d1 execute guess-wrod-local --local --file migrations/0001_initial_business_tables.sql
+node scripts/print-word-seed-sql.mjs > .wrangler/word-seed.sql
+grep -v -E '^(BEGIN;|COMMIT;)$' .wrangler/word-seed.sql > .wrangler/word-seed-no-transaction.sql
+npx wrangler d1 execute guess-wrod-local --local --file .wrangler/word-seed-no-transaction.sql
+npx wrangler d1 execute guess-wrod-local --local --command "SELECT COUNT(*) AS count FROM words;"
+```
+
+当前 wrangler 本地 D1 执行器会拒绝脚本里的 `BEGIN` / `COMMIT` 事务语句，所以本地复验时使用临时过滤文件。`.wrangler/` 是本地状态目录，不要提交。
