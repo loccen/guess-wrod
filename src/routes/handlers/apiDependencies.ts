@@ -22,6 +22,7 @@ export interface ApiRuntimeEnv extends RuntimeEnv, StorageBindings {
   SESSION_TOKEN_SECRET?: string;
   AI_GATEWAY_ENDPOINT_URL?: string;
   AI_GATEWAY_API_KEY?: string;
+  AI_GATEWAY_BYOK_ALIAS?: string;
   TURNSTILE_SECRET_KEY?: string;
   AI_MODEL_NAME?: string;
   AI_THINKING_MODE?: string;
@@ -48,6 +49,7 @@ export function createAppServices(env: ApiRuntimeEnv): AppServices {
       ? new DeepSeekAiGatewayScoringClient({
           endpointUrl: requiredEnv(env.AI_GATEWAY_ENDPOINT_URL, "AI_GATEWAY_ENDPOINT_URL"),
           apiKey: optionalEnv(env.AI_GATEWAY_API_KEY),
+          byokAlias: optionalEnv(env.AI_GATEWAY_BYOK_ALIAS),
           model: scoringProfile.modelName
         })
       : new StubScoringClient();

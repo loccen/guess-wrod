@@ -70,4 +70,50 @@ describe("DeepSeekAiGatewayScoringClient", () => {
     expect((init.headers as Record<string, string>)["cf-aig-authorization"]).toBe("Bearer cf-token");
     expect((init.headers as Record<string, string>).authorization).toBeUndefined();
   });
+
+  it("配置 BYOK alias 时发送 cf-aig-byok-alias 头", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: "{}" } }] })
+    })) as unknown as typeof fetch;
+    const client = new DeepSeekAiGatewayScoringClient({
+      endpointUrl: "https://example.com/v1/acct/gateway/provider",
+      byokAlias: "guess-word",
+      fetch: fetchMock
+    });
+
+    await client.score({
+      answer: "a",
+      guess: "b",
+      language: "zh-CN",
+      scoringRulesVersion: "v1",
+      relationCaps: { synonym: 20, same_category: 20 }
+    });
+
+    const init = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
+    expect((init.headers as Record<string, string>)["cf-aig-byok-alias"]).toBe("guess-word");
+  });
+
+  it("BYOK alias 为空时不发送 cf-aig-byok-alias 头", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: "{}" } }] })
+    })) as unknown as typeof fetch;
+    const client = new DeepSeekAiGatewayScoringClient({
+      endpointUrl: "https://example.com/v1/acct/gateway/provider",
+      byokAlias: "",
+      fetch: fetchMock
+    });
+
+    await client.score({
+      answer: "a",
+      guess: "b",
+      language: "zh-CN",
+      scoringRulesVersion: "v1",
+      relationCaps: { synonym: 20, same_category: 20 }
+    });
+
+    const init = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
+    expect((init.headers as Record<string, string>)["cf-aig-byok-alias"]).toBeUndefined();
+  });
 });

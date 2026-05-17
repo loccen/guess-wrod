@@ -3,6 +3,7 @@ import type { AiScoringClient, AiScoringRequest } from "../../usecases/scoring/s
 export interface DeepSeekAiGatewayConfig {
   endpointUrl: string;
   apiKey?: string;
+  byokAlias?: string;
   model?: string;
   fetch?: typeof fetch;
 }
@@ -53,6 +54,7 @@ export class DeepSeekAiGatewayScoringClient implements AiScoringClient {
       headers: {
         "content-type": "application/json",
         ...(this.config.apiKey ? { "cf-aig-authorization": `Bearer ${this.config.apiKey}` } : {}),
+        ...(this.config.byokAlias ? { "cf-aig-byok-alias": this.config.byokAlias } : {}),
       },
       body: JSON.stringify({
         model: this.model,
