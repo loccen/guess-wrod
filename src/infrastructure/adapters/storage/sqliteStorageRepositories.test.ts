@@ -247,6 +247,12 @@ describe("createSqliteStorageRepositories", () => {
       "success",
       null,
       null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
       null
     ]);
   });

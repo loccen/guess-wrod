@@ -312,6 +312,12 @@ class MemoryStorageRepositories implements StorageRepositories {
         estimatedCostUsd: log.estimatedCostUsd ?? null,
         status: log.status,
         errorCode: log.errorCode ?? null,
+        responseStatus: log.responseStatus ?? null,
+        requestUrl: log.requestUrl ?? null,
+        requestPath: log.requestPath ?? null,
+        responseSummaryPrefix: log.responseSummaryPrefix ?? null,
+        hasGatewayAuth: log.hasGatewayAuth ?? null,
+        hasByokAlias: log.hasByokAlias ?? null,
         archiveObjectKey: log.archiveObjectKey ?? null,
         createdAt: log.createdAt ?? new Date().toISOString()
       });

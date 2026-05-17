@@ -50,7 +50,13 @@ export class ObservabilityService {
           latency_ms: log.latencyMs,
           estimated_cost_usd: log.estimatedCostUsd ?? null,
           status: log.status,
-          error_code: log.errorCode ?? null
+          error_code: log.errorCode ?? null,
+          response_status: log.responseStatus ?? null,
+          request_url: log.requestUrl ?? null,
+          request_path: log.requestPath ?? null,
+          response_summary_prefix: log.responseSummaryPrefix ?? null,
+          has_gateway_auth: log.hasGatewayAuth ?? null,
+          has_byok_alias: log.hasByokAlias ?? null
         }
       });
       archiveObjectKey = archiveResult.objectKey;
