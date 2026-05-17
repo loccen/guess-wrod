@@ -282,3 +282,19 @@ npx wrangler d1 execute guess-wrod-local --local --command "SELECT COUNT(*) AS c
 ```
 
 当前 wrangler 本地 D1 执行器会拒绝脚本里的 `BEGIN` / `COMMIT` 事务语句，所以本地复验时使用临时过滤文件。`.wrangler/` 是本地状态目录，不要提交。
+
+## 14. T03/T05/T06/T15 当前基础链路
+
+以下能力已在本地 stub / bypass 模式下落地：
+
+1. `POST /api/sessions`：创建匿名访客、生成签名 session token、只保存 token 哈希；`CAPTCHA_MODE=bypass` 时允许省略 `turnstile_token`。
+2. `GET /api/session`：校验 Bearer token、校验过期时间、返回 `visitor_id`、`expires_at` 和当前 `active_game_id`。
+3. `POST /api/games`：在会话下创建随机局；若当前已存在 `playing` 游戏，则直接返回该游戏，避免同一会话并存多条进行中记录。
+4. `GET /api/games/{game_id}`：进行中状态不返回答案；结束状态返回 `answer` 与 `answer_aliases`。
+5. `POST /api/games/{game_id}/give-up`：把游戏状态更新为 `give_up`，返回答案；本次未实现 `POST /api/games/{game_id}/guesses`。
+
+当前仍未覆盖：
+
+1. 真实 Turnstile 校验 adapter。
+2. 猜词提交、AI 评分、缓存、反馈与分析链路。
+3. 基于 24 小时 TTL 的自动过期处理。
