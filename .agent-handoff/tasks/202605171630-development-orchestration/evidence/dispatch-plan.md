@@ -64,3 +64,22 @@
 - 数据与词库准备：提交 `a7a7f8c`，主代理复验 `node scripts/validate-seed.mjs` 与 SQLite migration + seed 导入通过，`words` 计数为 `50`。
 - 评分规则准备：提交 `f8eb4bf3ac335c644ff5d9a1a9c44f1c5b30a2a4`，主代理复验 `node --test tests/domain/scoring.test.mjs` 通过，14 项通过；新增领域代码未命中平台绑定关键字。
 - 前端原型规格准备：提交 `d4a9b23ae10bff47bcb216988e2cbd907cbfc158`，主代理复验 JSON 可解析、10 个 normalization 全部 `confirmed=true`、单页规格引用 normalized PNG、high/medium requiredNodes 未仅使用 visible 检查。
+
+## 首批合并与清理
+
+- T01 merge commit：`908c819`
+- 数据与词库 merge commit：`644f1f5`
+- 评分规则 merge commit：`85bf33f`
+- 前端原型规格 merge commit：`68a650f`
+- 合并后验证：
+  - `npm run typecheck` 通过
+  - `npm test` 通过，2 个 Vitest 文件 3 个用例
+  - `node --test tests/domain/scoring.test.mjs` 通过，14 项通过
+  - `npm run build` 通过
+  - `npm run cf:check` 通过
+  - `node scripts/validate-seed.mjs` 通过，50 个词条、74 个别名、25 个敏感词片段
+  - SQLite 执行 migration 并导入 seed 通过，`words` 计数为 `50`
+  - 前端规格 JSON 解析通过，10 个 normalization 全部 confirmed
+  - `python3 validate_handoff.py --repo-root .` 通过
+  - `npm run dev:pages` 启动后，`curl /` 和 `curl /api/health` 均返回 200，健康检查显示 `stub/bypass/noop/file`
+- 清理结果：四个 worktree 已删除，四个 `codex/guessword-*` 临时分支已删除，当前只剩主仓 worktree。

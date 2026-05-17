@@ -3,19 +3,23 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-17T23:42:17+08:00",
+  "updated_at": "2026-05-17T23:48:06+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
   "truth_sources": ["AGENTS.md", "docs/02-architecture.md", "docs/04-api-contract.md", "docs/05-scoring-spec.md", "docs/07-implementation-plan.md", "docs/08-analytics-and-quality.md", "docs/ui-prototypes/images"],
-  "next_step": "依次合入 T01 项目骨架、数据与词库、评分规则、前端原型规格四个分支，并运行合并后的项目验证。",
+  "next_step": "基于最新 main 创建下一批 worktree，派发后端主流程和前端主流程子任务。",
   "blockers": [],
   "evidence_paths": [".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"],
   "related_commits": [
     "54eb07269d90e1b0bceecf7ed1db1057ede0f683",
     "a7a7f8c",
     "f8eb4bf3ac335c644ff5d9a1a9c44f1c5b30a2a4",
-    "d4a9b23ae10bff47bcb216988e2cbd907cbfc158"
+    "d4a9b23ae10bff47bcb216988e2cbd907cbfc158",
+    "908c819",
+    "644f1f5",
+    "85bf33f",
+    "68a650f"
   ],
   "related_tasks": [
     "codex/guessword-t01-skeleton",

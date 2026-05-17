@@ -1,12 +1,12 @@
 # Agent Handoff Active Tasks
 
-- Generated At: 2026-05-17T23:43:07+08:00
+- Generated At: 2026-05-17T23:48:55+08:00
 - Protocol Version: v1
 - Skill Revision: 1.0.1
 
 ## 当前活跃任务
 
-- `202605171630-development-orchestration` | `active` | 实际开发阶段编排 | 更新于 `2026-05-17T23:42:17+08:00` | 下一步：依次合入 T01 项目骨架、数据与词库、评分规则、前端原型规格四个分支，并运行合并后的项目验证。
+- `202605171630-development-orchestration` | `active` | 实际开发阶段编排 | 更新于 `2026-05-17T23:48:06+08:00` | 下一步：基于最新 main 创建下一批 worktree，派发后端主流程和前端主流程子任务。
   - 主事实：`/Users/loccen/Documents/guess-wrod/.agent-handoff/tasks/202605171630-development-orchestration/task.md`
   - 交接包：`/Users/loccen/Documents/guess-wrod/.agent-handoff/tasks/202605171630-development-orchestration/handoff.md`
 
