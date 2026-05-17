@@ -1,3 +1,4 @@
+import { FeedbackService } from "../../usecases/services/feedbackService";
 import { GameService } from "../../usecases/services/gameService";
 import { GuessService } from "../../usecases/services/guessService";
 import type { AppServices } from "../../usecases/services/platformPorts";
@@ -130,6 +131,26 @@ export async function submitGuessResponse(request: Request, services: AppService
           }
         : null,
       ...(result.answer ? { answer: result.answer } : {})
+    });
+  } catch (error) {
+    return createErrorResponse(error);
+  }
+}
+
+export async function submitFeedbackResponse(request: Request, services: AppServices, gameId: string): Promise<Response> {
+  try {
+    const body = await readJsonObject(request);
+    const sessionService = new SessionService(services);
+    const authenticated = await sessionService.authenticate(request.headers.get("authorization"));
+    const feedbackService = new FeedbackService(services);
+    const result = await feedbackService.submitFeedback(authenticated, gameId, {
+      guessId: body.guess_id,
+      feedbackType: body.feedback_type,
+      note: body.note
+    });
+
+    return createDataResponse({
+      success: result.success
     });
   } catch (error) {
     return createErrorResponse(error);

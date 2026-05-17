@@ -24,7 +24,7 @@ import type {
 import { ScoringGateway } from "../../usecases/scoring/scoringGateway";
 import type { StorageRepositories } from "../../usecases/repositories/storageRepositories";
 import type { AppServices, CaptchaVerificationResult, Clock, IdGenerator, RandomSource } from "../../usecases/services/platformPorts";
-import { createGameResponse, getGameResponse, giveUpGameResponse, submitGuessResponse } from "./gameHandlers";
+import { createGameResponse, getGameResponse, giveUpGameResponse, submitFeedbackResponse, submitGuessResponse } from "./gameHandlers";
 import { createSessionResponse, getSessionResponse } from "./sessionHandlers";
 
 class FixedClock implements Clock {
@@ -352,6 +352,28 @@ async function createGame(services: AppServices, authorization: string): Promise
   );
   const payload = (await response.json()) as Record<string, any>;
   return String(payload.data.game_id);
+}
+
+async function submitGuess(
+  services: AppServices,
+  authorization: string,
+  gameId: string,
+  guess: string
+): Promise<Record<string, any>> {
+  const response = await submitGuessResponse(
+    new Request(`https://example.com/api/games/${gameId}/guesses`, {
+      method: "POST",
+      headers: {
+        authorization,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({ guess })
+    }),
+    services,
+    gameId
+  );
+
+  return (await response.json()) as Record<string, any>;
 }
 
 async function createAuthorizedRequest(services: AppServices, sessionExpiresAt = "2026-06-16T10:00:00.000Z"): Promise<{ authorization: string; visitorId: string }> {
@@ -817,5 +839,196 @@ describe("session and game handlers", () => {
 
     expect(response.status).toBe(409);
     expect(payload.error.code).toBe("game_ended");
+  });
+
+  it("rejects feedback when session header is missing", async () => {
+    const services = await createServices();
+    const response = await submitFeedbackResponse(
+      new Request("https://example.com/api/games/game_1/feedback", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          guess_id: "guess_1",
+          feedback_type: "score_unreasonable"
+        })
+      }),
+      services,
+      "game_1"
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(401);
+    expect(payload.error.code).toBe("unauthorized");
+  });
+
+  it("rejects feedback when guess_id does not belong to the game", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z", [
+      {
+        guess: "平板",
+        response: {
+          score: 76,
+          relation_type: "same_category",
+          is_exact: false
+        }
+      }
+    ]);
+    const { authorization } = await createAuthorizedRequest(services);
+    const firstGameId = await createGame(services, authorization);
+    const firstGuess = await submitGuess(services, authorization, firstGameId, "平板");
+    await giveUpGameResponse(
+      new Request(`https://example.com/api/games/${firstGameId}/give-up`, {
+        method: "POST",
+        headers: { authorization }
+      }),
+      services,
+      firstGameId
+    );
+
+    const secondGameId = await createGame(services, authorization);
+    const response = await submitFeedbackResponse(
+      new Request(`https://example.com/api/games/${secondGameId}/feedback`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          guess_id: firstGuess.data.guess_id,
+          feedback_type: "score_unreasonable"
+        })
+      }),
+      services,
+      secondGameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(400);
+    expect(payload.error.code).toBe("invalid_request");
+  });
+
+  it("rejects duplicate or illegal feedback input", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z", [
+      {
+        guess: "平板",
+        response: {
+          score: 76,
+          relation_type: "same_category",
+          is_exact: false
+        }
+      }
+    ]);
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const guessPayload = await submitGuess(services, authorization, gameId, "平板");
+
+    const invalidTypeResponse = await submitFeedbackResponse(
+      new Request(`https://example.com/api/games/${gameId}/feedback`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          guess_id: guessPayload.data.guess_id,
+          feedback_type: "score_too_high"
+        })
+      }),
+      services,
+      gameId
+    );
+    const invalidTypePayload = (await invalidTypeResponse.json()) as Record<string, any>;
+
+    expect(invalidTypeResponse.status).toBe(400);
+    expect(invalidTypePayload.error.code).toBe("invalid_request");
+
+    const firstResponse = await submitFeedbackResponse(
+      new Request(`https://example.com/api/games/${gameId}/feedback`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          guess_id: guessPayload.data.guess_id,
+          feedback_type: "score_unreasonable",
+          note: "这个词给高了"
+        })
+      }),
+      services,
+      gameId
+    );
+    const firstPayload = (await firstResponse.json()) as Record<string, any>;
+
+    expect(firstResponse.status).toBe(200);
+    expect(firstPayload.data.success).toBe(true);
+
+    const duplicateResponse = await submitFeedbackResponse(
+      new Request(`https://example.com/api/games/${gameId}/feedback`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          guess_id: guessPayload.data.guess_id,
+          feedback_type: "score_unreasonable",
+          note: "还是不合理"
+        })
+      }),
+      services,
+      gameId
+    );
+    const duplicatePayload = (await duplicateResponse.json()) as Record<string, any>;
+
+    expect(duplicateResponse.status).toBe(400);
+    expect(duplicatePayload.error.code).toBe("invalid_request");
+  });
+
+  it("writes score feedback successfully for a counted guess", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z", [
+      {
+        guess: "平板",
+        response: {
+          score: 76,
+          relation_type: "same_category",
+          is_exact: false
+        }
+      }
+    ]);
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const guessPayload = await submitGuess(services, authorization, gameId, "平板");
+
+    const response = await submitFeedbackResponse(
+      new Request(`https://example.com/api/games/${gameId}/feedback`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          guess_id: guessPayload.data.guess_id,
+          feedback_type: "score_unreasonable",
+          note: " 这个词给高了 "
+        })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+    const feedbackItems = await services.storage.feedback.listFeedbackByGuess(guessPayload.data.guess_id);
+
+    expect(response.status).toBe(200);
+    expect(payload.data).toEqual({ success: true });
+    expect(feedbackItems).toHaveLength(1);
+    expect(feedbackItems[0]).toMatchObject({
+      gameId,
+      guessId: guessPayload.data.guess_id,
+      visitorId: "visitor_existing",
+      feedbackType: "score_unreasonable",
+      note: "这个词给高了"
+    });
   });
 });
