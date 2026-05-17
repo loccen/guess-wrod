@@ -52,7 +52,7 @@ export class DeepSeekAiGatewayScoringClient implements AiScoringClient {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        ...(this.config.apiKey ? { authorization: `Bearer ${this.config.apiKey}` } : {}),
+        ...(this.config.apiKey ? { "cf-aig-authorization": `Bearer ${this.config.apiKey}` } : {}),
       },
       body: JSON.stringify({
         model: this.model,
