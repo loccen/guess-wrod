@@ -2,7 +2,7 @@
 
 - Task ID: `202605171630-development-orchestration`
 - Created At: `2026-05-17T23:22:27+08:00`
-- Updated At: `2026-05-18T06:47:23+08:00`
+- Updated At: `2026-05-18T07:20:09+08:00`
 - Status: `active`
 
 ## 目标
@@ -37,23 +37,24 @@
   - `has_gateway_auth = false`
   - `has_byok_alias = true`
   - `runtime.version = bdc5cb5a287b`
-- 使用浏览器新建并写入 `/tmp/cf_aig_token.txt` 的 Authenticated Gateway token 做外部探针时：
-  - 打 `/openai/chat/completions` 返回 Cloudflare `2009 Unauthorized`
-  - 打 custom provider 路径也返回 Cloudflare `2009 Unauthorized`
+- 外部探针已证明两条控制面链路都未打通：
+  - 使用浏览器新建并写入 `/tmp/cf_aig_token.txt` 的 Authenticated Gateway token，直接请求 `/openai/chat/completions` 与 custom provider 路径都返回 Cloudflare `2009 Unauthorized`
+  - 连续新建两把新的 DeepSeek API key，直接请求 `https://api.deepseek.com/chat/completions` 与 `https://api.deepseek.com/v1/chat/completions` 也都返回 `401 authentication_error`
 - 现有 provider key `Guess Wrod DeepSeek` 的 alias 为 `guess-word`，且在 Dashboard 编辑界面：
   - alias 输入框禁用，无法直接改成 `default`
-  - 未见“设为默认”“复制配置为默认”“测试连接”之类入口
+  - 未见“设为默认”“复制配置为默认”“测试连接”入口
   - 若要继续编辑，只能重新提供明文 `API 密钥`
 
 ## 当前阻塞
 
-- 当前主阻塞已经从“代码实现”收敛到“Cloudflare 控制面限制”：
+- 当前主阻塞已经从“应用代码实现”收敛到“上游 DeepSeek key 与 Cloudflare 控制面边界”：
   - Authenticated Gateway token 经过外部探针不被接受
-  - 现有 custom provider key 既不是 default，也无法在没有明文 secret 的情况下改成 default
+  - 当前从 DeepSeek 控制台新建并复制出来的 key，本机直打官方 API 也被判定无效
+  - 现有 custom provider key 既不是 `default`，也无法在没有明文 key 的情况下改成 `default`
 - 在这个边界没打破前，继续追公网猜词 500 的应用层代码价值很低。
 
 ## 下一步
 
-- 1. 先确认用户是否允许或愿意重新提供/重录 DeepSeek 明文 key 到 AI Gateway provider config；如果不行，当前控制面能力下很难把这条路真正打通。
-- 2. 如果能拿到明文 key，就优先把现有 provider key 改成 alias=`default` 或新建一条 `default` 配置，再复验公网 `guess`。
+- 1. 先确认 DeepSeek 控制台当前是否能产出一把真正可用的 API key；这是现在的最高优先级。
+- 2. 只有在拿到可用上游 key 后，才值得继续回到 Cloudflare provider config/default 路线。
 - 3. 只有公网 `POST /guesses` 恢复成功后，才继续补公网反馈提交和完整实玩证据。

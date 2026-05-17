@@ -3,7 +3,7 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T06:47:23+08:00",
+  "updated_at": "2026-05-18T07:20:09+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
@@ -16,10 +16,11 @@
     "docs/08-analytics-and-quality.md",
     "docs/ui-prototypes/images"
   ],
-  "next_step": "继续处理 authenticated gateway token 与 provider secret/default 的控制面边界，并决定是否必须回到重新提供 DeepSeek 明文 key 这一路线。",
+  "next_step": "优先确认 DeepSeek 控制台当前是否能产出一把真正可用的上游 API key；若不能，则当前公网可玩目标存在上游实质阻塞。",
   "blockers": [
     "公网 POST /api/games/{id}/guesses 仍返回 500 system_error，当前错误已收敛为 custom provider 401。",
     "最新外部探针使用新建 gateway token 直接请求 /openai 和 custom provider 路径，均返回 Cloudflare 2009 Unauthorized。",
+    "最新两把从 DeepSeek 控制台新建并复制的 API key，直接请求官方 API 也返回 401 authentication_error。",
     "现有 provider key alias=guess-word 且无法在没有明文 API key 的情况下改成 default。"
   ],
   "evidence_paths": [
@@ -90,15 +91,11 @@
     "efe7a8a",
     "9286cb0",
     "bdc5cb5",
-    "10e2068"
+    "10e2068",
+    "42219ab"
   ],
   "related_tasks": [
     "codex/guessword-expired-visual-qa",
-    "codex/guessword-runtime-version",
-    "codex/guessword-health-config-flags",
-    "codex/guessword-guess-error-diag",
-    "codex/guessword-guess-error-diag2",
-    "codex/guessword-fetch-binding-fix",
     "codex/guessword-prod-deploy-v5",
     "codex/guessword-prod-deploy-v6",
     "codex/guessword-prod-deploy-v7",
