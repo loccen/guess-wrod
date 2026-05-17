@@ -24,3 +24,4 @@
 5. 管理方式：不做后台页面，先用数据库查询、日志和脚本处理运营数据。
 6. 初期技术路线：前端、API、数据库、分析、日志与 AI 观测优先采用 Cloudflare 服务。
 7. 初期评分模型：`deepseek-v4-flash`，默认走非思考模式，并通过 Cloudflare AI Gateway 调用。
+8. 实现约束：虽然初期采用 Cloudflare，全体实现仍需保持可迁移，业务逻辑不得直接绑死 Cloudflare SDK 或平台专有能力。

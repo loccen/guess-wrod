@@ -203,7 +203,78 @@ AI Gateway -> DeepSeek V4 Flash
 | `GAME_TTL_HOURS` | 游戏有效时长 |
 | `MAX_VALID_GUESSES_PER_GAME` | 单局有效猜词上限 |
 
-## 8. 后续扩展点
+## 8. 可迁移实现约束
+
+虽然 V0.1 默认采用 Cloudflare 全栈，但实现时必须把 Cloudflare 视为基础设施提供方，而不是业务模型本身。
+
+### 8.1 总原则
+
+1. 领域层、应用层不得直接依赖 Cloudflare SDK 类型、请求对象、响应对象或 binding 对象。
+2. 所有 Cloudflare 特有能力只能出现在入口层和适配层，例如 Pages/Workers handler、D1 adapter、AI Gateway adapter、Turnstile adapter。
+3. 前端除了 Turnstile site key 和 `/api` 地址，不应感知任何 Cloudflare 平台细节。
+4. API 契约保持平台中立，不把 D1、R2、AI Gateway、Workers 之类平台名暴露给前端。
+
+### 8.2 必须抽象的边界
+
+实现时至少保留以下接口或等价抽象：
+
+| 边界 | 约束 |
+| --- | --- |
+| 会话与游戏存储 | 通过 `SessionRepository`、`GameRepository`、`GuessRepository`、`FeedbackRepository` 一类仓储接口访问，业务逻辑不得直接写 D1 查询 |
+| 全局缓存 | 通过 `ScoreCacheRepository` 访问，不得在评分业务里直接依赖 D1 |
+| AI 调用 | 通过 `AiScoringClient` 或 `ScoringGateway` 访问，不得让业务层直接拼 AI Gateway 请求 |
+| 事件分析 | 通过 `AnalyticsSink` 写入，不得在用例里直接调用 Workers Analytics Engine API |
+| 原始归档 | 通过 `ArchiveSink` 写入，不得在业务用例里直接操作 R2 |
+| 人机校验 | 通过 `CaptchaVerifier` 或 `RiskControlService` 校验，不得在业务逻辑里直接耦合 Turnstile 参数 |
+| 定时任务 | Cron 入口只负责触发 use case，不得把主要业务规则写死在 Cron handler 里 |
+
+### 8.3 代码分层建议
+
+建议分成四层：
+
+1. `routes/handlers`：Cloudflare Pages/Workers 入口，请求解析、鉴权、组装依赖。
+2. `usecases/services`：会话、游戏、评分、反馈等业务流程。
+3. `domain/models`：领域对象、枚举、错误码、规则常量。
+4. `infrastructure/adapters`：D1、AI Gateway、Analytics Engine、R2、Turnstile 的具体实现。
+
+要求：
+
+1. `usecases/services` 不得 import Cloudflare 平台包。
+2. `domain/models` 不得 import 平台包，也不得出现平台环境变量名。
+3. Cloudflare bindings 到通用接口的转换只允许发生在 `routes/handlers` 或 `infrastructure/adapters`。
+
+### 8.4 数据与 SQL 约束
+
+1. D1 只是当前默认主库，不得把 D1 当成唯一目标数据库来写死业务模型。
+2. 建表、索引和查询优先使用通用 SQL 语义，避免为方便而大量使用难以迁移的 D1 特有写法。
+3. 若必须使用 D1 或 SQLite 专有能力，必须在代码注释和文档中说明替代方案。
+4. 分析数据、原始归档、AI 调用镜像和业务主表必须继续分层，不能为了省事全部回写到 D1。
+
+### 8.5 配置约束
+
+1. 环境变量命名优先表达业务角色，而不是平台实现细节。
+2. 允许存在 `D1_DATABASE_NAME`、`R2_LOG_BUCKET` 这类当前实现变量，但业务服务内部应尽量只看到通用配置对象。
+3. 不得在业务代码里到处读取 `env`；应在入口层集中读取后注入。
+
+### 8.6 迁移映射
+
+| 当前默认实现 | 未来可替代方向 |
+| --- | --- |
+| Cloudflare Pages | 任意静态托管或自建前端服务 |
+| Cloudflare Functions / Workers | Node.js / FastAPI / Go API 服务 |
+| D1 | PostgreSQL / MySQL / SQLite |
+| AI Gateway | 自建 AI 网关层或直接调用模型厂商 API |
+| Workers Analytics Engine | ClickHouse / PostHog / 自建埋点仓 |
+| R2 | 任意 S3 兼容对象存储 |
+| Turnstile | hCaptcha / reCAPTCHA / 自建风控校验 |
+| Cron Triggers | 系统 cron / 队列调度 / 工作流系统 |
+
+验收时必须能回答两个问题：
+
+1. 如果把 Cloudflare 去掉，这段业务逻辑是否还能在不改领域规则的前提下继续使用。
+2. 如果把当前 provider 换掉，是否只需要重写 adapter，而不是重写业务用例。
+
+## 9. 后续扩展点
 
 1. 接入微信网页授权，把匿名用户升级为微信用户。
 2. 当单库压力上来后，按答案集或租户方向拆分 D1。
