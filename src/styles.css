@@ -48,6 +48,14 @@ textarea {
     linear-gradient(160deg, #dffcf0 0%, #fff8ea 26%, #fffdf5 72%, #fff8ea 100%);
 }
 
+.home-page {
+  padding: 30px 24px 30px;
+}
+
+.game-page {
+  padding: 28px 20px 24px;
+}
+
 .phone-page::before,
 .phone-page::after {
   position: absolute;
@@ -169,7 +177,22 @@ textarea {
   width: 314px;
   min-height: 82px;
   border: 3px solid rgba(255, 255, 255, 0.8);
-  font-size: 32px;
+  font-size: 30px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.52),
+    inset 0 0 0 2px rgba(216, 246, 237, 0.55),
+    0 8px 0 #087b85,
+    0 14px 24px rgba(27, 154, 170, 0.3);
+}
+
+.primary-button--hero::before {
+  position: absolute;
+  left: 34px;
+  top: 22px;
+  color: #ffd166;
+  content: "⚡";
+  font-size: 30px;
+  line-height: 1;
 }
 
 .hero-panel {
@@ -177,7 +200,7 @@ textarea {
   z-index: 1;
   display: grid;
   justify-items: center;
-  padding-top: 36px;
+  padding-top: 40px;
   text-align: center;
 }
 
@@ -194,12 +217,16 @@ textarea {
   line-height: 1.08;
 }
 
+.home-page .hero-panel h1 {
+  font-size: 50px;
+}
+
 .hero-subtitle,
 .session-hero p,
 .game-header p,
 .result-header p,
 .rules-hero p {
-  margin: 10px 0 18px;
+  margin: 8px 0 12px;
   color: #50606f;
   font-size: 15px;
   font-weight: 600;
@@ -213,20 +240,28 @@ textarea {
 
 .secondary-pill {
   display: inline-flex;
-  min-height: 42px;
+  width: 130px;
+  min-height: 35px;
   align-items: center;
-  gap: 8px;
-  margin: 18px 0 16px;
+  justify-content: center;
+  margin: 10px 0 8px;
   border-radius: 999px;
-  padding: 0 24px;
+  padding: 0 20px;
   background: #fff;
   box-shadow: 0 6px 16px rgba(36, 52, 71, 0.12);
   color: #10949d;
+  font-size: 15px;
   font-weight: 800;
 }
 
+.secondary-pill::before {
+  margin-right: 8px;
+  content: "⇄";
+  font-size: 16px;
+}
+
 .rules-preview {
-  padding: 16px 14px;
+  padding: 12px 14px 10px;
 }
 
 .decor-star {
@@ -239,7 +274,7 @@ textarea {
 .rules-list {
   display: grid;
   gap: 0;
-  margin: 14px 0 0;
+  margin: 10px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -248,15 +283,15 @@ textarea {
   display: grid;
   grid-template-columns: 54px 1fr;
   align-items: center;
-  min-height: 64px;
+  min-height: 56px;
   border: 1px solid rgba(36, 52, 71, 0.08);
   border-radius: 18px;
-  padding: 8px 12px;
+  padding: 6px 12px;
   background: rgba(255, 255, 255, 0.78);
 }
 
 .steps li + li {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .steps li > span,
@@ -275,26 +310,26 @@ textarea {
 .steps strong,
 .rules-list strong {
   display: block;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .steps p,
 .rules-list p,
 .ai-card p,
 .privacy-card li {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   color: #687786;
-  font-size: 12px;
-  line-height: 1.55;
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .recent-card {
-  margin-top: 16px;
-  padding: 16px 14px;
+  margin-top: 12px;
+  padding: 12px 14px 10px;
 }
 
 .recent-list {
-  margin-top: 14px;
+  margin-top: 8px;
 }
 
 .recent-row {
@@ -302,17 +337,17 @@ textarea {
   grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: 10px;
-  min-height: 42px;
+  min-height: 34px;
   border-top: 1px solid rgba(36, 52, 71, 0.08);
   color: #243447;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
 }
 
 .status-pill {
   border-radius: 999px;
-  padding: 5px 11px;
-  font-size: 12px;
+  padding: 4px 10px;
+  font-size: 11px;
   font-style: normal;
   font-weight: 800;
 }
@@ -337,11 +372,19 @@ textarea {
   position: relative;
   z-index: 1;
   display: flex;
+  width: 117px;
+  align-self: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 28px;
+  margin: 8px auto 0;
   color: #108f98;
+  font-size: 15px;
   font-weight: 800;
+}
+
+.privacy-link::before {
+  margin-right: 8px;
+  content: "◔";
+  font-size: 16px;
 }
 
 .session-page {
@@ -425,14 +468,14 @@ textarea {
 }
 
 .game-header h1 {
-  font-size: 40px;
+  font-size: 42px;
 }
 
 .status-row {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin: 12px 0 16px;
+  margin: 12px 0 14px;
 }
 
 .status-row span {
@@ -449,48 +492,89 @@ textarea {
 
 .best-card {
   display: grid;
-  grid-template-columns: 1fr 124px;
-  gap: 10px;
-  padding: 18px;
+  grid-template-columns: 1fr 118px;
+  gap: 8px 16px;
+  min-height: 197px;
+  padding: 16px 16px 22px;
 }
 
 .best-word {
   display: block;
-  margin-top: 14px;
+  margin-top: 12px;
   color: #243447;
-  font-size: 58px;
+  font-size: 52px;
   font-weight: 900;
   line-height: 1;
 }
 
 .best-card p {
-  margin: 12px 0 0;
+  margin: 10px 0 0;
   color: #627181;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .score-ring {
+  position: relative;
   display: grid;
-  width: 116px;
-  height: 116px;
+  width: 117px;
+  height: 123px;
   align-self: center;
   place-items: center;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at center, #fff 0 52%, transparent 53%),
-    conic-gradient(#1b9aaa 0 var(--score), #d8f6ed var(--score) 100%);
+  justify-self: start;
+  margin-left: -16px;
+}
+
+.score-ring svg {
+  width: 117px;
+  height: 123px;
+  transform: rotate(-90deg);
+}
+
+.score-ring__track,
+.score-ring__progress {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 12;
+}
+
+.score-ring__track {
+  stroke: #d8f6ed;
+}
+
+.score-ring__progress {
+  stroke: #1b9aaa;
 }
 
 .score-ring strong {
+  position: relative;
+  z-index: 2;
   color: #0f9ba4;
-  font-size: 34px;
+  font-size: 32px;
   font-weight: 900;
+}
+
+.score-ring__core,
+.score-ring__glow {
+  position: absolute;
+  inset: 15px;
+  border-radius: 50%;
+}
+
+.score-ring__core {
+  z-index: 1;
+  background: #fff;
+}
+
+.score-ring__glow {
+  inset: 5px;
+  border: 8px solid rgba(216, 246, 237, 0.55);
 }
 
 .progress-track {
   grid-column: 1 / -1;
-  height: 16px;
+  height: 14px;
+  margin-top: 4px;
   overflow: hidden;
   border-radius: 999px;
   background: #d8f6ed;
@@ -507,7 +591,11 @@ textarea {
 .input-card,
 .history-card {
   margin-top: 14px;
-  padding: 14px;
+  padding: 14px 12px 12px;
+}
+
+.input-card {
+  padding: 16px 12px 12px;
 }
 
 .guess-form {
@@ -516,37 +604,40 @@ textarea {
   gap: 10px;
 }
 
-.guess-form label {
+.guess-input-shell {
   display: flex;
-  min-height: 58px;
+  min-height: 52px;
   align-items: center;
-  gap: 8px;
   border: 1.5px solid rgba(36, 52, 71, 0.26);
   border-radius: 10px;
-  padding: 0 14px;
+  padding: 0 14px 0 40px;
   background: #fff;
   color: #8c96a0;
+  position: relative;
+}
+
+.guess-input-shell::before {
+  position: absolute;
+  left: 14px;
+  color: #8f99a3;
+  content: "⌕";
+  font-size: 18px;
 }
 
 .placeholder-text {
   color: #9ba4ac;
-  font-size: 18px;
-}
-
-.search-mark {
-  color: #8f99a3;
-  font-size: 22px;
+  font-size: 17px;
 }
 
 .guess-form button,
 .sheet-actions button {
-  min-height: 58px;
+  min-height: 52px;
   border: 0;
   border-radius: 12px;
   background-color: #1b9aaa;
   background: #1b9aaa;
   color: #fff;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 900;
 }
 
@@ -555,9 +646,9 @@ textarea {
   justify-content: center;
   align-items: center;
   gap: 8px;
-  margin: 14px 0 0;
+  margin: 12px 0 0;
   color: #1b9aaa;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
 }
 
@@ -570,7 +661,7 @@ textarea {
 
 .guess-list {
   display: grid;
-  margin-top: 12px;
+  margin-top: 8px;
   overflow: hidden;
   border: 1px solid rgba(36, 52, 71, 0.06);
   border-radius: 16px;
@@ -580,9 +671,9 @@ textarea {
   display: grid;
   grid-template-columns: 36px 1fr 54px auto auto;
   align-items: center;
-  gap: 9px;
-  min-height: 48px;
-  padding: 8px 10px;
+  gap: 7px;
+  min-height: 36px;
+  padding: 4px 10px;
   background: rgba(255, 255, 255, 0.78);
 }
 
@@ -592,7 +683,7 @@ textarea {
 
 .guess-word,
 .guess-score {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 900;
 }
 
@@ -603,11 +694,11 @@ textarea {
 .relation {
   min-width: 42px;
   border-radius: 999px;
-  padding: 5px 8px;
+  padding: 4px 7px;
   background: #d8f6ed;
   color: #168d76;
   text-align: center;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
 }
 
@@ -628,7 +719,7 @@ textarea {
 
 .feedback-link {
   color: #0c9ca4;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -637,16 +728,16 @@ textarea {
   z-index: 1;
   display: flex;
   width: 238px;
-  min-height: 58px;
+  min-height: 52px;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin: 24px auto 0;
+  margin: 18px auto 0;
   border: 1.5px solid #ff7a6b;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.72);
   color: #ff7a6b;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 900;
 }
 

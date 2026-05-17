@@ -402,6 +402,15 @@
           "priority": "high"
         },
         {
+          "id": "best-guess-text",
+          "selector": "[data-ui-id='best-guess-text']",
+          "checks": [
+            "visible",
+            "bbox"
+          ],
+          "priority": "medium"
+        },
+        {
           "id": "score-ring",
           "selector": "[data-ui-id='score-ring']",
           "checks": [
@@ -412,6 +421,15 @@
           ],
           "expectedText": "76%",
           "priority": "high"
+        },
+        {
+          "id": "guess-form",
+          "selector": "[data-ui-id='guess-form']",
+          "checks": [
+            "visible",
+            "bbox"
+          ],
+          "priority": "medium"
         },
         {
           "id": "guess-input",
