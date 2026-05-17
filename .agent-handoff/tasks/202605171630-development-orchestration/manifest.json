@@ -3,7 +3,7 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T06:39:03+08:00",
+  "updated_at": "2026-05-18T06:47:23+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
@@ -16,11 +16,11 @@
     "docs/08-analytics-and-quality.md",
     "docs/ui-prototypes/images"
   ],
-  "next_step": "继续处理 authenticated gateway token 与 custom provider secret/default 的 401，并决定是修复 token 链路还是回退到 provider secret/default 路线。",
+  "next_step": "继续处理 authenticated gateway token 与 provider secret/default 的控制面边界，并决定是否必须回到重新提供 DeepSeek 明文 key 这一路线。",
   "blockers": [
-    "公网 POST /api/games/{id}/guesses 仍返回 500 system_error，当前主阻塞已收敛到 authenticated gateway / custom provider 401。",
+    "公网 POST /api/games/{id}/guesses 仍返回 500 system_error，当前错误已收敛为 custom provider 401。",
     "最新外部探针使用新建 gateway token 直接请求 /openai 和 custom provider 路径，均返回 Cloudflare 2009 Unauthorized。",
-    "现有 provider config 只有 alias=guess-word 且 default_config=0，Dashboard 改默认要求重新提供明文 secret。"
+    "现有 provider key alias=guess-word 且无法在没有明文 API key 的情况下改成 default。"
   ],
   "evidence_paths": [
     ".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"
@@ -89,7 +89,8 @@
     "20c450c",
     "efe7a8a",
     "9286cb0",
-    "bdc5cb5"
+    "bdc5cb5",
+    "10e2068"
   ],
   "related_tasks": [
     "codex/guessword-expired-visual-qa",

@@ -2,54 +2,52 @@
 
 ## 已验证基线
 
-- 当前 `main` 已包含：React + Vite + Pages Functions 骨架、`/api/health`、migration/seed、评分规则、评分客户端抽象、前端真实主流程、D1/adapter 边界、视觉收尾与基础 observability。
+- 当前 `main` 已包含：React + Vite + Pages Functions 骨架、D1 业务表、评分规则、前端真实主流程、视觉收尾、AI Gateway adapter 修复、health 运行时版本和 AI 配置摘要、以及公网 guess 的最小错误诊断。
 - 主仓本地验证仍通过：`npm run typecheck`、`npm test`、`npm run build`、`npm run cf:check`、handoff validate。
 - D1 正式库 `guess-wrod-prod` 已建表并导入 50 条 `words`。
-- 当前主域名 `https://guess-wrod.pages.dev/api/health` 已明确命中最新 worker：
+- 当前主域名 `https://guess-wrod.pages.dev/api/health` 已确认命中最新 worker，且包含：
   - `runtime.version = bdc5cb5a287b`
   - `runtime.source = cf_pages_commit_sha`
   - `aiRuntime.hasAiGatewayEndpoint = true`
   - `aiRuntime.hasAiGatewayApiKey = false`
   - `aiRuntime.hasAiGatewayByokAlias = true`
-- Pages production env 已确认存在过：
-  - `AI_MODE=live`
-  - `AI_MODEL_NAME=deepseek-v4-flash`
-  - `AI_GATEWAY_ENDPOINT_URL=https://gateway.ai.cloudflare.com/v1/656612e8bac6e750ae630a5ad3320858/guess-wrod-gateway/custom-guessword-deepseek/v1`
-  - `AI_GATEWAY_API_KEY`（后续为排查曾删除）
-  - `AI_GATEWAY_BYOK_ALIAS=guess-word`
 
 ## 未完成
 
 - 公网 `POST /api/games/{id}/guesses` 仍返回 `500 system_error`，反馈链路无法真实触发。
-- 最新公网错误响应已能直接返回最小非敏感诊断：
-  - `response_status=401`
-  - `request_path=/v1/656612e8bac6e750ae630a5ad3320858/guess-wrod-gateway/custom-guessword-deepseek/v1/chat/completions`
-  - `response_summary_prefix=Authentication Fails (governor)`
-  - `has_gateway_auth=false`
-  - `has_byok_alias=true`
-  - `runtime.version=bdc5cb5a287b`
-- 使用浏览器最新创建的 Authenticated Gateway token 写入本地文件后，外部探针直接打：
-  - `/openai/chat/completions`
-  - custom provider 路径
-  都返回 Cloudflare `2009 Unauthorized`。
-- 现有 provider config 仍只有一条：`alias=guess-word`、`default_config=0`、`secret_preview=********ed5`；API 无法直接改默认，Dashboard 改默认要求明文 secret。
+- 最新公网错误响应已能直接返回：
+  - `response_status = 401`
+  - `request_path = /v1/656612e8bac6e750ae630a5ad3320858/guess-wrod-gateway/custom-guessword-deepseek/v1/chat/completions`
+  - `response_summary_prefix = Authentication Fails (governor)`
+  - `has_gateway_auth = false`
+  - `has_byok_alias = true`
+  - `runtime.version = bdc5cb5a287b`
+- 使用浏览器新建并写入 `/tmp/cf_aig_token.txt` 的 gateway token 做外部探针时，不论是 `/openai/chat/completions` 还是 custom provider 路径，都返回 Cloudflare `2009 Unauthorized`。
+- Dashboard 当前可见的 provider key 控制面边界：
+  - 现有 key `Guess Wrod DeepSeek` 的 alias 为 `guess-word`
+  - alias 输入框禁用，无法直接改成 `default`
+  - 未见“设为默认”“复制配置为默认”“测试连接”
+  - 要继续编辑，只能重新输入明文 `API 密钥`
 
 ## 第一步该做什么
 
-- 当前主仓基线已提升到 `bdc5cb5`。
+- 当前主仓基线已提升到 `10e2068`。
 - 下一步优先级：
-  1. 先继续解决 authenticated gateway token 是否可用；这是当前最强阻塞。
-  2. 如果 token 路线继续 `2009 Unauthorized`，则优先回退到 provider secret/default 路线，继续验证 custom provider secret 本身是否有效。
-  3. 一旦公网 `POST /guesses` 恢复成功，再补公网反馈提交和完整实玩证据。
+  1. 先确认是否允许/能够重新提供 DeepSeek 明文 key 到 Cloudflare AI Gateway provider config。
+  2. 若能提供，优先把现有 key 改成 `default` 或新建一条 `default` 配置，再复验公网 `guess`。
+  3. 若不能提供，则当前“公网可玩”目标在现有控制面能力下存在实质阻塞，应保留现场并继续等待新的控制权限或密钥来源。
 
 ## 风险
 
 - 当前还不是可公网完整游玩的一局：猜词仍失败，反馈链路无法真实触发。
-- 当前保留的参考/实验现场：
+- 现有控制面边界已经比较清楚，继续在没有明文 key 的前提下重复尝试 AI Gateway token / alias 调整，产出很可能极低。
+- 当前保留现场：
   - `/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`
   - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v5`
   - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v6`
   - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v7`
+  - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v8`
+  - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v9`
   - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v10`
   - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v11`
   - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v12`
