@@ -209,3 +209,7 @@ V0.1 使用匿名会话：
 ### 9.3 评分验收
 
 评分验收以 [05-scoring-spec.md](05-scoring-spec.md) 的人工样本集为准。
+
+### 9.4 数据分析验收
+
+行为分析和评分质量评估以 [08-analytics-and-quality.md](08-analytics-and-quality.md) 为准。V0.1 内测前至少要能产出每日行为漏斗、评分反馈列表、AI 调用成本和答案维度质量排行。

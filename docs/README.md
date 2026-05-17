@@ -13,6 +13,7 @@
 | [05-scoring-spec.md](05-scoring-spec.md) | AI 评分协议、归一化、关系类型、后处理 |
 | [06-security-compliance.md](06-security-compliance.md) | H5 发布、内容安全、隐私和成本风险 |
 | [07-implementation-plan.md](07-implementation-plan.md) | 原子任务、优先级、依赖和并行实施安排 |
+| [08-analytics-and-quality.md](08-analytics-and-quality.md) | 行为分析、评分质量评估、成本指标和内测日报 |
 
 ## V0.1 默认判断
 
