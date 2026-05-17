@@ -784,6 +784,10 @@ button:disabled {
   font-weight: 800;
 }
 
+.feedback-link--disabled {
+  color: #9aa6b2;
+}
+
 .empty-hint,
 .inline-error,
 .inline-note {
@@ -862,6 +866,7 @@ button:disabled {
 .feedback-backdrop {
   position: absolute;
   inset: 0;
+  display: block;
   background: rgba(36, 52, 71, 0.65);
 }
 
@@ -954,6 +959,10 @@ button:disabled {
   font-weight: 900;
 }
 
+.feedback-options button:disabled {
+  opacity: 0.72;
+}
+
 .feedback-options span {
   display: block;
   margin: 0 auto 4px;
@@ -1012,15 +1021,30 @@ button:disabled {
   gap: 14px;
 }
 
-.sheet-actions a {
+.sheet-actions a,
+.sheet-actions button {
   display: grid;
   min-height: 56px;
   place-items: center;
-  border: 1px solid rgba(36, 52, 71, 0.22);
   border-radius: 12px;
-  color: #5f6b76;
   font-size: 18px;
   font-weight: 900;
+}
+
+.sheet-actions a {
+  border: 1px solid rgba(36, 52, 71, 0.22);
+  color: #5f6b76;
+}
+
+.sheet-actions button {
+  border: 0;
+  background: #1b9aaa;
+  color: #fff;
+}
+
+.sheet-actions button:disabled {
+  background: #8fd0d5;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .result-header {

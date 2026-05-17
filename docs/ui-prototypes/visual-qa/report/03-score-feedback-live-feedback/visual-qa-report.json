@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "1.0",
+  "passed": false,
+  "score": 0.05,
+  "targetUrl": "http://localhost:8788/games/demo-playing?feedback=1",
+  "thresholds": {
+    "bboxTolerancePx": 8,
+    "relationTolerancePx": 6,
+    "colorDeltaMax": 12,
+    "regionDiffMax": 0.08,
+    "pageDiffMax": 0.06,
+    "pageDiffPixelsMax": 20000
+  },
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "deviceScaleFactor": 1
+  },
+  "summary": {
+    "requiredNodes": 5,
+    "failures": 8,
+    "warnings": 0
+  },
+  "failures": [
+    {
+      "priority": "high",
+      "id": "feedback-sheet",
+      "type": "style",
+      "message": "borderRadius expected 24px 24px 0 0, actual 24px 24px 0px 0px",
+      "expected": "24px 24px 0 0",
+      "actual": "24px 24px 0px 0px"
+    },
+    {
+      "priority": "high",
+      "id": "feedback-title",
+      "type": "bbox",
+      "message": "bbox outside tolerance 8px",
+      "expected": {
+        "x": 72,
+        "y": 466,
+        "width": 218,
+        "height": 28,
+        "source": "03-score-feedback",
+        "confidence": 0.76
+      },
+      "actual": {
+        "x": 70,
+        "y": 455,
+        "width": 180,
+        "height": 28,
+        "top": 455,
+        "right": 250,
+        "bottom": 483,
+        "left": 70
+      },
+      "diff": {
+        "x": 2,
+        "y": 11,
+        "width": 38,
+        "height": 0
+      }
+    },
+    {
+      "priority": "medium",
+      "id": "feedback-options",
+      "type": "text",
+      "message": "text expected \"分数偏高\", actual \"↑\n分数偏高\n↓\n分数偏低\n×\n关系不对\""
+    },
+    {
+      "priority": "medium",
+      "id": "above",
+      "type": "layout-relation",
+      "message": "missing relation target viewport-bottom"
+    },
+    {
+      "priority": "medium",
+      "id": "page",
+      "type": "page-diff",
+      "message": "page diff 0.1591 exceeds 0.06",
+      "diffRatio": 0.15912929882124194
+    },
+    {
+      "priority": "medium",
+      "id": "page",
+      "type": "page-diff",
+      "message": "page diff pixels 52379 exceeds 20000",
+      "diffPixels": 52379
+    },
+    {
+      "priority": "high",
+      "id": "feedback-sheet",
+      "type": "region-diff",
+      "message": "region diff 0.1270 exceeds 0.08",
+      "diffRatio": 0.126990231990232,
+      "artifact": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/regions/feedback-sheet-diff.png"
+    },
+    {
+      "priority": "medium",
+      "id": "feedback-options",
+      "type": "region-diff",
+      "message": "region diff 0.1728 exceeds 0.08",
+      "diffRatio": 0.17277982133473463,
+      "artifact": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/regions/feedback-options-diff.png"
+    }
+  ],
+  "warnings": [],
+  "artifacts": {
+    "actualScreenshot": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/actual.png",
+    "pageDiff": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/page-diff.png",
+    "failedRegions": [
+      "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/regions/feedback-sheet-diff.png",
+      "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/regions/feedback-options-diff.png"
+    ],
+    "report": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/visual-qa-report.json"
+  },
+  "pageDiff": {
+    "compared": true,
+    "diffPixels": 52379,
+    "totalPixels": 329160,
+    "diffRatio": 0.15912929882124194,
+    "diffFile": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-feedback/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/page-diff.png"
+  }
+}

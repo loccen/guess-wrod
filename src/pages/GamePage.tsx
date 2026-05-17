@@ -5,9 +5,9 @@ import {
   getErrorMessage,
   isFrontendApiError,
   toGamePageModel,
-  toGuessHistoryItems,
   toGuessSubmitNotice
 } from "../app/frontendFlow";
+import { FeedbackSheet } from "../components/FeedbackSheet";
 import { GuessHistory } from "../components/GuessHistory";
 import { IconBadge } from "../components/IconBadge";
 import { ScoreRing } from "../components/ScoreRing";
@@ -69,7 +69,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
 
         setScreenState({
           status: "ready",
-          model: toGamePageModel(game, () => buildGameFeedbackPath(game.game_id))
+          model: toGamePageModel(game, (guessId) => buildGameFeedbackPath(game.game_id, guessId))
         });
       } catch (error) {
         if (!active) {
@@ -97,7 +97,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
 
     setScreenState({
       status: "ready",
-      model: toGamePageModel(game, () => buildGameFeedbackPath(game.game_id))
+      model: toGamePageModel(game, (guessId) => buildGameFeedbackPath(game.game_id, guessId))
     });
   }
 
@@ -173,9 +173,40 @@ export function GamePage({ route, navigate }: GamePageProps) {
     }
     return demoResultBase.guesses;
   }, [screenState]);
+  const activeFeedbackGuess = useMemo(() => {
+    if (!showFeedback) {
+      return null;
+    }
+
+    if (route.feedbackGuessId) {
+      return feedbackGuesses.find((guess) => guess.guessId === route.feedbackGuessId) ?? feedbackGuesses[0] ?? null;
+    }
+
+    return feedbackGuesses[0] ?? null;
+  }, [feedbackGuesses, route.feedbackGuessId, showFeedback]);
 
   const bestGuess = screenState.status === "ready" ? screenState.model : null;
   const canSubmit = screenState.status === "ready" && guessText.trim().length > 0 && !submitPending && !giveUpPending;
+
+  async function handleSubmitFeedback(input: { guessId: string; note: string | null }) {
+    if (screenState.status !== "ready") {
+      throw new Error("当前游戏状态还没准备好，请稍后再试。");
+    }
+
+    try {
+      const token = await ensureSession().then((restored) => restored.token);
+      await apiClient.submitFeedback(token, screenState.model.gameId, {
+        guessId: input.guessId,
+        feedbackType: "score_unreasonable",
+        note: input.note
+      });
+    } catch (error) {
+      if (isFrontendApiError(error) && error.code === "game_ended") {
+        await refreshReadyGame(screenState.model.gameId);
+      }
+      throw error;
+    }
+  }
 
   return (
     <main className={`phone-page game-page ${showFeedback ? "is-dimmed" : ""}`}>
@@ -260,48 +291,13 @@ export function GamePage({ route, navigate }: GamePageProps) {
         放弃看答案
       </button>
 
-      {showFeedback && <FeedbackSheet guesses={feedbackGuesses} gamePath={bestGuess ? buildGamePath(bestGuess.gameId) : "/games/demo-playing"} />}
+      {showFeedback && activeFeedbackGuess && (
+        <FeedbackSheet
+          guess={activeFeedbackGuess}
+          gamePath={bestGuess ? buildGamePath(bestGuess.gameId) : "/games/demo-playing"}
+          submitFeedback={handleSubmitFeedback}
+        />
+      )}
     </main>
-  );
-}
-
-function FeedbackSheet({ guesses, gamePath }: { guesses: ReturnType<typeof toGuessHistoryItems>; gamePath: string }) {
-  const firstGuess = guesses[0] ?? demoResultBase.guesses[0];
-
-  return (
-    <div className="feedback-layer">
-      <div className="feedback-backdrop" data-ui-id="feedback-backdrop" />
-      <section className="feedback-sheet" data-ui-id="feedback-sheet" aria-labelledby="feedback-title">
-        <span className="sheet-handle" />
-        <a className="sheet-close" href={gamePath} aria-label="关闭反馈">×</a>
-        <div className="sheet-title-row">
-          <IconBadge label="☵" />
-          <div>
-            <h2 id="feedback-title" data-ui-id="feedback-title">这个分数不合理吗？</h2>
-            <p>我们会用反馈改进评分</p>
-          </div>
-        </div>
-        <div className="feedback-summary">
-          <span>你猜的词<strong>{firstGuess.word}</strong></span>
-          <span>当前分数<strong>{firstGuess.score}%</strong></span>
-          <span>词与答案的关系<strong>{firstGuess.relation}</strong></span>
-        </div>
-        <div className="feedback-options" data-ui-id="feedback-options">
-          <button className="is-selected" type="button"><span>↑</span>分数偏高</button>
-          <button type="button"><span>↓</span>分数偏低</button>
-          <button type="button"><span>×</span>关系不对</button>
-        </div>
-        <label className="feedback-text">
-          <span>✎</span>
-          <textarea maxLength={100} placeholder="补充说明（可选，最多100字）" />
-          <em>0/100</em>
-        </label>
-        <p className="sheet-note">♙ 提交反馈接口尚未接入，本弹层先保留视觉与文案结构</p>
-        <div className="sheet-actions">
-          <a href={gamePath}>取消</a>
-          <button data-ui-id="feedback-submit" type="button" disabled>提交反馈</button>
-        </div>
-      </section>
-    </div>
   );
 }

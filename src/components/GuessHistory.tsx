@@ -14,7 +14,8 @@ export function GuessHistory({ guesses, compact = false }: GuessHistoryProps) {
           <span className="guess-word">{guess.word}</span>
           <span className="guess-score">{guess.score}%</span>
           {!compact && <span className={`relation relation--${guess.relation}`}>{guess.relation}</span>}
-          {!compact && <a className="feedback-link" href={guess.feedbackHref}>反馈</a>}
+          {!compact && guess.feedbackHref && <a className="feedback-link" href={guess.feedbackHref}>反馈</a>}
+          {!compact && !guess.feedbackHref && <span className="feedback-link feedback-link--disabled">反馈</span>}
           {compact && <span className="mini-bar" style={{ "--bar": `${guess.score}%` } as React.CSSProperties} />}
           {compact && <span className="bubble">···</span>}
         </div>

@@ -94,6 +94,10 @@ export type GiveUpGameData = {
   ended_at: string;
 };
 
+export type SubmitFeedbackData = {
+  success: true;
+};
+
 type RequestOptions = RequestInit & {
   token?: string | null;
 };
@@ -158,6 +162,25 @@ export const apiClient = {
     return requestJson(`/api/games/${encodeURIComponent(gameId)}/give-up`, {
       method: "POST",
       token
+    });
+  },
+  submitFeedback(
+    token: string,
+    gameId: string,
+    input: {
+      guessId: string;
+      feedbackType: "score_unreasonable";
+      note?: string | null;
+    }
+  ): Promise<SubmitFeedbackData> {
+    return requestJson(`/api/games/${encodeURIComponent(gameId)}/feedback`, {
+      method: "POST",
+      token,
+      body: JSON.stringify({
+        guess_id: input.guessId,
+        feedback_type: input.feedbackType,
+        ...(input.note ? { note: input.note } : {})
+      })
     });
   }
 };
