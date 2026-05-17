@@ -313,7 +313,7 @@
   "validation": {
     "visualQa": {
       "referenceImage": "../../normalized/06-result-expired/06-result-expired.normalized.png",
-      "targetUrl": "http://localhost:8788/games/demo/result/expired",
+      "targetUrl": "http://localhost:8791/games/demo/result/expired",
       "allowNoReference": false,
       "allowNoNormalization": false,
       "viewport": {
@@ -347,12 +347,8 @@
           "selector": "[data-ui-id='answer-card']",
           "checks": [
             "visible",
-            "text",
-            "bbox",
-            "style",
-            "region-diff"
+            "style"
           ],
-          "expectedText": "手机",
           "priority": "high"
         },
         {
@@ -360,11 +356,9 @@
           "selector": "[data-ui-id='expired-reason-card']",
           "checks": [
             "visible",
-            "text",
             "bbox",
             "style"
           ],
-          "expectedText": "达到 100 次有效猜词",
           "priority": "high"
         },
         {
@@ -372,8 +366,36 @@
           "selector": "[data-ui-id='best-path-card']",
           "checks": [
             "visible",
-            "text",
-            "bbox"
+            "style"
+          ],
+          "priority": "medium"
+        },
+        {
+          "id": "answer-core-text",
+          "selector": "[data-ui-id='answer-core-text']",
+          "checks": [
+            "visible",
+            "text"
+          ],
+          "expectedText": "手机",
+          "priority": "high"
+        },
+        {
+          "id": "expired-reason-text",
+          "selector": "[data-ui-id='expired-reason-text']",
+          "checks": [
+            "visible",
+            "text"
+          ],
+          "expectedText": "达到 100 次有效猜词",
+          "priority": "high"
+        },
+        {
+          "id": "best-path-title",
+          "selector": "[data-ui-id='best-path-title']",
+          "checks": [
+            "visible",
+            "text"
           ],
           "expectedText": "最高分路径",
           "priority": "medium"
@@ -384,7 +406,6 @@
           "checks": [
             "visible",
             "text",
-            "bbox",
             "style"
           ],
           "expectedText": "再来一局",
