@@ -30,16 +30,16 @@
     }
   ],
   "artifacts": {
-    "actualScreenshot": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/02-game-playing-live-guess/actual.png",
-    "pageDiff": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/02-game-playing-live-guess/page-diff.png",
+    "actualScreenshot": "docs/ui-prototypes/visual-qa/report/02-game-playing-live-guess/actual.png",
+    "pageDiff": "docs/ui-prototypes/visual-qa/report/02-game-playing-live-guess/page-diff.png",
     "failedRegions": [],
-    "report": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/02-game-playing-live-guess/visual-qa-report.json"
+    "report": "docs/ui-prototypes/visual-qa/report/02-game-playing-live-guess/visual-qa-report.json"
   },
   "pageDiff": {
     "compared": true,
     "diffPixels": 31760,
     "totalPixels": 329160,
     "diffRatio": 0.09648803013731924,
-    "diffFile": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/02-game-playing-live-guess/page-diff.png"
+    "diffFile": "docs/ui-prototypes/visual-qa/report/02-game-playing-live-guess/page-diff.png"
   }
 }

@@ -24,18 +24,18 @@
   "failures": [],
   "warnings": [],
   "artifacts": {
-    "actualScreenshot": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/actual.png",
-    "pageDiff": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/page-diff.png",
+    "actualScreenshot": "docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/actual.png",
+    "pageDiff": "docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/page-diff.png",
     "failedRegions": [
-      "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/regions/feedback-sheet-diff.png"
+      "docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/regions/feedback-sheet-diff.png"
     ],
-    "report": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/visual-qa-report.json"
+    "report": "docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/visual-qa-report.json"
   },
   "pageDiff": {
     "compared": true,
     "diffPixels": 22034,
     "totalPixels": 329160,
     "diffRatio": 0.06694008992587192,
-    "diffFile": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-pass/docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/page-diff.png"
+    "diffFile": "docs/ui-prototypes/visual-qa/report/03-score-feedback-live-feedback/page-diff.png"
   }
 }

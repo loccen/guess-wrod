@@ -54,6 +54,7 @@ export type GameGuessData = {
 export type GameStatusData = {
   game_id: string;
   status: string;
+  expire_reason?: "ttl" | "guess_limit";
   guess_count: number;
   best_guess: {
     guess_id: string;

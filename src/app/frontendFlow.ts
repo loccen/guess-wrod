@@ -33,8 +33,23 @@ export type ResultPageModel = {
   statAValue: string;
   statBValue: string;
   statCValue: string;
+  expiredReasonTitle: string;
+  expiredReasonDetail: string;
   guesses: GuessHistoryItem[];
 };
+
+function mapExpireReason(reason: GameStatusData["expire_reason"]): { title: string; detail: string } {
+  if (reason === "guess_limit") {
+    return {
+      title: "达到 100 次有效猜词",
+      detail: "本局已触发猜词次数上限。"
+    };
+  }
+  return {
+    title: "超过 24 小时未完成",
+    detail: "本局已触发时长上限。"
+  };
+}
 
 export type GuessSubmitNotice = {
   tone: "success" | "warning";
@@ -259,6 +274,7 @@ export function toGuessSubmitNotice(result: SubmitGuessData): GuessSubmitNotice 
 export function toResultPageModel(mode: ResultMode, game: GameStatusData): ResultPageModel {
   const sortedGuesses = [...game.guesses].sort((left, right) => (right.score ?? 0) - (left.score ?? 0));
   const reviewGuesses = (mode === "success" ? sortedGuesses.filter((guess) => (guess.score ?? 0) < 100) : sortedGuesses).slice(0, 3);
+  const expiredReason = mapExpireReason(game.expire_reason);
 
   return {
     answer: game.answer ?? "未知",
@@ -266,6 +282,8 @@ export function toResultPageModel(mode: ResultMode, game: GameStatusData): Resul
     statAValue: `${game.guess_count}次`,
     statBValue: mode === "success" ? formatDurationText(game.started_at, game.ended_at) : `${game.best_guess?.score ?? 0}%`,
     statCValue: mode === "success" ? `${game.best_guess?.score ?? 0}%` : mode === "give-up" ? "放弃" : "过期",
+    expiredReasonTitle: expiredReason.title,
+    expiredReasonDetail: expiredReason.detail,
     guesses: toGuessHistoryItems(reviewGuesses, () => "#")
   };
 }
