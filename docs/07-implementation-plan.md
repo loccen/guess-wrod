@@ -212,3 +212,28 @@ T30 + T31 + T32 → T33
 2. 完成 T12-T14 的最小链路。
 3. 前端能通过接口完整猜一局。
 4. 至少有 50 个词条可用于本地测试。
+
+## 11. 本地开发命令
+
+T01 项目骨架使用 React + Vite + TypeScript + Cloudflare Pages Functions。
+
+| 命令 | 用途 |
+| --- | --- |
+| `npm install` | 安装依赖并生成锁文件 |
+| `npm run dev` | 只启动 Vite 前端开发服务 |
+| `npm run build` | 类型检查并构建静态前端到 `dist/` |
+| `npm run dev:pages` | 构建后用 `wrangler pages dev dist --port 8788` 启动 Pages + Functions 本地服务 |
+| `npm run typecheck` | TypeScript 类型检查 |
+| `npm test` | 运行 Vitest 单元测试 |
+| `npm run cf:check` | 编译 Pages Functions，检查入口和运行时类型 |
+
+本地默认模式由 `wrangler.jsonc` 提供：
+
+| 配置 | 默认值 | 说明 |
+| --- | --- | --- |
+| `AI_MODE` | `stub` | 本地默认不调用真实模型 |
+| `CAPTCHA_MODE` | `bypass` | 本地默认不接真实验证码 |
+| `ANALYTICS_MODE` | `noop` | 本地默认不写真实分析数据 |
+| `ARCHIVE_MODE` | `file` | 本地默认预留文件归档 adapter |
+
+当前健康检查地址为 `GET /api/health`。该接口用于验证 Pages Functions、routes handler、use case 和运行时配置 adapter 的最小链路；不包含业务主流程、数据库、词库 seed、评分规则或真实 AI 调用。

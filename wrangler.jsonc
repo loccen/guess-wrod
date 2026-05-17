@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "guess-wrod",
+  "compatibility_date": "2026-05-17",
+  "pages_build_output_dir": "dist",
+  "vars": {
+    "AI_MODE": "stub",
+    "CAPTCHA_MODE": "bypass",
+    "ANALYTICS_MODE": "noop",
+    "ARCHIVE_MODE": "file"
+  }
+}

@@ -256,6 +256,20 @@ AI Gateway -> DeepSeek V4 Flash
 2. 允许存在 `D1_DATABASE_NAME`、`R2_LOG_BUCKET` 这类当前实现变量，但业务服务内部应尽量只看到通用配置对象。
 3. 不得在业务代码里到处读取 `env`；应在入口层集中读取后注入。
 
+### 8.5.1 当前项目骨架
+
+T01 已按 Pages + Functions、React + Vite + TypeScript 初始化基础目录：
+
+| 目录 | 当前职责 |
+| --- | --- |
+| `functions/` | Cloudflare Pages Functions 入口，只负责接收平台上下文并调用 routes handler |
+| `src/routes/handlers/` | HTTP 请求处理、响应组装和依赖注入边界 |
+| `src/usecases/services/` | 平台中立的业务服务 |
+| `src/domain/models/` | 平台中立的领域类型和返回模型 |
+| `src/infrastructure/adapters/` | 运行时配置和后续基础设施 adapter |
+
+当前 `/api/health` 只读取 `AI_MODE`、`CAPTCHA_MODE`、`ANALYTICS_MODE`、`ARCHIVE_MODE`，并在 adapter 层转换为业务可读配置。`domain/models` 与 `usecases/services` 不导入 Cloudflare 类型，也不直接读取 Pages/Workers runtime 对象。
+
 ### 8.6 迁移映射
 
 | 当前默认实现 | 未来可替代方向 |
