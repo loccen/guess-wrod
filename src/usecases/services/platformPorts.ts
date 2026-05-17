@@ -1,4 +1,6 @@
+import type { ThinkingMode } from "../../domain/models/storage";
 import type { StorageRepositories } from "../repositories/storageRepositories";
+import type { ScoringGateway } from "../scoring/scoringGateway";
 
 export interface Clock {
   now(): Date;
@@ -43,6 +45,16 @@ export interface ValueHasher {
   hash(value: string): Promise<string>;
 }
 
+export interface SensitiveTermChecker {
+  matches(normalizedText: string): boolean;
+}
+
+export interface ScoringProfile {
+  provider: string;
+  modelName: string;
+  thinkingMode: ThinkingMode;
+}
+
 export interface AppServices {
   storage: StorageRepositories;
   clock: Clock;
@@ -51,4 +63,7 @@ export interface AppServices {
   sessionTokenService: SessionTokenService;
   captchaVerifier: CaptchaVerifier;
   valueHasher: ValueHasher;
+  sensitiveTermChecker: SensitiveTermChecker;
+  scoringGateway: ScoringGateway;
+  scoringProfile: ScoringProfile;
 }

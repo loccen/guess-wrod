@@ -1,4 +1,4 @@
-import { ApiError, DEFAULT_MODEL_NAME, DEFAULT_RULE_VERSION, DEFAULT_THINKING_MODE, GAME_TTL_MS } from "../../domain/models/api";
+import { ApiError, DEFAULT_RULE_VERSION, GAME_TTL_MS } from "../../domain/models/api";
 import type { Game, Guess, Word } from "../../domain/models/storage";
 import type { AppServices } from "./platformPorts";
 import type { AuthenticatedSession } from "./sessionService";
@@ -107,8 +107,8 @@ export class GameService {
       answerId: answer.id,
       status: "playing",
       ruleVersion: DEFAULT_RULE_VERSION,
-      modelName: DEFAULT_MODEL_NAME,
-      thinkingMode: DEFAULT_THINKING_MODE,
+      modelName: this.services.scoringProfile.modelName,
+      thinkingMode: this.services.scoringProfile.thinkingMode,
       guessCount: 0,
       bestGuessId: null,
       startedAt,

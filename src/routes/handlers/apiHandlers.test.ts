@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { LocalSensitiveTermChecker } from "../../infrastructure/adapters/sensitiveTerms";
 import { SignedSessionTokenService } from "../../infrastructure/adapters/sessionTokenService";
 import { Sha256ValueHasher } from "../../infrastructure/adapters/sha256ValueHasher";
+import { StubScoringClient, type StubScoringRule } from "../../infrastructure/adapters/stubScoringClient";
 import type {
   AiCallLog,
   Game,
@@ -19,9 +21,10 @@ import type {
   Visitor,
   Word
 } from "../../domain/models/storage";
+import { ScoringGateway } from "../../usecases/scoring/scoringGateway";
 import type { StorageRepositories } from "../../usecases/repositories/storageRepositories";
 import type { AppServices, CaptchaVerificationResult, Clock, IdGenerator, RandomSource } from "../../usecases/services/platformPorts";
-import { createGameResponse, getGameResponse, giveUpGameResponse } from "./gameHandlers";
+import { createGameResponse, getGameResponse, giveUpGameResponse, submitGuessResponse } from "./gameHandlers";
 import { createSessionResponse, getSessionResponse } from "./sessionHandlers";
 
 class FixedClock implements Clock {
@@ -222,8 +225,25 @@ class MemoryStorageRepositories implements StorageRepositories {
         lastHitAt: entry.lastHitAt ?? null
       });
     },
-    findScoreCache: async () => null,
-    recordScoreCacheHit: async () => {}
+    findScoreCache: async (params) =>
+      Array.from(this.scoreCacheStore.values()).find(
+        (entry) =>
+          entry.answerId === params.answerId &&
+          entry.guessNormalized === params.guessNormalized &&
+          entry.ruleVersion === params.ruleVersion &&
+          entry.modelName === params.modelName &&
+          entry.thinkingMode === params.thinkingMode
+      ) ?? null,
+    recordScoreCacheHit: async (cacheKey: string, hitAt: string) => {
+      const entry = this.scoreCacheStore.get(cacheKey);
+      if (entry) {
+        this.scoreCacheStore.set(cacheKey, {
+          ...entry,
+          hitCount: entry.hitCount + 1,
+          lastHitAt: hitAt
+        });
+      }
+    }
   } satisfies StorageRepositories["scoreCache"];
 
   readonly feedbackRepository = {
@@ -279,7 +299,10 @@ class MemoryStorageRepositories implements StorageRepositories {
   aiCallLogs = this.aiCallLogsRepository;
 }
 
-async function createServices(now = "2026-05-17T10:00:00.000Z"): Promise<AppServices> {
+async function createServices(
+  now = "2026-05-17T10:00:00.000Z",
+  scoringRules: StubScoringRule[] = []
+): Promise<AppServices> {
   const storage = new MemoryStorageRepositories();
   await storage.words.upsertWord({
     id: "word_1",
@@ -304,8 +327,31 @@ async function createServices(now = "2026-05-17T10:00:00.000Z"): Promise<AppServ
       ok: true,
       passedAt: now
     }),
-    valueHasher: new Sha256ValueHasher()
+    valueHasher: new Sha256ValueHasher(),
+    sensitiveTermChecker: new LocalSensitiveTermChecker(),
+    scoringGateway: new ScoringGateway(new StubScoringClient(scoringRules)),
+    scoringProfile: {
+      provider: "stub",
+      modelName: "deepseek-v4-flash",
+      thinkingMode: "disabled"
+    }
   };
+}
+
+async function createGame(services: AppServices, authorization: string): Promise<string> {
+  const response = await createGameResponse(
+    new Request("https://example.com/api/games", {
+      method: "POST",
+      headers: {
+        authorization,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({ mode: "random" })
+    }),
+    services
+  );
+  const payload = (await response.json()) as Record<string, any>;
+  return String(payload.data.game_id);
 }
 
 async function createAuthorizedRequest(services: AppServices, sessionExpiresAt = "2026-06-16T10:00:00.000Z"): Promise<{ authorization: string; visitorId: string }> {
@@ -495,5 +541,281 @@ describe("session and game handlers", () => {
     expect(statusPayload.data.status).toBe("give_up");
     expect(statusPayload.data.answer).toBe("手机");
     expect(statusPayload.data.answer_aliases).toEqual(["智能手机", "移动电话"]);
+  });
+
+  it("rejects empty guess input", async () => {
+    const services = await createServices();
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "   " })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(400);
+    expect(payload.error.code).toBe("invalid_guess");
+    expect(payload.error.counted).toBe(false);
+  });
+
+  it("normalizes full-width and uppercase guess before scoring", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z", [
+      {
+        guess: "test",
+        response: {
+          score: 67,
+          relation_type: "same_category",
+          is_exact: false
+        }
+      }
+    ]);
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: " ＴＥＳＴ " })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(200);
+    expect(payload.data.guess).toBe("ＴＥＳＴ");
+    expect(payload.data.normalized_guess).toBe("test");
+    expect(payload.data.source).toBe("model");
+    expect(payload.data.guess_count).toBe(1);
+  });
+
+  it("rejects sensitive guesses before scoring", async () => {
+    const services = await createServices();
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "诈骗电话" })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(400);
+    expect(payload.error.code).toBe("sensitive_word");
+  });
+
+  it("marks alias guesses as exact success without calling AI", async () => {
+    const services = await createServices();
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "移动电话" })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(200);
+    expect(payload.data.relation_type).toBe("alias");
+    expect(payload.data.is_exact).toBe(true);
+    expect(payload.data.source).toBe("exact_match");
+    expect(payload.data.status).toBe("success");
+    expect(payload.data.answer).toBe("手机");
+    expect(payload.data.guess_count).toBe(1);
+  });
+
+  it("reuses the same counted guess within one game without incrementing guess count", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z", [
+      {
+        guess: "平板",
+        response: {
+          score: 76,
+          relation_type: "same_category",
+          is_exact: false
+        }
+      }
+    ]);
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+
+    const firstResponse = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      gameId
+    );
+    const firstPayload = (await firstResponse.json()) as Record<string, any>;
+
+    const secondResponse = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      gameId
+    );
+    const secondPayload = (await secondResponse.json()) as Record<string, any>;
+
+    expect(firstPayload.data.guess_id).toBe("guess_2");
+    expect(secondResponse.status).toBe(200);
+    expect(secondPayload.data.guess_id).toBe("guess_2");
+    expect(secondPayload.data.source).toBe("game_cache");
+    expect(secondPayload.data.counted).toBe(false);
+    expect(secondPayload.data.guess_count).toBe(1);
+  });
+
+  it("reuses global cache across games and still counts as a new valid guess", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z", [
+      {
+        guess: "平板",
+        response: {
+          score: 76,
+          relation_type: "same_category",
+          is_exact: false
+        }
+      }
+    ]);
+    const { authorization } = await createAuthorizedRequest(services);
+    const firstGameId = await createGame(services, authorization);
+    await submitGuessResponse(
+      new Request(`https://example.com/api/games/${firstGameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      firstGameId
+    );
+    await giveUpGameResponse(
+      new Request(`https://example.com/api/games/${firstGameId}/give-up`, {
+        method: "POST",
+        headers: { authorization }
+      }),
+      services,
+      firstGameId
+    );
+
+    const secondGameId = await createGame(services, authorization);
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${secondGameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      secondGameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(200);
+    expect(payload.data.source).toBe("global_cache");
+    expect(payload.data.counted).toBe(true);
+    expect(payload.data.guess_count).toBe(1);
+  });
+
+  it("uses stub model scoring path as a counted guess", async () => {
+    const services = await createServices("2026-05-17T10:00:00.000Z", [
+      {
+        guess: "维修",
+        response: {
+          score: 72,
+          relation_type: "service_context",
+          is_exact: false
+        }
+      }
+    ]);
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "维修" })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(200);
+    expect(payload.data.source).toBe("model");
+    expect(payload.data.counted).toBe(true);
+    expect(payload.data.guess_count).toBe(1);
+    expect(payload.data.best_guess.score).toBe(72);
+  });
+
+  it("rejects guesses after the game has already ended", async () => {
+    const services = await createServices();
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    await giveUpGameResponse(
+      new Request(`https://example.com/api/games/${gameId}/give-up`, {
+        method: "POST",
+        headers: { authorization }
+      }),
+      services,
+      gameId
+    );
+
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(409);
+    expect(payload.error.code).toBe("game_ended");
   });
 });
