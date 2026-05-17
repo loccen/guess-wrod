@@ -3,18 +3,28 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T04:35:44+08:00",
+  "updated_at": "2026-05-18T05:10:31+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
-  "truth_sources": ["AGENTS.md", "docs/02-architecture.md", "docs/04-api-contract.md", "docs/05-scoring-spec.md", "docs/07-implementation-plan.md", "docs/08-analytics-and-quality.md", "docs/ui-prototypes/images"],
-  "next_step": "继续处理 AI Gateway custom provider/BYOK 401 与 Direct Upload 根目录结构，优先打通公网猜词提交链路。",
+  "truth_sources": [
+    "AGENTS.md",
+    "docs/02-architecture.md",
+    "docs/04-api-contract.md",
+    "docs/05-scoring-spec.md",
+    "docs/07-implementation-plan.md",
+    "docs/08-analytics-and-quality.md",
+    "docs/ui-prototypes/images"
+  ],
+  "next_step": "继续处理 AI Gateway custom provider/BYOK 401，并核对 Wrangler preview alias 与 production alias 的 deployment / DB 命中差异。",
   "blockers": [
     "公网 POST /api/games/{id}/guesses 仍返回 500 system_error，当前主阻塞在 AI Gateway custom provider/BYOK 联动。",
     "AI Gateway 现有 provider config 只有 alias=guess-word 且 default_config=0，Dashboard 改默认要求重新提供明文 secret。",
-    "Cloudflare Direct Upload 当前多次把上传内容落成 /dist/* 而不是站点根，导致 production alias 行为不稳定。"
+    "Wrangler preview alias 已重新部署，但最新诊断字段仍未落进正式 D1，preview / production 的命中路径仍需进一步澄清。"
   ],
-  "evidence_paths": [".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"],
+  "evidence_paths": [
+    ".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"
+  ],
   "related_commits": [
     "54eb07269d90e1b0bceecf7ed1db1057ede0f683",
     "a7a7f8c",
@@ -67,7 +77,9 @@
     "b3cc77c",
     "e985f4a",
     "cdae1b0",
-    "cf9883a"
+    "cf9883a",
+    "a855b3c",
+    "21c93b8"
   ],
   "related_tasks": [
     "codex/guessword-t01-skeleton",
@@ -93,7 +105,10 @@
     "codex/guessword-gateway-path-fix",
     "codex/guessword-gateway-auth-header",
     "codex/guessword-byok-alias",
-    "codex/guessword-prod-deploy-v4"
+    "codex/guessword-prod-deploy-v4",
+    "codex/guessword-ai-diagnostic",
+    "codex/guessword-prod-deploy-v5",
+    "codex/guessword-prod-deploy-v6"
   ],
   "supersedes": [],
   "protocol_version": 1,

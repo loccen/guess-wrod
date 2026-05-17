@@ -2,7 +2,7 @@
 
 - Task ID: `202605171630-development-orchestration`
 - Created At: `2026-05-17T23:22:27+08:00`
-- Updated At: `2026-05-18T04:35:44+08:00`
+- Updated At: `2026-05-18T05:10:31+08:00`
 - Status: `active`
 
 ## 目标
@@ -27,9 +27,9 @@
 
 ## 关键决策
 
-- 决策：前端视觉任务按 `image2code-skill` 走，并把 `06-result-expired-live` 收敛到只剩 page-level diff。
-- 决策：云侧优先走真实资源和真实部署证据，而不是继续做本地推断。
-- 决策：AI Gateway 相关问题按“请求路径 -> 鉴权头 -> BYOK alias -> provider config/default -> deployment 根目录结构”逐层拆开推进。
+- 前端视觉任务按 `image2code-skill` 走，并把 `06-result-expired-live` 收敛到只剩 page-level diff。
+- 云侧优先走真实资源、真实部署和真实公网证据，不再只凭本地推断。
+- AI Gateway 问题按“路径 -> 鉴权头 -> BYOK alias -> provider config/default -> deployment 根目录结构”拆开排。
 
 ## 验收标准
 
@@ -47,11 +47,12 @@
   - D1 正式库：`guess-wrod-prod`
   - AI Gateway：`guess-wrod-gateway`
 - 已完成：D1 正式库已建表并导入 50 条 `words` seed。
-- 已完成：expired 页面最新视觉基线已合入 `main`，`06-result-expired-live` 仅剩 page-level diff，报告保留 `only-page-level-diff` 说明。
+- 已完成：expired 页面最新视觉基线已合入 `main`，`06-result-expired-live` 报告仅剩 page-level diff，并保留 `only-page-level-diff` 说明。
 - 已完成：后续已合入多轮 AI Gateway adapter 修复：
   - provider 基础 URL 自动补 `/chat/completions`
   - `cf-aig-authorization` 头替代错误的 provider `Authorization`
-  - 可选 `cf-aig-byok-alias`
+  - 可选发送 `cf-aig-byok-alias`
+- 已完成：AI 失败最小诊断字段已合入 `main`，并新增 `migrations/0002_add_ai_call_logs_diagnostic_fields.sql`。
 - 已完成：Pages production env 已确认存在：
   - `AI_MODE=live`
   - `AI_MODEL_NAME=deepseek-v4-flash`
@@ -59,27 +60,24 @@
   - `AI_GATEWAY_API_KEY`（secret）
   - `AI_GATEWAY_BYOK_ALIAS=guess-word`
 - 已完成：AI Gateway `guess-wrod-gateway` 已重新开启 authenticated gateway。
-- 已完成：公网已能跑通：
-  - `GET /api/health`
-  - `POST /api/sessions`
-  - `POST /api/games`
-  - `POST /api/games/{id}/give-up`
-  - `GET /api/games/{id}` 结果页
-- 未完成：公网完整一局仍未完成，`POST /api/games/{id}/guesses` 继续返回 `500 system_error`，反馈链路无法真实触发。
-- 未完成：`guess-wrod.pages.dev` 的生产 alias 与最新 direct upload 根目录结构仍未完全对齐；多次 direct upload 都落成 `/dist/*` 或根目录上传未真正进入列表。
-- 未完成：R2 仍提示需先在 Dashboard 启用；Turnstile live 写操作仍未打通。
-- 残留现场：`/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa` 只包含未提交的旧视觉尝试，当前不可安全清理。
+- 已完成：公网 `https://guess-wrod.pages.dev/api/health`、`POST /api/sessions`、`POST /api/games`、`POST /api/games/{id}/give-up`、`GET /api/games/{id}` 已可跑通。
+- 已完成：Wrangler OAuth 登录已成功，且 CLI 可创建 preview deployment alias。
+- 未完成：公网 `POST /api/games/{id}/guesses` 仍返回 `500 system_error`，因此反馈链路无法真实触发。
+- 未完成：`R2` 仍需先在 Dashboard 启用；Turnstile live 写操作仍未打通。
+- 残留现场：
+  - `/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`
+  - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v5`
 
 ## 当前阻塞
 
 - AI Gateway 历史日志显示 `provider=custom-guessword-deepseek`、`status_code=401`、`response_head=Authentication Fails (governor)`，且 `byok=null`。
 - 现有 provider config 只有一条：`alias=guess-word`、`default_config=0`、`secret_preview=********ed5`。
 - API 无法直接把现有 provider config 改成默认；Dashboard 若想改默认会要求重新提供明文 secret。
-- 最新 production deployment 元数据虽然已带上 `AI_GATEWAY_API_KEY(secret)`、`AI_GATEWAY_BYOK_ALIAS=guess-word` 和 custom provider endpoint，但公网猜词仍失败。
-- Direct Upload UI 目前无法稳定把 `_worker.js`、`index.html`、`assets` 作为根级站点内容上传；若继续走 drag-and-drop，容易把内容落成 `/dist/*`。
+- 即使最新诊断代码已合入并通过新 alias 发版，正式 D1 里最近的 `ai_call_logs` 仍只有旧式空诊断行，说明 preview alias 的请求并未把新诊断写进正式库。
+- Cloudflare Direct Upload UI 仍无法稳定把 `_worker.js`、`index.html`、`assets` 作为根级站点内容上传；production alias 和最新 deployment 的根目录行为仍有偏差。
 
 ## 下一步
 
-- 1. 继续解决 AI Gateway custom provider/BYOK 的 401，优先确认 provider config secret 的真实生效条件，必要时改走别的 Gateway/provider 方案。
-- 2. 并行确认 Direct Upload / Wrangler 哪条路线能真正把 `_worker.js`、`index.html`、`assets` 作为根级站点内容发到 production。
-- 3. 只有在公网 `POST /api/games/{id}/guesses` 恢复成功后，才继续补公网反馈提交和至少一轮完整实玩证据。
+- 1. 先继续解决 AI Gateway custom provider/BYOK 的 401；只要公网 `POST /guesses` 还 500，就不要宣称“公网可玩”。
+- 2. 并行核对 Wrangler preview alias 与 production alias 的 deployment / DB 命中差异，优先解释为什么最新诊断字段没有落进正式库。
+- 3. 只有在公网 `POST /guesses` 恢复成功后，才继续补公网反馈提交和至少一轮完整实玩证据。

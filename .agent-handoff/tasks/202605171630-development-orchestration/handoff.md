@@ -3,14 +3,14 @@
 ## 已验证基线
 
 - 当前 `main` 已包含：React + Vite + Pages Functions 骨架、`/api/health`、migration/seed、评分规则、评分客户端抽象、存储 repository/adapter、前端真实主流程、image2code 规格与视觉报告。
-- 当前会话新增已合入 `main`：
-  - 后端 live adapter `a3a448a`
-  - Cloudflare 资源基线 `05e07bd`
-  - expired 数据流 `ce6e89e`
-  - expired 视觉收尾 `e6cbf7c`
-  - AI Gateway 请求路径修复 `bc56a44`
-  - AI Gateway 鉴权头修复 `e985f4a`
-  - AI Gateway BYOK alias 支持 `cf9883a`
+- 当前会话已合入 `main` 的关键主题：
+  - 后端 live adapter
+  - Cloudflare 资源基线
+  - expired 数据流与视觉收尾
+  - AI Gateway 请求路径修复
+  - AI Gateway 鉴权头修复
+  - AI Gateway BYOK alias 支持
+  - AI 失败最小诊断字段
 - 主仓本地验证仍通过：`npm run typecheck`、`npm test`、`npm run build`、`npm run cf:check`、handoff validate。
 - D1 正式库 `guess-wrod-prod` 已建表并导入 50 条 `words`。
 - Pages production env 已确认存在：
@@ -30,15 +30,16 @@
 - AI Gateway 历史日志显示 `provider=custom-guessword-deepseek`、`status_code=401`、`response_head=Authentication Fails (governor)`，且 `byok=null`。
 - 现有 provider config 只有一条：`alias=guess-word`、`default_config=0`、`secret_preview=********ed5`。
 - API 无法直接把现有 config 改成默认；Dashboard 若想改默认会要求重新提供明文 secret。
-- Direct Upload UI 目前无法稳定把 `_worker.js`、`index.html`、`assets` 作为根级站点内容上传；多次 deployment 都落成 `/dist/*`，导致 production alias 与 deployment 文件结构不一致。
+- 即使最新诊断代码已合入并发出新的 preview deployment，正式 D1 中最近的 `ai_call_logs` 仍没有非空诊断字段，说明 preview alias 触发的失败并未把新诊断写进正式库。
+- Direct Upload UI 仍无法稳定把 `_worker.js`、`index.html`、`assets` 作为根级站点内容上传；production alias 与最新 deployment 的根目录行为仍未统一。
 - `R2` 仍需先在 Dashboard 启用；Turnstile live 写操作仍未打通。
 
 ## 第一步该做什么
 
-- 当前主仓基线已提升到 `main` 的 `cf9883a`。
+- 当前主仓基线已提升到 `main` 的 `21c93b8`。
 - 下一步优先级：
   1. 先继续解决 AI Gateway custom provider/BYOK 401；只要公网 `POST /guesses` 还 500，就不要宣称“公网可玩”。
-  2. 并行确认 Direct Upload / Wrangler 哪条路线能真正把 `_worker.js`、`index.html`、`assets` 作为根级站点内容发到 production。
+  2. 并行确认 Wrangler preview alias 与 production alias 的 deployment / DB 命中差异，解释为什么最新诊断字段没落进正式库。
   3. 一旦猜词恢复，再补公网反馈提交和至少一轮完整实玩证据。
 
 ## 先看哪些文件/命令
@@ -58,5 +59,7 @@
 
 - 当前还不是可公网完整游玩的一局：公网猜词提交仍失败，反馈链路无法真实触发。
 - Direct Upload 与 production alias 的根目录行为仍不稳定，容易出现最新 deployment 成功但根页面继续返回旧资源或 404。
-- 仍存在一个需人工判断的残留现场：`/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`。
+- 仍存在两个需人工判断的残留现场：
+  - `/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`
+  - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v5`
 - 后续子代理不得发送 ntfy；最终通知只由主代理发送。
