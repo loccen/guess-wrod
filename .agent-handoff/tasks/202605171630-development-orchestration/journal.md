@@ -65,3 +65,9 @@
 - 动作：从最新 `main` 的 `1689aca` 创建两个 worktree，并派发前端 visual QA 修复和后端基础 API 子代理。
 - 结果：第三批子代理 ID、branch、worktree 已登记到 `evidence/dispatch-plan.md`。
 - 遗留：等待子代理完成；完成一个验收一个并及时合入 `main`。
+
+## 2026-05-18T00:26:40+08:00 第三批验收并合入
+
+- 动作：验收并合入前端 visual QA 修复与后端基础 API 两个子任务。
+- 结果：两个子任务已通过 no-ff merge 合入 `main`；主仓已具备会话、建局、状态、放弃的本地 HTTP 链路；前端 visual QA 失败项已收窄但未清零。
+- 遗留：继续派发猜词提交流程和前端真实 API 接入。

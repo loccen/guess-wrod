@@ -177,3 +177,33 @@
 - 子代理不得发送 ntfy。
 - 完成后主代理应及时验收并合入 `main`。
 - 后续新任务必须继续从合入后的最新 `main` 创建 worktree。
+
+## 第三批合并状态
+
+- 前端 visual QA 修复：
+  - 子任务提交：`6b1b5fd`
+  - merge commit：`3719d4c`
+  - 结果：首页 visual QA 从 8 个失败项降到 6 个，游戏页从 12 个降到 6 个；仍未通过。
+- 后端基础 API：
+  - 子任务提交：`283817a5c7630adba381fd90a0002342e478bee2`
+  - merge commit：`9e7a1a5`
+  - 结果：已支持 `POST /api/sessions`、`GET /api/session`、`POST /api/games`、`GET /api/games/{id}`、`POST /api/games/{id}/give-up` 的本地 stub/bypass 链路。
+- 第三批合并后主验证：
+  - `npm run typecheck` 通过
+  - `npm test` 通过，7 个文件 25 个用例
+  - `node --test tests/domain/scoring.test.mjs` 通过，14 项
+  - `npm run build` 通过
+  - `npm run cf:check` 通过
+  - seed/migration 校验通过
+  - `.agent-handoff` 校验通过
+  - `npm run dev:pages` 下，`POST /api/sessions -> POST /api/games -> GET /api/games/{id} -> POST /api/games/{id}/give-up -> GET /api/games/{id}` 真实链路通过
+- 清理结果：第三批两个 worktree 与临时分支已删除。
+
+## 第四批建议
+
+基于第三批后的最新 `main`，优先拆这两条：
+
+1. `POST /api/games/{id}/guesses` 后端链路
+   - 范围：输入归一化、敏感词过滤、exact/alias、本局缓存、全局缓存、评分客户端接入、计次规则和错误处理。
+2. 前端真实 API 接入
+   - 范围：会话恢复、建局、状态查询、放弃、结果页改为真实数据；前端继续保留 image2code 约束。
