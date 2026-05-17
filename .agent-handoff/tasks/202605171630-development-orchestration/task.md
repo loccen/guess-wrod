@@ -2,7 +2,7 @@
 
 - Task ID: `202605171630-development-orchestration`
 - Created At: `2026-05-17T23:22:27+08:00`
-- Updated At: `2026-05-18T01:15:13+08:00`
+- Updated At: `2026-05-18T03:05:46+08:00`
 - Status: `active`
 
 ## 目标
@@ -61,10 +61,16 @@
 - 已完成：第五批已基于最新 `main` 派发前端真实猜词流程和评分反馈后端链路两个子任务。
 - 已完成：第五批两个子任务已合入 `main`，主仓已具备 session -> game -> guess -> feedback -> give-up -> status 的本地 HTTP 链路。
 - 已完成：第六批两个子任务已合入 `main`，前端反馈接入与过期/上限规则已落地。
-- 已完成：第七批两个子任务已合入 `main`，关键 live visual QA 报告已转为通过，基础分析写入边界已落地。
-- 未完成：expired 前端真实流、真实云资源联动、analytics live writer 仍未完成。
-- 阻塞：完整一局主流程仍缺少更接近上线的云联动和 expired 前端收尾。
+- 已完成：新增后端 live adapter 子任务已合入 `main`，当前主仓支持可选 AI Gateway 鉴权、真实 captcha adapter、live analytics/archive 最小接线点，并补齐测试与文档。
+- 已完成：新增 Cloudflare 资源基线子任务已合入 `main`，仓库文档已回填真实资源事实：Pages 项目 `guess-wrod`、D1 正式库 `guess-wrod-prod`、AI Gateway `guess-wrod-gateway`。
+- 已完成：expired 结果页真实数据流子任务的已提交部分已合入 `main`，前端已真实消费 `expire_reason`、答案与统计字段，并新增 repo-tracked `06-result-expired-live` 报告目录。
+- 未完成：expired 页面 visual QA 仍未通过；当前未提交尝试停留在 `/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`，不可安全清理。
+- 未完成：Cloudflare Pages 生产绑定、远端 D1 migration/seed、真实部署 URL、公网实玩证据仍未完成。
+- 未完成：R2 仍提示需先在 Dashboard 启用；Turnstile API 写操作当前未打通。
+- 阻塞：Cloudflare API 读权限可用，但对 Pages 项目配置写入返回 `10000: Authentication error`；Chrome 登录态可进入 Dashboard，但 D1 绑定面板保存状态不稳定，暂未拿到可复验的“已保存成功”证据。
 
 ## 下一步
 
-- 基于最新 `main` 派发更贴近上线的剩余子任务。
+- 从最新 `main` 重新派发两个剩余方向：
+- 1. 前端 expired 页面视觉收尾：沿用当前 diff 作为参考，但必须从最新 `main` 新开 worktree，避免继续在旧 worktree 未提交尝试上空转。
+- 2. 真实部署与公网验收：优先解决 Pages 生产环境绑定与 deployment 创建，再推进远端 D1 初始化和公网实玩。

@@ -3,13 +3,17 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T01:17:29+08:00",
+  "updated_at": "2026-05-18T03:05:46+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
   "truth_sources": ["AGENTS.md", "docs/02-architecture.md", "docs/04-api-contract.md", "docs/05-scoring-spec.md", "docs/07-implementation-plan.md", "docs/08-analytics-and-quality.md", "docs/ui-prototypes/images"],
-  "next_step": "基于最新 main 派发更贴近上线的剩余子任务，优先补 expired 前端真实流与真实云联动。",
-  "blockers": [],
+  "next_step": "从最新 main 重新派发前端 expired 视觉收尾与真实部署子任务，优先解决 Pages 生产绑定、deployment 创建与公网实玩证据。",
+  "blockers": [
+    "Cloudflare API 对 Pages 项目配置写入返回 10000 Authentication error。",
+    "Chrome Dashboard 路径可达，但 D1 绑定面板保存状态不稳定，尚未拿到稳定成功反馈。",
+    "expired 页面 visual QA 仍未通过，未提交尝试残留在 /Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa。"
+  ],
   "evidence_paths": [".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"],
   "related_commits": [
     "54eb07269d90e1b0bceecf7ed1db1057ede0f683",
@@ -46,7 +50,15 @@
     "fb7ae31690f9d8220a6ef9b7d08c7396855780f1",
     "5a4326e",
     "d75ab037fddfd0551624108a6f55a3e0f4a6324f",
-    "c5299d8"
+    "c5299d8",
+    "80ea9c2",
+    "531a84a",
+    "a3a448a",
+    "8c06241",
+    "a714445",
+    "05e07bd",
+    "7f9ebc6",
+    "ce6e89e"
   ],
   "related_tasks": [
     "codex/guessword-t01-skeleton",
@@ -63,7 +75,11 @@
     "codex/guessword-frontend-live-guess",
     "codex/guessword-feedback-api",
     "codex/guessword-frontend-feedback",
-    "codex/guessword-expiry-rules"
+    "codex/guessword-expiry-rules",
+    "codex/guessword-live-adapters",
+    "codex/guessword-cloudflare-bootstrap",
+    "codex/guessword-expired-visual-qa",
+    "codex/guessword-deploy"
   ],
   "supersedes": [],
   "protocol_version": 1,
