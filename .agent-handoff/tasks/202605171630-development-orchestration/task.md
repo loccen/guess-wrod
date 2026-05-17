@@ -47,6 +47,7 @@
 ## 当前状态
 
 - 已完成：从 handoff-ready 状态恢复，当前基线为 `main` 的 `6b8c171`。
+- 已完成：第三批已基于最新 `main` 派发前端 visual QA 修复和后端基础 API 两个子任务。
 - 已完成：读取 `AGENTS.md`、`docs/02-architecture.md`、`docs/04-api-contract.md`、`docs/05-scoring-spec.md`、`docs/07-implementation-plan.md`、`docs/08-analytics-and-quality.md`、`docs/ui-prototypes/README.md`。
 - 已完成：确认仓库当前只有文档和原型图，尚无实现骨架；已创建本 task bundle 和本线程 `ai-task`。
 - 已完成：创建首批独立 worktree，并派发四个子代理，详见 `evidence/dispatch-plan.md`。
@@ -54,9 +55,9 @@
 - 已完成：四个子任务已通过 no-ff merge 合入 `main`，合并后验证通过，临时 worktree 和分支已清理。
 - 已完成：第二批已基于最新 `main` 派发存储基础、评分客户端、前端静态主流程三个子任务。
 - 已完成：第二批三个子任务已合入 `main`，合并后验证通过，临时 worktree 和分支已清理。
-- 未完成：前端视觉 QA 未通过；后端会话、游戏、猜词、放弃 API 主流程尚未实现；前端仍未接真实 API。
+- 未完成：等待第三批子任务完成并及时合入 `main`；猜词提交 API 和前端真实 API 接入仍未派发。
 - 阻塞：完整一局主流程仍缺少后端 API 串联和前端 API 接入。
 
 ## 下一步
 
-- 基于最新 `main` 创建第三批 worktree，派发前端 visual QA 修复和后端基础 API 子任务。
+- 等待第三批子代理完成；完成一个验收一个并及时合入 `main`。

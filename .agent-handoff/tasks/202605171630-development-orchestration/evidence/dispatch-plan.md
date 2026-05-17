@@ -155,3 +155,25 @@
 - 第三批建议：
   1. 前端 visual QA 修复：使用 `image2code-skill`，目标是首页和游戏页 visual QA high/medium 失败清零，尽量让报告 `passed=true`。
   2. 后端基础 API：实现会话、游戏创建、游戏状态、放弃接口的 stub/bypass 本地链路，不实现猜词提交。
+
+## 第三批任务
+
+第三批从最新 `main` 的 `1689aca` 创建。
+
+1. `前端 visual QA 修复`
+   - 子代理：`019e36b5-e4ac-7742-8894-ed31d8cec553`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-fix`
+   - Branch：`codex/guessword-visual-qa-fix`
+   - 负责范围：使用 `image2code-skill` 修复首页和游戏页 visual QA 失败，重新生成报告；不接真实 API。
+
+2. `后端基础 API`
+   - 子代理：`019e36b6-2c62-7c73-b474-b73113c42756`
+   - Worktree：`/Users/loccen/Documents/guess-wrod-worktrees/backend-base-api`
+   - Branch：`codex/guessword-backend-base-api`
+   - 负责范围：实现 `POST /api/sessions`、`GET /api/session`、`POST /api/games`、`GET /api/games/{game_id}`、`POST /api/games/{game_id}/give-up` 的本地 stub/bypass 链路；不实现提交猜词。
+
+第三批共同约束：
+
+- 子代理不得发送 ntfy。
+- 完成后主代理应及时验收并合入 `main`。
+- 后续新任务必须继续从合入后的最新 `main` 创建 worktree。

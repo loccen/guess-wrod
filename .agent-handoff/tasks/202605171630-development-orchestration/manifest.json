@@ -3,12 +3,12 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T00:11:09+08:00",
+  "updated_at": "2026-05-18T00:13:02+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
   "truth_sources": ["AGENTS.md", "docs/02-architecture.md", "docs/04-api-contract.md", "docs/05-scoring-spec.md", "docs/07-implementation-plan.md", "docs/08-analytics-and-quality.md", "docs/ui-prototypes/images"],
-  "next_step": "基于最新 main 创建第三批 worktree，派发前端 visual QA 修复和后端基础 API 子任务。",
+  "next_step": "等待第三批子代理完成；完成一个验收一个并及时合入 main。",
   "blockers": [],
   "evidence_paths": [".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"],
   "related_commits": [
@@ -34,7 +34,9 @@
     "codex/guessword-frontend-spec",
     "codex/guessword-storage-foundation",
     "codex/guessword-scoring-client",
-    "codex/guessword-frontend-static-flow"
+    "codex/guessword-frontend-static-flow",
+    "codex/guessword-visual-qa-fix",
+    "codex/guessword-backend-base-api"
   ],
   "supersedes": [],
   "protocol_version": 1,
@@ -90,6 +92,18 @@
         "branch": "codex/guessword-frontend-static-flow",
         "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/frontend-static-flow",
         "scope": "前端静态主流程"
+      },
+      {
+        "agent_id": "019e36b5-e4ac-7742-8894-ed31d8cec553",
+        "branch": "codex/guessword-visual-qa-fix",
+        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/visual-qa-fix",
+        "scope": "前端 visual QA 修复"
+      },
+      {
+        "agent_id": "019e36b6-2c62-7c73-b474-b73113c42756",
+        "branch": "codex/guessword-backend-base-api",
+        "worktree": "/Users/loccen/Documents/guess-wrod-worktrees/backend-base-api",
+        "scope": "后端基础 API"
       }
     ]
   }
