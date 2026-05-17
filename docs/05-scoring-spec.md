@@ -199,7 +199,7 @@ V0.1 默认不传完整猜词历史。
 7. 不启用工具调用，不把完整猜词历史拼进提示词。
 8. AI Gateway 日志、缓存和成本观测只作为基础设施能力，不替代业务侧 D1 缓存语义。
 
-当前 live adapter 已支持最小可用调用：`AI_GATEWAY_ENDPOINT_URL` 仍为必填，`AI_GATEWAY_API_KEY` 改为可选网关鉴权字段（用于 Gateway 鉴权，不作为 DeepSeek provider key）。密钥、endpoint、fetch 实现都必须由入口层或配置 adapter 注入；仓库内不得写入真实密钥。
+当前 live adapter 已支持最小可用调用：`AI_GATEWAY_ENDPOINT_URL` 仍为必填，且应传入 Gateway provider 基础 URL；adapter 会自动补齐 OpenAI 兼容路径 `/chat/completions`。`AI_GATEWAY_API_KEY` 为可选网关鉴权字段（用于 Gateway 鉴权，不作为 DeepSeek provider key）。密钥、endpoint、fetch 实现都必须由入口层或配置 adapter 注入；仓库内不得写入真实密钥。
 
 ### 10.3 模型输出
 

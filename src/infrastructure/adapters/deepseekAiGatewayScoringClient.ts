@@ -17,17 +17,38 @@ interface ChatCompletionResponse {
 
 const DEFAULT_MODEL = "deepseek-v4-flash";
 
+function resolveChatCompletionsUrl(endpointUrl: string): string {
+  const OPENAI_CHAT_COMPLETIONS_PATH = "/chat/completions";
+  const normalizedEndpoint = endpointUrl.trim();
+
+  let parsed: URL;
+  try {
+    parsed = new URL(normalizedEndpoint);
+  } catch {
+    return normalizedEndpoint;
+  }
+
+  const path = parsed.pathname.replace(/\/+$/, "");
+  if (!path.endsWith(OPENAI_CHAT_COMPLETIONS_PATH)) {
+    parsed.pathname = `${path}${OPENAI_CHAT_COMPLETIONS_PATH}`;
+  }
+
+  return parsed.toString();
+}
+
 export class DeepSeekAiGatewayScoringClient implements AiScoringClient {
   private readonly fetchImpl: typeof fetch;
   private readonly model: string;
+  private readonly requestUrl: string;
 
   constructor(private readonly config: DeepSeekAiGatewayConfig) {
     this.fetchImpl = config.fetch ?? fetch;
     this.model = config.model ?? DEFAULT_MODEL;
+    this.requestUrl = resolveChatCompletionsUrl(config.endpointUrl);
   }
 
   async score(request: AiScoringRequest): Promise<unknown> {
-    const response = await this.fetchImpl(this.config.endpointUrl, {
+    const response = await this.fetchImpl(this.requestUrl, {
       method: "POST",
       headers: {
         "content-type": "application/json",
