@@ -1,10 +1,14 @@
+import { useEffect, useState } from "react";
+import { apiClient } from "../app/apiClient";
+import { demoResultBase } from "../mock/game";
+import { ensureSession, getErrorMessage, toResultPageModel, type ResultPageModel } from "../app/frontendFlow";
 import { GuessHistory } from "../components/GuessHistory";
 import { IconBadge } from "../components/IconBadge";
-import { resultBase } from "../mock/game";
-import type { ResultMode } from "../routes/routeState";
+import { buildGamePath, buildResultPath, toResultMode, type ResultMode, type RouteState } from "../routes/routeState";
 
 type ResultPageProps = {
-  mode: ResultMode;
+  route: Extract<RouteState, { page: "result" }>;
+  navigate: (to: string, options?: { replace?: boolean }) => void;
 };
 
 const modeCopy = {
@@ -46,8 +50,71 @@ const modeCopy = {
   },
 } as const;
 
-export function ResultPage({ mode }: ResultPageProps) {
+type ResultScreenState =
+  | { status: "loading" }
+  | { status: "error"; message: string }
+  | { status: "ready"; model: ResultPageModel };
+
+export function ResultPage({ route, navigate }: ResultPageProps) {
+  const mode = route.mode;
   const copy = modeCopy[mode];
+  const [screenState, setScreenState] = useState<ResultScreenState>(route.demo ? {
+    status: "ready",
+    model: {
+      answer: demoResultBase.answer,
+      aliasesText: demoResultBase.aliasesText,
+      statAValue: mode === "expired" ? "100次" : mode === "success" ? "10次" : "8次",
+      statBValue: mode === "success" ? "6分18秒" : mode === "expired" ? "92%" : "76%",
+      statCValue: mode === "success" ? "100%" : mode === "expired" ? "过期" : "放弃",
+      guesses: demoResultBase.guesses
+    }
+  } : { status: "loading" });
+
+  useEffect(() => {
+    if (route.demo || !route.gameId) {
+      return;
+    }
+
+    const gameId = route.gameId;
+    let active = true;
+
+    void (async () => {
+      setScreenState({ status: "loading" });
+      try {
+        const token = await ensureSession().then((restored) => restored.token);
+        const game = await apiClient.getGame(token, gameId);
+        const actualMode = toResultMode(game.status);
+
+        if (!actualMode) {
+          navigate(buildGamePath(game.game_id), { replace: true });
+          return;
+        }
+
+        if (actualMode !== route.mode) {
+          navigate(buildResultPath(game.game_id, actualMode), { replace: true });
+          return;
+        }
+
+        if (!active) {
+          return;
+        }
+
+        setScreenState({
+          status: "ready",
+          model: toResultPageModel(route.mode, game)
+        });
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+        setScreenState({ status: "error", message: getErrorMessage(error) });
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [navigate, route.demo, route.gameId, route.mode]);
 
   return (
     <main className={`phone-page result-page result-page--${copy.tone}`}>
@@ -65,8 +132,8 @@ export function ResultPage({ mode }: ResultPageProps) {
         <div className="answer-body">
           <div className="phone-glyph" aria-hidden="true" />
           <div>
-            <strong>{resultBase.answer}</strong>
-            <p>{resultBase.aliases}</p>
+            <strong>{screenState.status === "ready" ? screenState.model.answer : "读取中"}</strong>
+            <p>{screenState.status === "ready" ? screenState.model.aliasesText : "正在加载答案"}</p>
           </div>
         </div>
       </section>
@@ -80,9 +147,9 @@ export function ResultPage({ mode }: ResultPageProps) {
       )}
 
       <section className="stats-row" data-ui-id="stats-row">
-        <StatCard label={copy.statA[0]} value={copy.statA[1]} icon="◎" />
-        <StatCard label={copy.statB[0]} value={copy.statB[1]} icon={mode === "success" ? "◷" : "♕"} />
-        <StatCard label={copy.statC[0]} value={copy.statC[1]} icon={mode === "success" ? "♕" : "⚐"} />
+        <StatCard label={copy.statA[0]} value={screenState.status === "ready" ? screenState.model.statAValue : copy.statA[1]} icon="◎" />
+        <StatCard label={copy.statB[0]} value={screenState.status === "ready" ? screenState.model.statBValue : copy.statB[1]} icon={mode === "success" ? "◷" : "♕"} />
+        <StatCard label={copy.statC[0]} value={screenState.status === "ready" ? screenState.model.statCValue : copy.statC[1]} icon={mode === "success" ? "♕" : "⚐"} />
       </section>
 
       <section className="card review-card" data-ui-id={copy.extraId}>
@@ -90,7 +157,13 @@ export function ResultPage({ mode }: ResultPageProps) {
           <IconBadge label="▥" />
           <h2>{copy.listTitle}</h2>
         </div>
-        <GuessHistory guesses={resultBase.nearMisses} compact />
+        {screenState.status === "error" ? (
+          <div className="inline-panel">
+            <p className="inline-error">{screenState.message}</p>
+          </div>
+        ) : (
+          <GuessHistory guesses={screenState.status === "ready" ? screenState.model.guesses : demoResultBase.guesses} compact />
+        )}
         {copy.extraText && <p className="hint-strip">{copy.extraText}</p>}
       </section>
 

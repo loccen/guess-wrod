@@ -1,7 +1,7 @@
-import type { Guess } from "../mock/game";
+import type { GuessHistoryItem } from "../app/frontendFlow";
 
 type GuessHistoryProps = {
-  guesses: Guess[];
+  guesses: GuessHistoryItem[];
   compact?: boolean;
 };
 
@@ -14,7 +14,7 @@ export function GuessHistory({ guesses, compact = false }: GuessHistoryProps) {
           <span className="guess-word">{guess.word}</span>
           <span className="guess-score">{guess.score}%</span>
           {!compact && <span className={`relation relation--${guess.relation}`}>{guess.relation}</span>}
-          {!compact && <a className="feedback-link" href="/games/demo-playing?feedback=1">反馈</a>}
+          {!compact && <a className="feedback-link" href={guess.feedbackHref}>反馈</a>}
           {compact && <span className="mini-bar" style={{ "--bar": `${guess.score}%` } as React.CSSProperties} />}
           {compact && <span className="bubble">···</span>}
         </div>
