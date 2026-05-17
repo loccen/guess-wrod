@@ -55,12 +55,14 @@ function resolveChatCompletionsUrl(endpointUrl: string): string {
 }
 
 export class DeepSeekAiGatewayScoringClient implements AiScoringClient {
-  private readonly fetchImpl: typeof fetch;
+  private readonly fetchImpl: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   private readonly model: string;
   private readonly requestUrl: string;
 
   constructor(private readonly config: DeepSeekAiGatewayConfig) {
-    this.fetchImpl = config.fetch ?? fetch;
+    this.fetchImpl =
+      config.fetch ??
+      ((input: RequestInfo | URL, init?: RequestInit) => globalThis.fetch(input, init));
     this.model = config.model ?? DEFAULT_MODEL;
     this.requestUrl = resolveChatCompletionsUrl(config.endpointUrl);
   }

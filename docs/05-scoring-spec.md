@@ -199,7 +199,7 @@ V0.1 默认不传完整猜词历史。
 7. 不启用工具调用，不把完整猜词历史拼进提示词。
 8. AI Gateway 日志、缓存和成本观测只作为基础设施能力，不替代业务侧 D1 缓存语义。
 
-当前 live adapter 已支持最小可用调用：`AI_GATEWAY_ENDPOINT_URL` 仍为必填，且应传入 Gateway provider 基础 URL；adapter 会自动补齐 OpenAI 兼容路径 `/chat/completions`。`AI_GATEWAY_API_KEY` 为可选网关鉴权字段；当使用 AI Gateway BYOK / Authenticated Gateway 时，请求应发送 `cf-aig-authorization: Bearer <CF_AIG_TOKEN>`，且不要再发送 provider `Authorization`。`AI_GATEWAY_BYOK_ALIAS` 为可选 alias 字段；当该值非空时，adapter 额外发送 `cf-aig-byok-alias: <ALIAS>`，用于命中非默认 BYOK key alias。密钥、endpoint、fetch 实现都必须由入口层或配置 adapter 注入；仓库内不得写入真实密钥。
+当前 live adapter 已支持最小可用调用：`AI_GATEWAY_ENDPOINT_URL` 仍为必填，且应传入 Gateway provider 基础 URL；adapter 会自动补齐 OpenAI 兼容路径 `/chat/completions`。`AI_GATEWAY_API_KEY` 为可选网关鉴权字段；当使用 AI Gateway BYOK / Authenticated Gateway 时，请求应发送 `cf-aig-authorization: Bearer <CF_AIG_TOKEN>`，且不要再发送 provider `Authorization`。`AI_GATEWAY_BYOK_ALIAS` 为可选 alias 字段；当该值非空时，adapter 额外发送 `cf-aig-byok-alias: <ALIAS>`，用于命中非默认 BYOK key alias。密钥、endpoint、fetch 实现都必须由入口层或配置 adapter 注入；仓库内不得写入真实密钥。默认 runtime fetch 必须通过 `globalThis.fetch(...)` 形式调用，避免在 Workers 中因错误 `this` 绑定触发 `Illegal invocation`。
 
 ### 10.3 模型输出
 

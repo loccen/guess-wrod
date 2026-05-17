@@ -2,6 +2,36 @@ import { describe, expect, it, vi } from "vitest";
 import { DeepSeekAiGatewayScoringClient } from "./deepseekAiGatewayScoringClient";
 
 describe("DeepSeekAiGatewayScoringClient", () => {
+  it("未显式注入 fetch 时，使用 runtime fetch 的正确 this 绑定", async () => {
+    const originalFetch = globalThis.fetch;
+    const guardedFetch = vi.fn(function (this: typeof globalThis) {
+      if (this !== globalThis) {
+        throw new TypeError("Illegal invocation: function called with incorrect this reference.");
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: "{}" } }] })
+      } as Response);
+    });
+    globalThis.fetch = guardedFetch as unknown as typeof fetch;
+
+    try {
+      const client = new DeepSeekAiGatewayScoringClient({
+        endpointUrl: "https://example.com/v1/acct/gateway/provider"
+      });
+      await client.score({
+        answer: "a",
+        guess: "b",
+        language: "zh-CN",
+        scoringRulesVersion: "v1",
+        relationCaps: { synonym: 20, same_category: 20 }
+      });
+      expect(guardedFetch).toHaveBeenCalledTimes(1);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it("api key 为空时不发送网关鉴权头，并自动补齐 chat completions 路径", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
