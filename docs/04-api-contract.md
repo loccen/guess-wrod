@@ -8,6 +8,11 @@
 /api
 ```
 
+说明：
+
+1. 首版建议前端和 API 同域部署在 Cloudflare Pages / Functions 下。
+2. 前端页面走静态资源，接口统一走 `/api/*`。
+
 ### 1.2 认证
 
 除 `POST /sessions` 外，其余接口都需要携带匿名会话 token。
@@ -18,7 +23,17 @@ Header:
 Authorization: Bearer <session_token>
 ```
 
-### 1.3 响应格式
+### 1.3 风控
+
+`turnstile_token` 指前端从 Cloudflare Turnstile 拿到的一次性校验 token。
+
+规则建议：
+
+1. `POST /sessions` 必传 `turnstile_token`。
+2. `POST /games`、`POST /games/{game_id}/guesses`、`POST /games/{game_id}/feedback` 在普通情况下可不传。
+3. 当服务端风控命中高风险、WAF 规则或二次校验策略时，上述接口会返回 `turnstile_required`，前端需拿新 token 后重试。
+
+### 1.4 响应格式
 
 成功：
 
@@ -52,7 +67,8 @@ Request:
 
 ```json
 {
-  "client_timezone": "Asia/Shanghai"
+  "client_timezone": "Asia/Shanghai",
+  "turnstile_token": "cf-turnstile-response-token"
 }
 ```
 
@@ -103,6 +119,10 @@ Request:
   "mode": "random"
 }
 ```
+
+可选字段：
+
+1. `turnstile_token`：当服务端要求二次校验时必填。
 
 Response:
 
@@ -184,6 +204,10 @@ Request:
   "guess": "电器"
 }
 ```
+
+可选字段：
+
+1. `turnstile_token`：当服务端要求二次校验时必填。
 
 Response:
 
@@ -284,6 +308,10 @@ Request:
 }
 ```
 
+可选字段：
+
+1. `turnstile_token`：当服务端要求二次校验时必填。
+
 Response:
 
 ```json
@@ -299,6 +327,8 @@ Response:
 | code | HTTP | counted | 场景 |
 | --- | --- | --- | --- |
 | `unauthorized` | 401 | false | 无会话或会话失效 |
+| `turnstile_required` | 403 | false | 需要补做人机校验 |
+| `turnstile_failed` | 400 | false | Turnstile token 无效、过期或校验失败 |
 | `invalid_guess` | 400 | false | 空输入、超长、格式非法 |
 | `sensitive_word` | 400 | false | 命中敏感词 |
 | `game_not_found` | 404 | false | 游戏不存在或无权访问 |
@@ -310,7 +340,9 @@ Response:
 ## 5. 前端处理要求
 
 1. 401：清理本地 token 后重新创建匿名会话。
-2. 400：展示错误提示，不清空输入框。
-3. 409：刷新游戏状态并跳转结果页。
-4. 429：提示稍后再试。
-5. 503/500：保留当前页面状态，允许用户重试。
+2. `turnstile_required`：刷新 Turnstile token 后重试原请求。
+3. `turnstile_failed`：提示用户重新验证，不清空当前业务输入。
+4. 400：展示错误提示，不清空输入框。
+5. 409：刷新游戏状态并跳转结果页。
+6. 429：提示稍后再试。
+7. 503/500：保留当前页面状态，允许用户重试。

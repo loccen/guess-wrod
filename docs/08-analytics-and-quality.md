@@ -2,7 +2,7 @@
 
 ## 1. 目标
 
-本文件定义 V0.1 内测阶段如何使用埋点、业务表和 AI 调用日志判断三个问题：
+本文件定义 V0.1 内测阶段如何使用业务表、Workers Analytics Engine、AI Gateway 和原始归档判断三个问题：
 
 1. 用户是否愿意完成一局并继续玩。
 2. AI 评分是否稳定、合理、可调。
@@ -12,31 +12,35 @@
 
 ## 2. 数据来源
 
-| 数据源 | 用途 |
-| --- | --- |
-| `event_logs` | 行为漏斗、复玩、异常事件 |
-| `games` | 游戏状态、完成率、放弃率、耗时 |
-| `guesses` | 猜词次数、分数分布、关系类型分布、缓存命中 |
-| `score_feedback` | 用户标记的不合理评分 |
-| `score_cache` | 全局缓存命中和热门答案猜词 |
-| `ai_call_logs` | AI 调用次数、耗时、错误、token 和成本 |
-| 人工样本集 | 评分规则回归测试和模型对比 |
+| 数据源 | 存储位置 | 用途 |
+| --- | --- | --- |
+| `guess_events` | Workers Analytics Engine | 行为漏斗、复玩、异常事件、接口耗时 |
+| `games` | D1 | 游戏状态、完成率、放弃率、耗时 |
+| `guesses` | D1 | 猜词次数、分数分布、关系类型分布、缓存命中 |
+| `score_feedback` | D1 | 用户标记的不合理评分 |
+| `score_cache` | D1 | 全局缓存命中和热门答案猜词 |
+| `ai_call_logs` | D1 | AI 调用最小镜像、业务回查、按局 join |
+| AI Gateway Logs | AI Gateway | token、缓存、耗时、请求状态、成本 |
+| R2 原始归档 | R2 | 原始样本、日报产物、后续离线分析 |
+| 人工样本集 | 仓库文件 | 评分规则回归测试和模型对比 |
 
-## 3. 事件字段规范
+## 3. `guess_events` 事件字段规范
 
 ### 3.1 通用字段
 
-所有 `event_logs.payload` 建议包含：
+所有数据点建议包含：
 
 | 字段 | 说明 |
 | --- | --- |
-| `visitor_id` | 匿名访客 ID |
-| `session_id` | 会话 ID |
+| `event_name` | 事件名 |
 | `event_time` | 事件时间 |
-| `client_ts` | 前端上报时间，可选 |
+| `visitor_id_hash` | 脱敏访客 ID |
+| `session_id` | 会话 ID |
 | `page` | 当前页面 |
-| `referrer` | 来源页面，可选 |
-| `user_agent_hash` | 浏览器信息摘要，可选 |
+| `game_id` | 游戏 ID，可选 |
+| `answer_id` | 答案 ID，可选 |
+| `model_name` | 模型名，初期默认 `deepseek-v4-flash` |
+| `rule_version` | 评分规则版本 |
 
 ### 3.2 游戏事件字段
 
@@ -51,9 +55,42 @@
 | `score_feedback_submitted` | `game_id`, `guess_id`, `answer_id`, `score`, `relation_type`, `feedback_type` |
 | `ai_error` | `game_id`, `guess_id`, `answer_id`, `error_code`, `model_name`, `rule_version` |
 
-## 4. 行为分析
+## 4. AI 调用观测
 
-### 4.1 漏斗
+### 4.1 AI Gateway 应提供的主要字段
+
+建议至少能拿到：
+
+1. 请求时间。
+2. 模型名。
+3. token 输入输出。
+4. 缓存命中情况。
+5. 请求状态。
+6. 总耗时。
+7. 估算成本。
+8. 可选的业务 metadata，例如 `game_id`、`guess_id`、`rule_version`。
+
+### 4.2 `ai_call_logs` 在 D1 中的职责
+
+`ai_call_logs` 不是原始日志仓，它只负责：
+
+1. 和 `games`、`guesses` 做业务 join。
+2. 支撑每日 AI 调用量和单局成本统计。
+3. 快速定位某个 `guess_id` 对应的模型调用结果。
+
+### 4.3 R2 原始归档
+
+每日归档建议输出：
+
+```text
+events/YYYY-MM-DD/*.jsonl.gz
+ai-calls/YYYY-MM-DD/*.jsonl.gz
+reports/YYYY-MM-DD/daily-report.md
+```
+
+## 5. 行为分析
+
+### 5.1 漏斗
 
 V0.1 每日行为漏斗：
 
@@ -75,7 +112,7 @@ V0.1 每日行为漏斗：
 再来一局
 ```
 
-### 4.2 指标公式
+### 5.2 指标公式
 
 | 指标 | 公式 |
 | --- | --- |
@@ -90,19 +127,19 @@ V0.1 每日行为漏斗：
 | 中位有效猜词次数 | `median(guess_count of ended games)` |
 | 平均完成耗时 | `avg(duration_ms of success games)` |
 
-### 4.3 行为判断规则
+### 5.3 行为判断规则
 
 | 现象 | 可能问题 | 优先检查 |
 | --- | --- | --- |
-| 开局率低 | 首页不清楚、加载慢、按钮不明显 | 首屏耗时、首页点击 |
+| 开局率低 | 首页不清楚、加载慢、Turnstile 拦截过重 | 首屏耗时、首页点击、会话创建失败率 |
 | 首猜率低 | 游戏页不知如何操作、输入体验差 | 游戏页停留、错误提示 |
 | 放弃率高 | 题太难、反馈误导 | 答案难度、最高分路径 |
 | 过期率高 | 猜测上限太高或用户离开 | 有效猜词次数分布 |
 | 复玩率低 | 结果页动力不足、评分体验差 | 结果页再来一局点击 |
 
-## 5. 评分质量评估
+## 6. 评分质量评估
 
-### 5.1 核心指标
+### 6.1 核心指标
 
 | 指标 | 公式或口径 |
 | --- | --- |
@@ -115,7 +152,7 @@ V0.1 每日行为漏斗：
 | 上限修正率 | `was_rule_adjusted guesses / model guesses` |
 | AI 非法响应率 | `invalid_json ai calls / ai calls` |
 
-### 5.2 问题样本优先级
+### 6.2 问题样本优先级
 
 优先人工复查这些样本：
 
@@ -127,7 +164,7 @@ V0.1 每日行为漏斗：
 6. 被后端上限修正的高频猜词。
 7. AI 返回 `is_exact=true` 但本地词库未命中的猜词。
 
-### 5.3 答案维度质量排行
+### 6.3 答案维度质量排行
 
 每日生成以下排行：
 
@@ -140,7 +177,7 @@ V0.1 每日行为漏斗：
 | 高分未猜中最多答案 | 找容易误导的答案 |
 | AI 调用次数最高答案 | 找高成本热门答案 |
 
-### 5.4 关系类型质量排行
+### 6.4 关系类型质量排行
 
 按 `relation_type` 每日统计：
 
@@ -153,9 +190,9 @@ V0.1 每日行为漏斗：
 
 用途：判断某类关系是否整体偏高或偏低。例如 `service_context` 反馈率高，可能说明服务场景词给分太高。
 
-## 6. 人工样本集机制
+### 6.5 人工样本集机制
 
-### 6.1 样本结构
+样本结构建议：
 
 ```json
 {
@@ -168,13 +205,13 @@ V0.1 每日行为漏斗：
 }
 ```
 
-### 6.2 使用方式
+使用方式：
 
 1. 每次调整 prompt、模型、关系上限或词库别名后运行一次。
 2. 记录通过率、越界样本和严重错误样本。
 3. 与线上反馈样本合并，定期扩充样本集。
 
-### 6.3 通过标准
+通过标准：
 
 | 项目 | 标准 |
 | --- | --- |
@@ -195,6 +232,7 @@ V0.1 每日行为漏斗：
 | 单局平均成本 | `total ai cost / games` |
 | AI 超时率 | `timeout ai calls / ai calls` |
 | AI 错误率 | `error ai calls / ai calls` |
+| AI Gateway 缓存命中率 | `cache_hit ai calls / all ai calls` |
 | 单局缓存命中率 | `game_cache guesses / all guess requests` |
 | 全局缓存命中率 | `global_cache guesses / counted guesses` |
 | P90 评分耗时 | `p90(guess request latency_ms)` |
@@ -205,13 +243,14 @@ V0.1 每日行为漏斗：
 | --- | --- |
 | 单局 AI 调用过高 | 检查重复猜词缓存、限流、单局上限 |
 | 全局缓存命中率低 | 检查答案分布、热门词、缓存键版本 |
-| token 过高 | 缩短 prompt，不传历史 |
-| 超时率高 | 降低模型复杂度或调整超时 |
+| 网关缓存命中率低 | 检查请求体是否稳定、metadata 是否影响缓存 |
+| token 过高 | 缩短 prompt，不传历史，不开思考模式 |
+| 超时率高 | 先看 AI Gateway 和 DeepSeek 耗时，再决定是否降复杂度 |
 | 错误率高 | 检查 JSON 模式、重试策略和模型稳定性 |
 
-## 8. 聚合表或视图
+## 8. 数据产出
 
-V0.1 可以先用 SQL 视图或定时脚本生成，不强制做管理后台。
+V0.1 不要求做管理后台，但至少要有以下产物：
 
 ### 8.1 `daily_behavior_metrics`
 
@@ -249,9 +288,11 @@ V0.1 可以先用 SQL 视图或定时脚本生成，不强制做管理后台。
 | `date` | 日期 |
 | `provider` | AI 服务商 |
 | `model_name` | 模型 |
+| `thinking_mode` | 是否开启思考模式 |
 | `ai_calls` | 调用次数 |
 | `input_tokens` | 输入 token |
 | `output_tokens` | 输出 token |
+| `cache_hit_count` | 网关缓存命中数 |
 | `timeout_count` | 超时数 |
 | `error_count` | 错误数 |
 | `avg_latency_ms` | 平均耗时 |
@@ -283,6 +324,7 @@ V0.1 可以先用 SQL 视图或定时脚本生成，不强制做管理后台。
 - AI 调用次数：
 - 单局平均 AI 调用：
 - 单局平均成本：
+- AI Gateway 缓存命中率：
 - 全局缓存命中率：
 - AI 超时率：
 - P90 评分耗时：
@@ -300,5 +342,5 @@ V0.1 可以先用 SQL 视图或定时脚本生成，不强制做管理后台。
 2. 能按答案查看完成率、放弃率、反馈率。
 3. 能列出评分反馈样本。
 4. 能列出高分未猜中和高分放弃样本。
-5. 能统计 AI 调用次数、token、耗时和错误率。
+5. 能统计 AI 调用次数、token、耗时、缓存命中和错误率。
 6. 能输出一份人工可读的内测日报。

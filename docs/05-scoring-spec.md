@@ -4,6 +4,16 @@
 
 AI 只负责判断普通猜词与答案之间的语义接近程度。后端负责答案、状态、缓存、计次和异常处理。
 
+### 1.1 当前模型选择
+
+V0.1 默认配置：
+
+1. AI 服务商：DeepSeek 官方 API。
+2. 模型：`deepseek-v4-flash`。
+3. 接入路径：Cloudflare AI Gateway 转发到 DeepSeek。
+4. 思考模式：默认关闭，即 `thinking.type=disabled`。
+5. 输出模式：强制 JSON 输出，不启用工具调用。
+
 ## 2. 输入归一化
 
 后端收到 `guess` 后按顺序处理：
@@ -152,7 +162,7 @@ AI 评分
 
 ## 10. AI 输入输出
 
-### 10.1 请求体
+### 10.1 业务评分输入
 
 ```json
 {
@@ -178,7 +188,16 @@ AI 评分
 
 V0.1 默认不传完整猜词历史。
 
-### 10.2 响应体
+### 10.2 模型调用约定
+
+1. 统一通过 Cloudflare AI Gateway 发起请求。
+2. `model` 固定为 `deepseek-v4-flash`。
+3. 默认使用非思考模式，以控制延迟和成本。
+4. 要求模型返回合法 JSON；如果返回非法 JSON，后端按重试规则处理。
+5. 不启用工具调用，不把完整猜词历史拼进提示词。
+6. AI Gateway 日志、缓存和成本观测只作为基础设施能力，不替代业务侧 D1 缓存语义。
+
+### 10.3 模型输出
 
 ```json
 {
@@ -230,10 +249,20 @@ game_id + guess_normalized
 ### 13.2 全局缓存
 
 ```text
-answer_id + guess_normalized + scoring_rules_version
+answer_id + guess_normalized + scoring_rules_version + model_name + thinking_mode
 ```
 
 命中后作为新的有效猜词，`source=global_cache`，增加有效次数。
+
+### 13.3 AI Gateway 缓存
+
+AI Gateway 可对完全相同的模型请求体做网关级缓存，但它不是业务权威缓存。
+
+规则：
+
+1. 业务语义仍以 D1 的单局缓存和全局缓存为准。
+2. AI Gateway 缓存只用于减少重复调用 DeepSeek 的次数和成本。
+3. 当规则版本、模型名或思考模式变化时，业务缓存键必须变化，避免旧分数污染新版本结果。
 
 ## 14. 人工样本集
 
