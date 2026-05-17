@@ -8,6 +8,19 @@
 4. 评分、缓存、日志和成本都能追踪。
 5. 后续可平滑增加微信网页授权、每日挑战和分享能力。
 
+## 1.1 已确认 Cloudflare 资源（2026-05-18）
+
+1. Account：`656612e8bac6e750ae630a5ad3320858`
+2. Zone：`uuss.top`（`fc0d07f4234bbb477ee44e2a6f47e041`）
+3. Pages 项目：`guess-wrod`（项目 ID：`3bd20fb8-15fd-443f-ac81-792fa3cfdd62`，默认子域：`guess-wrod.pages.dev`）
+4. D1 正式库：`guess-wrod-prod`（UUID：`35412c0c-e8b9-4a0b-bf89-ddcdc89b63b3`）
+5. AI Gateway：`guess-wrod-gateway`（provider alias：`guess-word`，已存在）
+
+当前受限项：
+
+1. R2 API 当前返回需先在 Dashboard 启用，暂未创建 bucket。
+2. Turnstile API 当前认证报错，暂未创建 widget。
+
 ## 2. 系统组成
 
 ```text

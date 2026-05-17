@@ -13,6 +13,20 @@
 5. AI Gateway 承接 `deepseek-v4-flash` 调用。
 6. R2 存原始归档和日报产物。
 
+## 1.1 Cloudflare 资源引导现状（2026-05-18）
+
+已完成：
+
+1. D1 正式库 `guess-wrod-prod`（UUID：`35412c0c-e8b9-4a0b-bf89-ddcdc89b63b3`）。
+2. Pages 项目 `guess-wrod`（项目 ID：`3bd20fb8-15fd-443f-ac81-792fa3cfdd62`，默认子域：`guess-wrod.pages.dev`）。
+3. 正式库信息仅记录在文档，默认开发配置仍保持本地 D1 语义。
+
+待后续联动：
+
+1. R2：API 返回需先在 Dashboard 启用。
+2. Turnstile：API 认证报错。
+3. 域名绑定：当前仍以 `guess-wrod.pages.dev` 作为默认公网入口。
+
 ## 2. 优先级定义
 
 | 优先级 | 含义 |
@@ -235,7 +249,7 @@ T01 项目骨架使用 React + Vite + TypeScript + Cloudflare Pages Functions。
 | `CAPTCHA_MODE` | `bypass` | 本地默认不接真实验证码 |
 | `ANALYTICS_MODE` | `noop` | 本地默认不写真实分析数据 |
 | `ARCHIVE_MODE` | `file` | 本地默认预留文件归档 adapter |
-| `DB` | `guess-wrod-local` | 本地 D1 binding，当前只用于 `wrangler pages dev` / 本地 D1 验证 |
+| `DB` | `guess-wrod-local` | 本地 D1 binding，默认用于 `wrangler pages dev` / 本地 migration 验证 |
 
 当前健康检查地址为 `GET /api/health`。该接口用于验证 Pages Functions、routes handler、use case 和运行时配置 adapter 的最小链路；不包含业务主流程、数据库、词库 seed、评分规则或真实 AI 调用。
 

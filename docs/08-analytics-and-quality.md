@@ -8,6 +8,13 @@
 2. AI 评分是否稳定、合理、可调。
 3. 模型调用成本和响应速度是否可控。
 
+## 1.1 当前资源基线（2026-05-18）
+
+1. D1 正式库：`guess-wrod-prod`（`35412c0c-e8b9-4a0b-bf89-ddcdc89b63b3`）。
+2. Pages 项目：`guess-wrod`（`guess-wrod.pages.dev`）。
+3. AI Gateway：`guess-wrod-gateway`（provider alias：`guess-word`，已存在）。
+4. R2 与 Turnstile 仍未可用，相关 live 数据链路暂不可验。
+
 埋点只记录事实，分析机制负责把事实转成指标、排行和待处理样本。
 
 ## 2. 数据来源

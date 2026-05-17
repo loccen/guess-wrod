@@ -16,6 +16,12 @@ V0.1 采用 H5 发布，不走微信小程序审核。
 2. `/api` 由 Cloudflare Functions/Workers 提供。
 3. 域名走 Cloudflare 代理、SSL、WAF 和基础防护。
 
+当前已就绪基础资源（2026-05-18）：
+
+1. Pages：`guess-wrod`（默认子域 `guess-wrod.pages.dev`）。
+2. D1：`guess-wrod-prod`（UUID `35412c0c-e8b9-4a0b-bf89-ddcdc89b63b3`）。
+3. AI Gateway：`guess-wrod-gateway`（provider alias `guess-word`）。
+
 ## 2. AI 能力披露
 
 产品真实使用 AI 评分，因此文档、隐私说明和用户可见说明应保持一致。
