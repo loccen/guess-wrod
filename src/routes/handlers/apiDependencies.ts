@@ -9,7 +9,7 @@ import { LocalSensitiveTermChecker } from "../../infrastructure/adapters/sensiti
 import { FailingCaptchaVerifier, BypassCaptchaVerifier } from "../../infrastructure/adapters/bypassCaptchaVerifier";
 import { CryptoIdGenerator } from "../../infrastructure/adapters/cryptoIdGenerator";
 import { MathRandomSource } from "../../infrastructure/adapters/mathRandomSource";
-import { loadAppConfig, type RuntimeEnv } from "../../infrastructure/adapters/runtimeConfig";
+import { loadAppConfig, loadRuntimeVersion, type RuntimeEnv } from "../../infrastructure/adapters/runtimeConfig";
 import { SignedSessionTokenService } from "../../infrastructure/adapters/sessionTokenService";
 import { Sha256ValueHasher } from "../../infrastructure/adapters/sha256ValueHasher";
 import { SystemClock } from "../../infrastructure/adapters/systemClock";
@@ -40,6 +40,7 @@ function resolveScoringProfile(env: ApiRuntimeEnv, aiMode: "stub" | "live"): Sco
 
 export function createAppServices(env: ApiRuntimeEnv): AppServices {
   const config = loadAppConfig(env);
+  const runtimeVersion = loadRuntimeVersion(env).version;
   const clock = new SystemClock();
   const scoringProfile = resolveScoringProfile(env, config.aiMode);
   const archiveSink =
@@ -70,6 +71,7 @@ export function createAppServices(env: ApiRuntimeEnv): AppServices {
     sensitiveTermChecker: new LocalSensitiveTermChecker(),
     scoringGateway: new ScoringGateway(scoringClient),
     scoringProfile,
+    runtimeVersion,
     analyticsSink:
       config.analyticsMode === "live"
         ? new CompositeAnalyticsSink([new LiveAnalyticsSink(), new ArchiveMirroringAnalyticsSink(archiveSink)])

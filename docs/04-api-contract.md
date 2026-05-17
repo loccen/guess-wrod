@@ -435,6 +435,34 @@ Response:
 | `ai_timeout` | 503 | false | AI 超时 |
 | `system_error` | 500 | false | 系统异常 |
 
+当 `POST /api/games/{game_id}/guesses` 因 AI 请求失败返回 `system_error` 时，响应会附带最小非敏感诊断字段：
+
+```json
+{
+  "error": {
+    "code": "system_error",
+    "message": "评分暂时不可用，请稍后重试。",
+    "counted": false,
+    "details": {
+      "debug": {
+        "response_status": 502,
+        "request_path": "/chat/completions",
+        "has_gateway_auth": true,
+        "has_byok_alias": false,
+        "runtime": {
+          "version": "a1b2c3d4e5f6"
+        }
+      }
+    }
+  }
+}
+```
+
+说明：
+
+1. `details.debug` 仅用于定位失败层级，不包含密钥、token、完整上游 URL、完整响应体。
+2. `runtime.version` 来源于运行时版本摘要（commit/build 标识），用于区分部署版本。
+
 ## 5. 前端处理要求
 
 1. 401：清理本地 token 后重新创建匿名会话。

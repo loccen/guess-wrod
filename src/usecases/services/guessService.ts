@@ -55,6 +55,16 @@ interface AiCallAttemptPayload {
   hasByokAlias?: boolean | null;
 }
 
+interface GuessSystemErrorDebug {
+  response_status: number | null;
+  request_path: string | null;
+  has_gateway_auth: boolean | null;
+  has_byok_alias: boolean | null;
+  runtime: {
+    version: string;
+  };
+}
+
 function isExactRelation(relationType: string): boolean {
   return relationType === "exact" || relationType === "alias";
 }
@@ -209,22 +219,26 @@ export class GuessService {
       });
     } catch (error) {
       const latencyMs = Date.now() - startedAt;
+      const debug = this.buildSystemErrorDebug(error);
       await this.recordAiFailure(observability, session, game, answer, normalizedGuess, {
         status: "error",
         latencyMs,
         errorCode: "ai_request_failed",
-        responseStatus: error instanceof AiGatewayRequestError ? error.diagnostic.responseStatus : null,
+        responseStatus: debug.response_status,
         requestUrl: error instanceof AiGatewayRequestError ? error.diagnostic.requestUrl : null,
-        requestPath: error instanceof AiGatewayRequestError ? error.diagnostic.requestPath : null,
+        requestPath: debug.request_path,
         responseSummaryPrefix: error instanceof AiGatewayRequestError ? error.diagnostic.responseSummaryPrefix : null,
-        hasGatewayAuth: error instanceof AiGatewayRequestError ? error.diagnostic.hasGatewayAuth : null,
-        hasByokAlias: error instanceof AiGatewayRequestError ? error.diagnostic.hasByokAlias : null
+        hasGatewayAuth: debug.has_gateway_auth,
+        hasByokAlias: debug.has_byok_alias
       });
 
       throw new ApiError({
         code: "system_error",
         status: 500,
-        message: "评分暂时不可用，请稍后重试。"
+        message: "评分暂时不可用，请稍后重试。",
+        details: {
+          debug
+        }
       });
     }
 
@@ -511,5 +525,29 @@ export class GuessService {
         latency_ms: payload.latencyMs
       }
     });
+  }
+
+  private buildSystemErrorDebug(error: unknown): GuessSystemErrorDebug {
+    if (error instanceof AiGatewayRequestError) {
+      return {
+        response_status: error.diagnostic.responseStatus,
+        request_path: error.diagnostic.requestPath,
+        has_gateway_auth: error.diagnostic.hasGatewayAuth,
+        has_byok_alias: error.diagnostic.hasByokAlias,
+        runtime: {
+          version: this.services.runtimeVersion ?? "unknown"
+        }
+      };
+    }
+
+    return {
+      response_status: null,
+      request_path: null,
+      has_gateway_auth: null,
+      has_byok_alias: null,
+      runtime: {
+        version: this.services.runtimeVersion ?? "unknown"
+      }
+    };
   }
 }

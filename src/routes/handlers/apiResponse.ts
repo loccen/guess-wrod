@@ -11,7 +11,8 @@ export function createErrorResponse(error: unknown): Response {
         error: {
           code: error.code,
           message: error.message,
-          counted: error.counted
+          counted: error.counted,
+          ...(error.details ? { details: error.details } : {})
         }
       },
       {
