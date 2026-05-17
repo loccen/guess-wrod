@@ -120,6 +120,7 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
 
   return (
     <main className={`phone-page result-page result-page--${copy.tone}`}>
+      {mode === "expired" && <div className="expired-top-decor" aria-hidden="true" />}
       <header className="result-header">
         <IconBadge label={copy.icon} size="lg" tone={copy.tone === "danger" ? "danger" : "primary"} />
         <h1 data-ui-id="result-heading">{copy.heading}</h1>
@@ -127,15 +128,12 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
       </header>
 
       <section className="card answer-card" data-ui-id="answer-card">
-        <div className="section-title section-title--tight">
-          <IconBadge label="♙" />
-          <h2>答案</h2>
-        </div>
+        <h2 className="answer-title"><span aria-hidden="true">♙</span>答案</h2>
         <div className="answer-body">
           <div className="phone-glyph" aria-hidden="true" />
           <div>
-            <strong>{screenState.status === "ready" ? screenState.model.answer : "读取中"}</strong>
-            <p>{screenState.status === "ready" ? screenState.model.aliasesText : "正在加载答案"}</p>
+            <strong data-ui-id="answer-core-text">{screenState.status === "ready" ? screenState.model.answer : "读取中"}</strong>
+            <p className="aliases-line">{screenState.status === "ready" ? screenState.model.aliasesText : "正在加载答案"}</p>
           </div>
         </div>
       </section>
@@ -143,7 +141,7 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
       {mode === "expired" && (
         <section className="card reason-card" data-ui-id="expired-reason-card">
           <h2>过期原因</h2>
-          <strong>{screenState.status === "ready" ? screenState.model.expiredReasonTitle : "读取中"}</strong>
+          <strong data-ui-id="expired-reason-text">{screenState.status === "ready" ? screenState.model.expiredReasonTitle : "读取中"}</strong>
           <p>{screenState.status === "ready" ? screenState.model.expiredReasonDetail : "正在加载过期原因"}</p>
         </section>
       )}
@@ -155,14 +153,24 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
       </section>
 
       <section className="card review-card" data-ui-id={copy.extraId}>
-        <div className="section-title">
-          <IconBadge label="▥" />
-          <h2>{copy.listTitle}</h2>
-        </div>
+        <h2 className="review-title" data-ui-id="best-path-title">{copy.listTitle}</h2>
         {screenState.status === "error" ? (
           <div className="inline-panel">
             <p className="inline-error">{screenState.message}</p>
           </div>
+        ) : mode === "expired" ? (
+          <ol className="best-path-list">
+            {(screenState.status === "ready" ? screenState.model.guesses : demoResultBase.guesses)
+              .slice(0, 3)
+              .map((item) => (
+                <li key={item.guessId}>
+                  <span className="best-path-word">{item.word}</span>
+                  <span className="best-path-score">{item.score}%</span>
+                  <span className="best-path-bar" style={{ "--bar": `${item.score}%` } as React.CSSProperties} />
+                  <span className="best-path-dot" aria-hidden="true">···</span>
+                </li>
+              ))}
+          </ol>
         ) : (
           <GuessHistory guesses={screenState.status === "ready" ? screenState.model.guesses : demoResultBase.guesses} compact />
         )}
@@ -170,7 +178,6 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
       </section>
 
       <a className="primary-button" data-ui-id="play-again-button" href="/session">
-        <span aria-hidden="true">↻</span>
         再来一局
       </a>
       <a className="home-link" href="/">⌂ 返回首页 ›</a>

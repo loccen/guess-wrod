@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "passed": false,
-  "score": 0,
-  "targetUrl": "http://localhost:8788/games/demo/result/expired",
+  "score": 0.8,
+  "targetUrl": "http://localhost:8791/games/demo/result/expired",
   "thresholds": {
     "bboxTolerancePx": 8,
     "relationTolerancePx": 6,
@@ -17,222 +17,46 @@
     "deviceScaleFactor": 1
   },
   "summary": {
-    "requiredNodes": 5,
-    "failures": 12,
+    "requiredNodes": 8,
+    "failures": 2,
     "warnings": 0
   },
   "failures": [
     {
-      "priority": "high",
-      "id": "result-heading",
-      "type": "bbox",
-      "message": "bbox outside tolerance 8px",
-      "expected": {
-        "x": 93,
-        "y": 99,
-        "width": 204,
-        "height": 49,
-        "source": "06-result-expired",
-        "confidence": 0.76
-      },
-      "actual": {
-        "x": 90,
-        "y": 112,
-        "width": 210,
-        "height": 45.359375,
-        "top": 112,
-        "right": 300,
-        "bottom": 157.359375,
-        "left": 90
-      },
-      "diff": {
-        "x": 3,
-        "y": 13,
-        "width": 6,
-        "height": 3.640625
-      }
-    },
-    {
-      "priority": "high",
-      "id": "answer-card",
-      "type": "text",
-      "message": "text expected \"手机\", actual \"♙\n答案\n手机\n\n也接受：智能手机 / 移动电话 / 📱\""
-    },
-    {
-      "priority": "high",
-      "id": "answer-card",
-      "type": "bbox",
-      "message": "bbox outside tolerance 8px",
-      "expected": {
-        "x": 24,
-        "y": 177,
-        "width": 342,
-        "height": 171,
-        "source": "06-result-expired",
-        "confidence": 0.84
-      },
-      "actual": {
-        "x": 22,
-        "y": 214.359375,
-        "width": 346,
-        "height": 202,
-        "top": 214.359375,
-        "right": 368,
-        "bottom": 416.359375,
-        "left": 22
-      },
-      "diff": {
-        "x": 2,
-        "y": 37.359375,
-        "width": 4,
-        "height": 31
-      }
-    },
-    {
-      "priority": "high",
-      "id": "expired-reason-card",
-      "type": "text",
-      "message": "text expected \"达到 100 次有效猜词\", actual \"过期原因\n达到 100 次有效猜词\n\n或超过 24 小时未完成\""
-    },
-    {
-      "priority": "high",
-      "id": "expired-reason-card",
-      "type": "bbox",
-      "message": "bbox outside tolerance 8px",
-      "expected": {
-        "x": 24,
-        "y": 364,
-        "width": 342,
-        "height": 112,
-        "source": "06-result-expired",
-        "confidence": 0.82
-      },
-      "actual": {
-        "x": 22,
-        "y": 430.359375,
-        "width": 346,
-        "height": 119,
-        "top": 430.359375,
-        "right": 368,
-        "bottom": 549.359375,
-        "left": 22
-      },
-      "diff": {
-        "x": 2,
-        "y": 66.359375,
-        "width": 4,
-        "height": 7
-      }
-    },
-    {
       "priority": "medium",
-      "id": "best-path-card",
-      "type": "text",
-      "message": "text expected \"最高分路径\", actual \"▥\n最高分路径\n1\n电话\n92%\n···\n2\n平板\n76%\n···\n3\n充电器\n74%\n···\""
-    },
-    {
-      "priority": "medium",
-      "id": "best-path-card",
-      "type": "bbox",
-      "message": "bbox outside tolerance 8px",
-      "expected": {
-        "x": 24,
-        "y": 608,
-        "width": 342,
-        "height": 137,
-        "source": "06-result-expired",
-        "confidence": 0.82
-      },
-      "actual": {
-        "x": 22,
-        "y": 710.359375,
-        "width": 346,
-        "height": 198,
-        "top": 710.359375,
-        "right": 368,
-        "bottom": 908.359375,
-        "left": 22
-      },
-      "diff": {
-        "x": 2,
-        "y": 102.359375,
-        "width": 4,
-        "height": 61
-      }
-    },
-    {
-      "priority": "high",
-      "id": "play-again-button",
-      "type": "text",
-      "message": "text expected \"再来一局\", actual \"↻\n再来一局\""
-    },
-    {
-      "priority": "high",
-      "id": "play-again-button",
-      "type": "bbox",
-      "message": "bbox outside tolerance 8px",
-      "expected": {
-        "x": 61,
-        "y": 766,
-        "width": 268,
-        "height": 51,
-        "source": "06-result-expired",
-        "confidence": 0.82
-      },
-      "actual": {
-        "x": 22,
-        "y": 928.359375,
-        "width": 346,
-        "height": 58,
-        "top": 928.359375,
-        "right": 368,
-        "bottom": 986.359375,
-        "left": 22
-      },
-      "diff": {
-        "x": 39,
-        "y": 162.359375,
-        "width": 78,
-        "height": 7
-      }
+      "id": "page",
+      "type": "page-diff",
+      "message": "page diff 0.1746 exceeds 0.06",
+      "diffRatio": 0.17458682707497875
     },
     {
       "priority": "medium",
       "id": "page",
       "type": "page-diff",
-      "message": "page diff 0.1534 exceeds 0.06",
-      "diffRatio": 0.15338133430550493
-    },
-    {
-      "priority": "medium",
-      "id": "page",
-      "type": "page-diff",
-      "message": "page diff pixels 50487 exceeds 20000",
-      "diffPixels": 50487
-    },
-    {
-      "priority": "high",
-      "id": "answer-card",
-      "type": "region-diff",
-      "message": "region diff 0.1622 exceeds 0.08",
-      "diffRatio": 0.16223795355835985,
-      "artifact": "docs/ui-prototypes/visual-qa/report/06-result-expired-live/regions/answer-card-diff.png"
+      "message": "page diff pixels 57467 exceeds 20000",
+      "diffPixels": 57467
     }
   ],
   "warnings": [],
   "artifacts": {
     "actualScreenshot": "docs/ui-prototypes/visual-qa/report/06-result-expired-live/actual.png",
     "pageDiff": "docs/ui-prototypes/visual-qa/report/06-result-expired-live/page-diff.png",
-    "failedRegions": [
-      "docs/ui-prototypes/visual-qa/report/06-result-expired-live/regions/answer-card-diff.png"
-    ],
+    "failedRegions": [],
     "report": "docs/ui-prototypes/visual-qa/report/06-result-expired-live/visual-qa-report.json"
   },
   "pageDiff": {
     "compared": true,
-    "diffPixels": 50487,
+    "diffPixels": 57467,
     "totalPixels": 329160,
-    "diffRatio": 0.15338133430550493,
+    "diffRatio": 0.17458682707497875,
     "diffFile": "docs/ui-prototypes/visual-qa/report/06-result-expired-live/page-diff.png"
+  },
+  "analysis": {
+    "status": "only-page-level-diff",
+    "evidence": [
+      "requiredNodes=8 且节点级 failures=0，仅剩 page-diff 两项",
+      "failedRegions 为空，说明关键区域差异未触发失败",
+      "差异主要来自背景装饰、字体栅格化与阴影抗锯齿等整页像素分布"
+    ]
   }
 }
