@@ -247,7 +247,7 @@ T12/T13 当前完成最小前置：
 2. 业务层先走本地标准答案和显式别名匹配，未命中才调用 AI client。
 3. stub adapter 位于 `src/infrastructure/adapters/stubScoringClient.ts`，本地默认配合 `AI_MODE=stub` 使用。
 4. DeepSeek + AI Gateway adapter 位于 `src/infrastructure/adapters/deepseekAiGatewayScoringClient.ts`，只接受注入的 endpoint、apiKey、model 和 fetch，不读取 env，不暴露 Cloudflare binding 到 usecase。
-5. live adapter 当前是边界骨架和最小请求封装；真实 endpoint、apiKey、model 都只允许通过入口层注入。
+5. live adapter 当前保持最小实现：AI 评分支持可选 `AI_GATEWAY_API_KEY`（网关鉴权）；captcha 在 `CAPTCHA_MODE=live` + `TURNSTILE_SECRET_KEY` 时走真实校验；analytics/archive 在 `live` 模式下提供最小可用 sink。真实 endpoint、密钥、model 都只允许通过入口层注入。
 
 ## 12.2 前端真实 API 接入进度
 

@@ -1,6 +1,8 @@
 import { DEFAULT_MODEL_NAME, DEFAULT_THINKING_MODE } from "../../domain/models/api";
 import { ArchiveMirroringAnalyticsSink } from "../../infrastructure/adapters/archiveMirroringAnalyticsSink";
 import { DeepSeekAiGatewayScoringClient } from "../../infrastructure/adapters/deepseekAiGatewayScoringClient";
+import { LiveCaptchaVerifier } from "../../infrastructure/adapters/liveCaptchaVerifier";
+import { LiveAnalyticsSink, LiveArchiveSink } from "../../infrastructure/adapters/liveObservabilitySinks";
 import { NoopAnalyticsSink, NoopArchiveSink } from "../../infrastructure/adapters/noopObservabilitySinks";
 import { LocalSensitiveTermChecker } from "../../infrastructure/adapters/sensitiveTerms";
 import { FailingCaptchaVerifier, BypassCaptchaVerifier } from "../../infrastructure/adapters/bypassCaptchaVerifier";
@@ -19,6 +21,7 @@ export interface ApiRuntimeEnv extends RuntimeEnv, StorageBindings {
   SESSION_TOKEN_SECRET?: string;
   AI_GATEWAY_ENDPOINT_URL?: string;
   AI_GATEWAY_API_KEY?: string;
+  TURNSTILE_SECRET_KEY?: string;
   AI_MODEL_NAME?: string;
   AI_THINKING_MODE?: string;
 }
@@ -37,12 +40,13 @@ export function createAppServices(env: ApiRuntimeEnv): AppServices {
   const config = loadAppConfig(env);
   const clock = new SystemClock();
   const scoringProfile = resolveScoringProfile(env, config.aiMode);
-  const archiveSink = new NoopArchiveSink();
+  const archiveSink =
+    config.archiveMode === "live" ? new LiveArchiveSink() : new NoopArchiveSink();
   const scoringClient =
     config.aiMode === "live"
       ? new DeepSeekAiGatewayScoringClient({
           endpointUrl: requiredEnv(env.AI_GATEWAY_ENDPOINT_URL, "AI_GATEWAY_ENDPOINT_URL"),
-          apiKey: requiredEnv(env.AI_GATEWAY_API_KEY, "AI_GATEWAY_API_KEY"),
+          apiKey: optionalEnv(env.AI_GATEWAY_API_KEY),
           model: scoringProfile.modelName
         })
       : new StubScoringClient();
@@ -56,14 +60,29 @@ export function createAppServices(env: ApiRuntimeEnv): AppServices {
     captchaVerifier:
       config.captchaMode === "bypass"
         ? new BypassCaptchaVerifier(() => clock.now().toISOString())
-        : new FailingCaptchaVerifier(),
+        : env.TURNSTILE_SECRET_KEY
+          ? new LiveCaptchaVerifier({ secret: env.TURNSTILE_SECRET_KEY }, () => clock.now().toISOString())
+          : new FailingCaptchaVerifier(),
     valueHasher: new Sha256ValueHasher(),
     sensitiveTermChecker: new LocalSensitiveTermChecker(),
     scoringGateway: new ScoringGateway(scoringClient),
     scoringProfile,
-    analyticsSink: config.analyticsMode === "live" ? new ArchiveMirroringAnalyticsSink(archiveSink) : new NoopAnalyticsSink(),
+    analyticsSink:
+      config.analyticsMode === "live"
+        ? config.archiveMode === "live"
+          ? new LiveAnalyticsSink()
+          : new ArchiveMirroringAnalyticsSink(archiveSink)
+        : new NoopAnalyticsSink(),
     archiveSink
   };
+}
+
+function optionalEnv(value: string | undefined): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
 }
 
 function requiredEnv(value: string | undefined, name: string): string {
