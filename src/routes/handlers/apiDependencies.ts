@@ -1,5 +1,7 @@
 import { DEFAULT_MODEL_NAME, DEFAULT_THINKING_MODE } from "../../domain/models/api";
+import { ArchiveMirroringAnalyticsSink } from "../../infrastructure/adapters/archiveMirroringAnalyticsSink";
 import { DeepSeekAiGatewayScoringClient } from "../../infrastructure/adapters/deepseekAiGatewayScoringClient";
+import { NoopAnalyticsSink, NoopArchiveSink } from "../../infrastructure/adapters/noopObservabilitySinks";
 import { LocalSensitiveTermChecker } from "../../infrastructure/adapters/sensitiveTerms";
 import { FailingCaptchaVerifier, BypassCaptchaVerifier } from "../../infrastructure/adapters/bypassCaptchaVerifier";
 import { CryptoIdGenerator } from "../../infrastructure/adapters/cryptoIdGenerator";
@@ -35,6 +37,7 @@ export function createAppServices(env: ApiRuntimeEnv): AppServices {
   const config = loadAppConfig(env);
   const clock = new SystemClock();
   const scoringProfile = resolveScoringProfile(env, config.aiMode);
+  const archiveSink = new NoopArchiveSink();
   const scoringClient =
     config.aiMode === "live"
       ? new DeepSeekAiGatewayScoringClient({
@@ -57,7 +60,9 @@ export function createAppServices(env: ApiRuntimeEnv): AppServices {
     valueHasher: new Sha256ValueHasher(),
     sensitiveTermChecker: new LocalSensitiveTermChecker(),
     scoringGateway: new ScoringGateway(scoringClient),
-    scoringProfile
+    scoringProfile,
+    analyticsSink: config.analyticsMode === "live" ? new ArchiveMirroringAnalyticsSink(archiveSink) : new NoopAnalyticsSink(),
+    archiveSink
   };
 }
 

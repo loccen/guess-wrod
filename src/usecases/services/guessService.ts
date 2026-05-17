@@ -1,6 +1,7 @@
 import { ApiError, GAME_MAX_GUESSES } from "../../domain/models/api";
 import type { Game, Guess, GuessSource, Word } from "../../domain/models/storage";
 import { findLocalExactMatch, type RelationType } from "../../domain/scoring/index.mjs";
+import { ObservabilityService } from "./observabilityService";
 import type { AppServices } from "./platformPorts";
 import type { AuthenticatedSession } from "./sessionService";
 import { GameRuleService } from "./gameRuleService";
@@ -38,6 +39,13 @@ interface CountedGuessPayload {
   reason: string | null;
   source: Exclude<GuessSource, "game_cache" | "fallback">;
   wasRuleAdjusted: boolean;
+}
+
+interface AiCallAttemptPayload {
+  guessId?: string | null;
+  status: "success" | "error" | "invalid_json";
+  latencyMs: number;
+  errorCode?: string | null;
 }
 
 function isExactRelation(relationType: string): boolean {
@@ -83,10 +91,15 @@ function toCachedResponse(params: {
   };
 }
 
+function durationMilliseconds(startedAt: string, endedAt: string): number {
+  return Math.max(0, new Date(endedAt).getTime() - new Date(startedAt).getTime());
+}
+
 export class GuessService {
   constructor(private readonly services: AppServices) {}
 
   async submitGuess(session: AuthenticatedSession, gameId: string, input: SubmitGuessInput): Promise<SubmitGuessResult> {
+    const observability = new ObservabilityService(this.services);
     const gameRuleService = new GameRuleService(this.services);
     const game = await gameRuleService.readPlayableGame(session.visitorId, gameId);
     const answer = await gameRuleService.readAnswerWord(game.answerId);
@@ -114,6 +127,22 @@ export class GuessService {
       const existingGuess = await this.services.storage.guesses.findCountedGuessByGameAndNormalized(game.id, normalizedGuess);
       if (existingGuess) {
         const bestGuess = await this.readBestGuess(game);
+        await observability.trackEvent({
+          eventName: "guess_reused",
+          visitorId: session.visitorId,
+          sessionId: session.session.id,
+          page: "game",
+          gameId: game.id,
+          answerId: game.answerId,
+          guessId: existingGuess.id,
+          modelName: game.modelName,
+          ruleVersion: game.ruleVersion,
+          payload: {
+            normalized_guess: normalizedGuess,
+            score: existingGuess.score ?? null,
+            guess_count: game.guessCount
+          }
+        });
         return toCachedResponse({
           cachedGuess: existingGuess,
           guessRaw,
@@ -125,7 +154,7 @@ export class GuessService {
     }
 
     if (localMatch.matched) {
-      return this.persistCountedGuess(game, answer, {
+      const result = await this.persistCountedGuess(game, answer, {
         guessRaw,
         guessNormalized: normalizedGuess,
         score: localMatch.score,
@@ -135,6 +164,8 @@ export class GuessService {
         source: "exact_match",
         wasRuleAdjusted: false
       });
+      await this.trackGuessEvents(observability, session, game, answer, result, normalizedGuess);
+      return result;
     }
 
     const globalCacheEntry = await this.services.storage.scoreCache.findScoreCache({
@@ -147,7 +178,7 @@ export class GuessService {
 
     if (globalCacheEntry) {
       await this.services.storage.scoreCache.recordScoreCacheHit(globalCacheEntry.cacheKey, this.services.clock.now().toISOString());
-      return this.persistCountedGuess(game, answer, {
+      const result = await this.persistCountedGuess(game, answer, {
         guessRaw,
         guessNormalized: normalizedGuess,
         score: globalCacheEntry.score,
@@ -157,56 +188,25 @@ export class GuessService {
         source: "global_cache",
         wasRuleAdjusted: globalCacheEntry.aiScore !== null && globalCacheEntry.aiScore !== globalCacheEntry.score
       });
+      await this.trackGuessEvents(observability, session, game, answer, result, normalizedGuess);
+      return result;
     }
 
+    const startedAt = Date.now();
+    let scored;
     try {
-      const scored = await this.services.scoringGateway.score({
+      scored = await this.services.scoringGateway.score({
         answer: answer.word,
         aliases: answer.aliases,
         guess: normalizedGuess
       });
-
-      if (!scored.ok) {
-        throw new ApiError({
-          code: "system_error",
-          status: 500,
-          message: "评分暂时不可用，请稍后重试。"
-        });
-      }
-
-      const result = await this.persistCountedGuess(game, answer, {
-        guessRaw,
-        guessNormalized: normalizedGuess,
-        score: scored.value.score,
-        aiScore: scored.value.ai?.rawScore === undefined ? null : Number(scored.value.ai.rawScore),
-        relationType: scored.value.relationType,
-        reason: scored.value.ai?.confidence === undefined ? null : null,
-        source: "model",
-        wasRuleAdjusted: scored.value.ai?.wasRuleAdjusted ?? false
-      });
-
-      await this.services.storage.scoreCache.putScoreCache({
-        cacheKey: buildCacheKey(game, normalizedGuess),
-        answerId: game.answerId,
-        guessNormalized: normalizedGuess,
-        ruleVersion: game.ruleVersion,
-        provider: this.services.scoringProfile.provider,
-        modelName: game.modelName,
-        thinkingMode: game.thinkingMode,
-        score: scored.value.score,
-        aiScore: scored.value.ai ? Number(scored.value.ai.rawScore) : null,
-        relationType: scored.value.relationType,
-        reason: null,
-        createdAt: this.services.clock.now().toISOString(),
-        hitCount: 0,
-        lastHitAt: null
-      });
-
-      return result;
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
+      const latencyMs = Date.now() - startedAt;
+      await this.recordAiFailure(observability, session, game, answer, normalizedGuess, {
+        status: "error",
+        latencyMs,
+        errorCode: "ai_request_failed"
+      });
 
       throw new ApiError({
         code: "system_error",
@@ -214,6 +214,57 @@ export class GuessService {
         message: "评分暂时不可用，请稍后重试。"
       });
     }
+
+    if (!scored.ok) {
+      const latencyMs = Date.now() - startedAt;
+      await this.recordAiFailure(observability, session, game, answer, normalizedGuess, {
+        status: scored.error.code === "invalid_json" ? "invalid_json" : "error",
+        latencyMs,
+        errorCode: scored.error.code
+      });
+      throw new ApiError({
+        code: "system_error",
+        status: 500,
+        message: "评分暂时不可用，请稍后重试。"
+      });
+    }
+
+    const result = await this.persistCountedGuess(game, answer, {
+      guessRaw,
+      guessNormalized: normalizedGuess,
+      score: scored.value.score,
+      aiScore: scored.value.ai?.rawScore === undefined ? null : Number(scored.value.ai.rawScore),
+      relationType: scored.value.relationType,
+      reason: scored.value.ai?.confidence === undefined ? null : null,
+      source: "model",
+      wasRuleAdjusted: scored.value.ai?.wasRuleAdjusted ?? false
+    });
+    const latencyMs = Date.now() - startedAt;
+    await this.recordAiCall(observability, game, {
+      guessId: result.guessId,
+      status: "success",
+      latencyMs
+    });
+
+    await this.services.storage.scoreCache.putScoreCache({
+      cacheKey: buildCacheKey(game, normalizedGuess),
+      answerId: game.answerId,
+      guessNormalized: normalizedGuess,
+      ruleVersion: game.ruleVersion,
+      provider: this.services.scoringProfile.provider,
+      modelName: game.modelName,
+      thinkingMode: game.thinkingMode,
+      score: scored.value.score,
+      aiScore: scored.value.ai ? Number(scored.value.ai.rawScore) : null,
+      relationType: scored.value.relationType,
+      reason: null,
+      createdAt: this.services.clock.now().toISOString(),
+      hitCount: 0,
+      lastHitAt: null
+    });
+    await this.trackGuessEvents(observability, session, game, answer, result, normalizedGuess);
+
+    return result;
   }
 
   private async persistCountedGuess(game: Game, answer: Word, payload: CountedGuessPayload): Promise<SubmitGuessResult> {
@@ -325,6 +376,121 @@ export class GuessService {
       code: "invalid_guess",
       status: 400,
       message
+    });
+  }
+
+  private async trackGuessEvents(
+    observability: ObservabilityService,
+    session: AuthenticatedSession,
+    game: Game,
+    answer: Word,
+    result: SubmitGuessResult,
+    normalizedGuess: string
+  ): Promise<void> {
+    await observability.trackEvent({
+      eventName: "guess_submitted",
+      visitorId: session.visitorId,
+      sessionId: session.session.id,
+      page: "game",
+      gameId: game.id,
+      answerId: game.answerId,
+      guessId: result.guessId,
+      modelName: game.modelName,
+      ruleVersion: game.ruleVersion,
+      payload: {
+        normalized_guess: normalizedGuess,
+        score: result.score,
+        relation_type: result.relationType,
+        source: result.source,
+        counted: result.counted,
+        guess_count: result.guessCount
+      }
+    });
+
+    if (result.status === "success") {
+      await observability.trackEvent({
+        eventName: "game_success",
+        visitorId: session.visitorId,
+        sessionId: session.session.id,
+        page: "result",
+        gameId: game.id,
+        answerId: game.answerId,
+        guessId: result.guessId,
+        modelName: game.modelName,
+        ruleVersion: game.ruleVersion,
+        payload: {
+          guess_count: result.guessCount,
+          duration_ms: durationMilliseconds(game.startedAt, this.services.clock.now().toISOString()),
+          best_score: result.bestGuess?.score ?? result.score
+        }
+      });
+      return;
+    }
+
+    if (result.status === "expired") {
+      await observability.trackEvent({
+        eventName: "game_expired",
+        visitorId: session.visitorId,
+        sessionId: session.session.id,
+        page: "result",
+        gameId: game.id,
+        answerId: answer.id,
+        guessId: result.guessId,
+        modelName: game.modelName,
+        ruleVersion: game.ruleVersion,
+        payload: {
+          reason: result.expireReason,
+          guess_count: result.guessCount,
+          duration_ms: durationMilliseconds(game.startedAt, this.services.clock.now().toISOString()),
+          best_score: result.bestGuess?.score ?? result.score
+        }
+      });
+    }
+  }
+
+  private async recordAiCall(
+    observability: ObservabilityService,
+    game: Game,
+    payload: AiCallAttemptPayload
+  ): Promise<void> {
+    await observability.recordAiCall({
+      id: this.services.idGenerator.next("ai_call"),
+      gameId: game.id,
+      guessId: payload.guessId ?? null,
+      provider: this.services.scoringProfile.provider,
+      modelName: game.modelName,
+      thinkingMode: game.thinkingMode,
+      ruleVersion: game.ruleVersion,
+      latencyMs: payload.latencyMs,
+      status: payload.status,
+      errorCode: payload.errorCode ?? null,
+      createdAt: this.services.clock.now().toISOString()
+    });
+  }
+
+  private async recordAiFailure(
+    observability: ObservabilityService,
+    session: AuthenticatedSession,
+    game: Game,
+    answer: Word,
+    normalizedGuess: string,
+    payload: AiCallAttemptPayload
+  ): Promise<void> {
+    await this.recordAiCall(observability, game, payload);
+    await observability.trackEvent({
+      eventName: "ai_error",
+      visitorId: session.visitorId,
+      sessionId: session.session.id,
+      page: "game",
+      gameId: game.id,
+      answerId: answer.id,
+      modelName: game.modelName,
+      ruleVersion: game.ruleVersion,
+      payload: {
+        normalized_guess: normalizedGuess,
+        error_code: payload.errorCode ?? null,
+        latency_ms: payload.latencyMs
+      }
     });
   }
 }

@@ -21,6 +21,7 @@ import type {
   Visitor,
   Word
 } from "../../domain/models/storage";
+import type { AnalyticsEvent, AnalyticsSink, ArchiveRecord, ArchiveSink, ArchiveWriteResult } from "../../usecases/ports/observability";
 import { ScoringGateway } from "../../usecases/scoring/scoringGateway";
 import type { StorageRepositories } from "../../usecases/repositories/storageRepositories";
 import type { AppServices, CaptchaVerificationResult, Clock, IdGenerator, RandomSource } from "../../usecases/services/platformPorts";
@@ -57,6 +58,35 @@ class StubCaptchaVerifier {
 
   async verify(): Promise<CaptchaVerificationResult> {
     return this.result;
+  }
+}
+
+class RecordingAnalyticsSink implements AnalyticsSink {
+  readonly events: AnalyticsEvent[] = [];
+  shouldThrow = false;
+
+  async track(event: AnalyticsEvent): Promise<void> {
+    if (this.shouldThrow) {
+      throw new Error("analytics sink failed");
+    }
+
+    this.events.push(event);
+  }
+}
+
+class RecordingArchiveSink implements ArchiveSink {
+  readonly records: ArchiveRecord[] = [];
+  shouldThrow = false;
+
+  async append(record: ArchiveRecord): Promise<ArchiveWriteResult> {
+    if (this.shouldThrow) {
+      throw new Error("archive sink failed");
+    }
+
+    this.records.push(record);
+    return {
+      objectKey: `${record.stream}/${this.records.length}.jsonl`
+    };
   }
 }
 
@@ -299,10 +329,16 @@ class MemoryStorageRepositories implements StorageRepositories {
   aiCallLogs = this.aiCallLogsRepository;
 }
 
-async function createServices(
-  now = "2026-05-17T10:00:00.000Z",
-  scoringRules: StubScoringRule[] = []
-): Promise<AppServices> {
+interface CreateServicesOptions {
+  now?: string;
+  scoringRules?: StubScoringRule[];
+  analyticsSink?: RecordingAnalyticsSink;
+  archiveSink?: RecordingArchiveSink;
+}
+
+async function createServices(options: CreateServicesOptions = {}): Promise<AppServices> {
+  const now = options.now ?? "2026-05-17T10:00:00.000Z";
+  const scoringRules = options.scoringRules ?? [];
   const storage = new MemoryStorageRepositories();
   await storage.words.upsertWord({
     id: "word_1",
@@ -334,7 +370,9 @@ async function createServices(
       provider: "stub",
       modelName: "deepseek-v4-flash",
       thinkingMode: "disabled"
-    }
+    },
+    analyticsSink: options.analyticsSink ?? new RecordingAnalyticsSink(),
+    archiveSink: options.archiveSink ?? new RecordingArchiveSink()
   };
 }
 
@@ -548,7 +586,9 @@ describe("session and game handlers", () => {
   });
 
   it("marks the game expired after the 100th valid guess and returns the answer", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z", [
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z",
+      scoringRules: [
       {
         guess: "平板",
         response: {
@@ -557,7 +597,8 @@ describe("session and game handlers", () => {
           is_exact: false
         }
       }
-    ]);
+      ]
+    });
     const { authorization, visitorId } = await createAuthorizedRequest(services);
     const gameId = await createStoredGame(services, visitorId, {
       id: "game_limit",
@@ -605,7 +646,9 @@ describe("session and game handlers", () => {
   });
 
   it("returns expired status and answer after TTL has passed", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z");
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z"
+    });
     const { authorization, visitorId } = await createAuthorizedRequest(services);
     const gameId = await createStoredGame(services, visitorId, {
       id: "game_ttl",
@@ -700,7 +743,9 @@ describe("session and game handlers", () => {
   });
 
   it("normalizes full-width and uppercase guess before scoring", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z", [
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z",
+      scoringRules: [
       {
         guess: "test",
         response: {
@@ -709,7 +754,8 @@ describe("session and game handlers", () => {
           is_exact: false
         }
       }
-    ]);
+      ]
+    });
     const { authorization } = await createAuthorizedRequest(services);
     const gameId = await createGame(services, authorization);
     const response = await submitGuessResponse(
@@ -783,7 +829,9 @@ describe("session and game handlers", () => {
   });
 
   it("reuses the same counted guess within one game without incrementing guess count", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z", [
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z",
+      scoringRules: [
       {
         guess: "平板",
         response: {
@@ -792,7 +840,8 @@ describe("session and game handlers", () => {
           is_exact: false
         }
       }
-    ]);
+      ]
+    });
     const { authorization } = await createAuthorizedRequest(services);
     const gameId = await createGame(services, authorization);
 
@@ -833,7 +882,9 @@ describe("session and game handlers", () => {
   });
 
   it("reuses global cache across games and still counts as a new valid guess", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z", [
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z",
+      scoringRules: [
       {
         guess: "平板",
         response: {
@@ -842,7 +893,8 @@ describe("session and game handlers", () => {
           is_exact: false
         }
       }
-    ]);
+      ]
+    });
     const { authorization } = await createAuthorizedRequest(services);
     const firstGameId = await createGame(services, authorization);
     await submitGuessResponse(
@@ -888,7 +940,9 @@ describe("session and game handlers", () => {
   });
 
   it("uses stub model scoring path as a counted guess", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z", [
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z",
+      scoringRules: [
       {
         guess: "维修",
         response: {
@@ -897,7 +951,8 @@ describe("session and game handlers", () => {
           is_exact: false
         }
       }
-    ]);
+      ]
+    });
     const { authorization } = await createAuthorizedRequest(services);
     const gameId = await createGame(services, authorization);
     const response = await submitGuessResponse(
@@ -953,7 +1008,9 @@ describe("session and game handlers", () => {
   });
 
   it("rejects guesses after TTL expiry and keeps the game in expired state", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z");
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z"
+    });
     const { authorization, visitorId } = await createAuthorizedRequest(services);
     const gameId = await createStoredGame(services, visitorId, {
       id: "game_ttl_guess",
@@ -994,7 +1051,9 @@ describe("session and game handlers", () => {
   });
 
   it("rejects give-up after TTL expiry and keeps the game in expired state", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z");
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z"
+    });
     const { authorization, visitorId } = await createAuthorizedRequest(services);
     const gameId = await createStoredGame(services, visitorId, {
       id: "game_ttl_giveup",
@@ -1056,7 +1115,9 @@ describe("session and game handlers", () => {
   });
 
   it("rejects feedback when guess_id does not belong to the game", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z", [
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z",
+      scoringRules: [
       {
         guess: "平板",
         response: {
@@ -1065,7 +1126,8 @@ describe("session and game handlers", () => {
           is_exact: false
         }
       }
-    ]);
+      ]
+    });
     const { authorization } = await createAuthorizedRequest(services);
     const firstGameId = await createGame(services, authorization);
     const firstGuess = await submitGuess(services, authorization, firstGameId, "平板");
@@ -1101,7 +1163,9 @@ describe("session and game handlers", () => {
   });
 
   it("rejects duplicate or illegal feedback input", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z", [
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z",
+      scoringRules: [
       {
         guess: "平板",
         response: {
@@ -1110,7 +1174,8 @@ describe("session and game handlers", () => {
           is_exact: false
         }
       }
-    ]);
+      ]
+    });
     const { authorization } = await createAuthorizedRequest(services);
     const gameId = await createGame(services, authorization);
     const guessPayload = await submitGuess(services, authorization, gameId, "平板");
@@ -1179,7 +1244,9 @@ describe("session and game handlers", () => {
   });
 
   it("writes score feedback successfully for a counted guess", async () => {
-    const services = await createServices("2026-05-17T10:00:00.000Z", [
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z",
+      scoringRules: [
       {
         guess: "平板",
         response: {
@@ -1188,7 +1255,8 @@ describe("session and game handlers", () => {
           is_exact: false
         }
       }
-    ]);
+      ]
+    });
     const { authorization } = await createAuthorizedRequest(services);
     const gameId = await createGame(services, authorization);
     const guessPayload = await submitGuess(services, authorization, gameId, "平板");
@@ -1222,5 +1290,136 @@ describe("session and game handlers", () => {
       feedbackType: "score_unreasonable",
       note: "这个词给高了"
     });
+  });
+
+  it("writes key analytics events and AI call mirrors for the main game flow", async () => {
+    const analyticsSink = new RecordingAnalyticsSink();
+    const archiveSink = new RecordingArchiveSink();
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z",
+      scoringRules: [
+        {
+          guess: "平板",
+          response: {
+            score: 76,
+            relation_type: "same_category",
+            is_exact: false
+          }
+        }
+      ],
+      analyticsSink,
+      archiveSink
+    });
+
+    const sessionResponse = await createSessionResponse(
+      new Request("https://example.com/api/sessions", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "user-agent": "vitest"
+        },
+        body: JSON.stringify({
+          client_timezone: "Asia/Shanghai"
+        })
+      }),
+      services
+    );
+    const sessionPayload = (await sessionResponse.json()) as Record<string, any>;
+    const authorization = `Bearer ${String(sessionPayload.data.session_token)}`;
+    const gameId = await createGame(services, authorization);
+    const guessPayload = await submitGuess(services, authorization, gameId, "平板");
+
+    const feedbackResponse = await submitFeedbackResponse(
+      new Request(`https://example.com/api/games/${gameId}/feedback`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          guess_id: guessPayload.data.guess_id,
+          feedback_type: "score_unreasonable"
+        })
+      }),
+      services,
+      gameId
+    );
+    const giveUpResponse = await giveUpGameResponse(
+      new Request(`https://example.com/api/games/${gameId}/give-up`, {
+        method: "POST",
+        headers: {
+          authorization
+        }
+      }),
+      services,
+      gameId
+    );
+
+    expect(sessionResponse.status).toBe(200);
+    expect(feedbackResponse.status).toBe(200);
+    expect(giveUpResponse.status).toBe(200);
+    expect(analyticsSink.events.map((event) => event.eventName)).toEqual([
+      "session_created",
+      "game_created",
+      "guess_submitted",
+      "score_feedback_submitted",
+      "game_give_up"
+    ]);
+    expect(archiveSink.records.map((record) => record.stream)).toEqual(["ai_call_logs"]);
+
+    const aiCallLogs = await services.storage.aiCallLogs.listAiCallLogsByGame(gameId);
+    expect(aiCallLogs).toHaveLength(1);
+    expect(aiCallLogs[0]).toMatchObject({
+      gameId,
+      guessId: guessPayload.data.guess_id,
+      provider: "stub",
+      modelName: "deepseek-v4-flash",
+      status: "success"
+    });
+  });
+
+  it("does not break the main flow when analytics or mirror sinks fail", async () => {
+    const analyticsSink = new RecordingAnalyticsSink();
+    analyticsSink.shouldThrow = true;
+    const archiveSink = new RecordingArchiveSink();
+    archiveSink.shouldThrow = true;
+    const services = await createServices({
+      now: "2026-05-17T10:00:00.000Z",
+      scoringRules: [
+        {
+          guess: "平板",
+          response: {
+            score: 76,
+            relation_type: "same_category",
+            is_exact: false
+          }
+        }
+      ],
+      analyticsSink,
+      archiveSink
+    });
+    services.storage.aiCallLogs.createAiCallLog = async () => {
+      throw new Error("ai call log failed");
+    };
+
+    const { authorization } = await createAuthorizedRequest(services);
+    const gameId = await createGame(services, authorization);
+    const response = await submitGuessResponse(
+      new Request(`https://example.com/api/games/${gameId}/guesses`, {
+        method: "POST",
+        headers: {
+          authorization,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ guess: "平板" })
+      }),
+      services,
+      gameId
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(200);
+    expect(payload.data.source).toBe("model");
+    expect(payload.data.guess_count).toBe(1);
   });
 });

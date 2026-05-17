@@ -1,5 +1,6 @@
 import { ApiError } from "../../domain/models/api";
 import type { FeedbackType, Game, Guess } from "../../domain/models/storage";
+import { ObservabilityService } from "./observabilityService";
 import type { AppServices } from "./platformPorts";
 import type { AuthenticatedSession } from "./sessionService";
 
@@ -78,6 +79,7 @@ export class FeedbackService {
     gameId: string,
     input: SubmitScoreFeedbackInput
   ): Promise<SubmitScoreFeedbackResult> {
+    const observability = new ObservabilityService(this.services);
     const game = await this.readOwnedGame(session.visitorId, gameId);
     if (game.status !== "playing") {
       throw new ApiError({
@@ -120,6 +122,24 @@ export class FeedbackService {
       feedbackType,
       note,
       createdAt
+    });
+    await observability.trackEvent({
+      eventName: "score_feedback_submitted",
+      eventTime: createdAt,
+      visitorId: session.visitorId,
+      sessionId: session.session.id,
+      page: "feedback",
+      gameId: game.id,
+      answerId: game.answerId,
+      guessId: guess.id,
+      modelName: game.modelName,
+      ruleVersion: game.ruleVersion,
+      payload: {
+        feedback_type: feedbackType,
+        score: guess.score,
+        relation_type: guess.relationType,
+        note_present: note !== null
+      }
     });
 
     return {

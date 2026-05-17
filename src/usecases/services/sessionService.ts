@@ -1,5 +1,6 @@
 import { ApiError, SESSION_TTL_MS } from "../../domain/models/api";
 import type { Session } from "../../domain/models/storage";
+import { ObservabilityService } from "./observabilityService";
 import type { AppServices } from "./platformPorts";
 
 export interface AuthenticatedSession {
@@ -55,6 +56,7 @@ export class SessionService {
   constructor(private readonly services: AppServices) {}
 
   async createAnonymousSession(input: CreateAnonymousSessionInput): Promise<CreateAnonymousSessionResult> {
+    const observability = new ObservabilityService(this.services);
     const captchaResult = await this.services.captchaVerifier.verify({
       token: input.turnstileToken
     });
@@ -92,6 +94,16 @@ export class SessionService {
       expiresAt,
       createdAt: nowIso,
       turnstilePassedAt: captchaResult.passedAt
+    });
+    await observability.trackEvent({
+      eventName: "session_created",
+      eventTime: nowIso,
+      visitorId,
+      sessionId,
+      page: "session",
+      payload: {
+        client_timezone_present: Boolean(input.clientTimezone)
+      }
     });
 
     return {
