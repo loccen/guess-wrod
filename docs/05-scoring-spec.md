@@ -219,6 +219,7 @@ V0.1 默认不传完整猜词历史。
 4. 按 `relation_type` 上限再次裁剪。
 5. `relation_type` 非法时重试一次。
 6. AI 返回 `is_exact=true` 时，后端仍以本地词库匹配结果为准。
+7. 若未命中本地标准答案或显式别名，AI 返回 `relation_type=exact` 或 `relation_type=alias` 也视为无效模型输出，并进入重试或失败处理。
 
 ## 12. 重试与失败
 

@@ -1,0 +1,212 @@
+[
+  {
+    "answer": "手机",
+    "guess": "手机",
+    "expected_relation_type": "exact",
+    "expected_score_min": 100,
+    "expected_score_max": 100,
+    "note": "标准答案"
+  },
+  {
+    "answer": "手机",
+    "aliases": ["智能手机", "移动电话", "📱"],
+    "guess": "智能手机",
+    "expected_relation_type": "alias",
+    "expected_score_min": 100,
+    "expected_score_max": 100,
+    "note": "显式别名"
+  },
+  {
+    "answer": "手机",
+    "aliases": ["智能手机", "移动电话", "📱"],
+    "guess": "📱",
+    "expected_relation_type": "alias",
+    "expected_score_min": 100,
+    "expected_score_max": 100,
+    "note": "emoji 只有作为显式别名时接受"
+  },
+  {
+    "answer": "手机",
+    "guess": "电话",
+    "expected_relation_type": "synonym",
+    "expected_score_min": 90,
+    "expected_score_max": 95,
+    "note": "近义词但不是显式别名"
+  },
+  {
+    "answer": "手机",
+    "guess": "电子产品",
+    "expected_relation_type": "parent_category",
+    "expected_score_min": 72,
+    "expected_score_max": 80,
+    "note": "上位类别"
+  },
+  {
+    "answer": "手机",
+    "guess": "平板",
+    "expected_relation_type": "same_category",
+    "expected_score_min": 70,
+    "expected_score_max": 85,
+    "note": "同类电子设备"
+  },
+  {
+    "answer": "手机",
+    "guess": "便携",
+    "expected_relation_type": "attribute",
+    "expected_score_min": 55,
+    "expected_score_max": 82,
+    "note": "常见属性"
+  },
+  {
+    "answer": "手机",
+    "guess": "拍照",
+    "expected_relation_type": "function",
+    "expected_score_min": 60,
+    "expected_score_max": 80,
+    "note": "常见功能"
+  },
+  {
+    "answer": "手机",
+    "guess": "屏幕",
+    "expected_relation_type": "component",
+    "expected_score_min": 62,
+    "expected_score_max": 82,
+    "note": "组成部件"
+  },
+  {
+    "answer": "手机",
+    "guess": "充电器",
+    "expected_relation_type": "accessory",
+    "expected_score_min": 60,
+    "expected_score_max": 78,
+    "note": "配件"
+  },
+  {
+    "answer": "手机",
+    "guess": "维修",
+    "expected_relation_type": "service_context",
+    "expected_score_min": 55,
+    "expected_score_max": 78,
+    "note": "服务场景"
+  },
+  {
+    "answer": "手机",
+    "guess": "社交",
+    "expected_relation_type": "usage_context",
+    "expected_score_min": 45,
+    "expected_score_max": 75,
+    "note": "使用场景"
+  },
+  {
+    "answer": "手机",
+    "guess": "旅游",
+    "expected_relation_type": "weak_context",
+    "expected_score_min": 10,
+    "expected_score_max": 55,
+    "note": "弱相关场景"
+  },
+  {
+    "answer": "手机",
+    "guess": "石头",
+    "expected_relation_type": "unrelated",
+    "expected_score_min": 0,
+    "expected_score_max": 19,
+    "note": "基本无关"
+  },
+  {
+    "answer": "手机",
+    "guess": "\u0000",
+    "expected_relation_type": "invalid",
+    "expected_score_min": 0,
+    "expected_score_max": 0,
+    "note": "无效输入不应进入模型评分"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "伞",
+    "expected_relation_type": "synonym",
+    "expected_score_min": 88,
+    "expected_score_max": 95,
+    "note": "常用简称但未列为别名时按近义处理"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "雨具",
+    "expected_relation_type": "parent_category",
+    "expected_score_min": 70,
+    "expected_score_max": 80,
+    "note": "上位用品类别"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "雨衣",
+    "expected_relation_type": "same_category",
+    "expected_score_min": 62,
+    "expected_score_max": 82,
+    "note": "同类防雨用品"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "防水",
+    "expected_relation_type": "attribute",
+    "expected_score_min": 58,
+    "expected_score_max": 82,
+    "note": "典型属性"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "遮雨",
+    "expected_relation_type": "function",
+    "expected_score_min": 70,
+    "expected_score_max": 80,
+    "note": "核心功能"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "伞骨",
+    "expected_relation_type": "component",
+    "expected_score_min": 68,
+    "expected_score_max": 82,
+    "note": "组成部件"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "伞套",
+    "expected_relation_type": "accessory",
+    "expected_score_min": 50,
+    "expected_score_max": 78,
+    "note": "配件"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "修伞",
+    "expected_relation_type": "service_context",
+    "expected_score_min": 45,
+    "expected_score_max": 75,
+    "note": "服务场景"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "下雨",
+    "expected_relation_type": "usage_context",
+    "expected_score_min": 55,
+    "expected_score_max": 75,
+    "note": "使用场景"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "地铁",
+    "expected_relation_type": "weak_context",
+    "expected_score_min": 5,
+    "expected_score_max": 35,
+    "note": "可能共同出现但关系弱"
+  },
+  {
+    "answer": "雨伞",
+    "guess": "月亮",
+    "expected_relation_type": "unrelated",
+    "expected_score_min": 0,
+    "expected_score_max": 15,
+    "note": "基本无关"
+  }
+]
