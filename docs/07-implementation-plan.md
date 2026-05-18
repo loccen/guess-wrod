@@ -240,6 +240,8 @@ T01 项目骨架使用 React + Vite + TypeScript + Cloudflare Pages Functions。
 | `npm run typecheck` | TypeScript 类型检查 |
 | `npm test` | 运行 Vitest 单元测试 |
 | `npm run cf:check` | 编译 Pages Functions，检查入口和运行时类型 |
+| `npm run ci:check` | 本地复现 CI 校验：类型检查、测试、构建、Functions 编译 |
+| `npm run deploy:pages` | 用 Wrangler 直接发布当前 `dist/` 到 `guess-wrod` Pages 项目 |
 
 本地默认模式由 `wrangler.jsonc` 提供：
 
@@ -250,6 +252,17 @@ T01 项目骨架使用 React + Vite + TypeScript + Cloudflare Pages Functions。
 | `ANALYTICS_MODE` | `noop` | 本地默认不写真实分析数据 |
 | `ARCHIVE_MODE` | `file` | 本地默认预留文件归档 adapter |
 | `DB` | `guess-wrod-local` | 本地 D1 binding，默认用于 `wrangler pages dev` / 本地 migration 验证 |
+
+## 11.1 流水线部署
+
+`T32 Cloudflare 部署配置` 现已改成 GitHub Actions 驱动：
+
+1. 工作流文件：`.github/workflows/pages-deploy.yml`。
+2. `push main`：先跑 `npm run ci:check`，通过后发布 production。
+3. `pull_request -> main`：先跑同一套校验，通过后发布 preview。
+4. 为避免外部 fork PR 因 secrets 不可见而失败，preview 部署仅在 PR 源仓库等于当前仓库时执行。
+5. 仓库需预先配置 `CLOUDFLARE_ACCOUNT_ID` 与 `CLOUDFLARE_API_TOKEN` 两个 GitHub Actions secrets。Cloudflare Pages 运行时业务 secrets 继续保留在 Pages 环境，不通过 GitHub 回传。
+6. `wrangler.jsonc` 顶层仍保留本地 stub / bypass 默认值；发布环境通过 `env.preview` 与 `env.production` 覆盖真实 D1、R2 和模式变量，避免 CI 发布时把线上配置覆盖成开发态。
 
 当前健康检查地址为 `GET /api/health`。该接口用于验证 Pages Functions、routes handler、use case 和运行时配置 adapter 的最小链路；不包含业务主流程、数据库、词库 seed、评分规则或真实 AI 调用。返回值除模式配置外，还包含 `runtime.version` 与 `runtime.source`（从 `CF_PAGES_COMMIT_SHA`、`GIT_COMMIT_SHA`、`BUILD_ID`、`RUNTIME_VERSION` 按优先级选取并做安全清洗）以及 `aiRuntime` 布尔摘要（`hasAiGatewayEndpoint`、`hasAiGatewayApiKey`、`hasAiGatewayByokAlias`），用于判断 production alias/preview alias 是否吃到 AI 网关相关 env，同时避免暴露密钥与原始配置值。其中 `hasAiGatewayEndpoint` 以当前部署使用的 `AI_GATEWAY_ENDPOINT_URL` 为主，也兼容旧的 `AI_GATEWAY_ENDPOINT`，避免健康检查因历史变量名差异误报。
 
