@@ -39,7 +39,7 @@
     "production": {
       "vars": {
         "AI_MODE": "live",
-        "CAPTCHA_MODE": "live",
+        "CAPTCHA_MODE": "bypass",
         "ANALYTICS_MODE": "noop",
         "ARCHIVE_MODE": "live",
         "AI_GATEWAY_BYOK_ALIAS": "guess-word",
