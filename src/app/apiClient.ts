@@ -99,6 +99,19 @@ export type SubmitFeedbackData = {
   success: true;
 };
 
+export type HealthData = {
+  service: string;
+  status: string;
+  timestamp: string;
+  modes?: {
+    captchaMode?: "bypass" | "live";
+  };
+  captchaRuntime?: {
+    hasTurnstileSiteKey: boolean;
+    turnstileSiteKey: string | null;
+  };
+};
+
 type RequestOptions = RequestInit & {
   token?: string | null;
 };
@@ -127,7 +140,7 @@ async function requestJson<T>(path: string, options: RequestOptions = {}): Promi
 }
 
 export const apiClient = {
-  getHealth(): Promise<{ service: string; status: string; timestamp: string }> {
+  getHealth(): Promise<HealthData> {
     return requestJson("/api/health");
   },
   createSession(input: { clientTimezone: string | null; turnstileToken?: string | null }): Promise<SessionCreateData> {

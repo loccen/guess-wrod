@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loadAiRuntimeConfigSummary, loadAppConfig, loadRuntimeVersion } from "./runtimeConfig";
+import { loadAiRuntimeConfigSummary, loadAppConfig, loadCaptchaRuntimeConfigSummary, loadRuntimeVersion } from "./runtimeConfig";
 
 describe("loadAppConfig", () => {
   it("uses local development defaults when env is empty", () => {
@@ -67,6 +67,26 @@ describe("loadAppConfig", () => {
       hasAiGatewayEndpoint: false,
       hasAiGatewayApiKey: false,
       hasAiGatewayByokAlias: false
+    });
+  });
+
+  it("returns public turnstile site key summary", () => {
+    expect(
+      loadCaptchaRuntimeConfigSummary({
+        TURNSTILE_SITE_KEY: "1x00000000000000000000AA"
+      })
+    ).toEqual({
+      hasTurnstileSiteKey: true,
+      turnstileSiteKey: "1x00000000000000000000AA"
+    });
+
+    expect(
+      loadCaptchaRuntimeConfigSummary({
+        TURNSTILE_SITE_KEY: "  "
+      })
+    ).toEqual({
+      hasTurnstileSiteKey: false,
+      turnstileSiteKey: null
     });
   });
 });

@@ -104,9 +104,14 @@ function getClientTimezone(): string | null {
   }
 }
 
-async function createFreshSession(): Promise<RestoredSession> {
+type EnsureSessionOptions = {
+  turnstileToken?: string | null;
+};
+
+async function createFreshSessionWithOptions(options?: EnsureSessionOptions): Promise<RestoredSession> {
   const created = await apiClient.createSession({
-    clientTimezone: getClientTimezone()
+    clientTimezone: getClientTimezone(),
+    turnstileToken: options?.turnstileToken ?? null
   });
   writeSessionToken(created.session_token);
 
@@ -122,9 +127,13 @@ async function createFreshSession(): Promise<RestoredSession> {
 }
 
 export async function ensureSession(): Promise<RestoredSession> {
+  return ensureSessionWithOptions();
+}
+
+export async function ensureSessionWithOptions(options?: EnsureSessionOptions): Promise<RestoredSession> {
   const token = readSessionToken();
   if (!token) {
-    return createFreshSession();
+    return createFreshSessionWithOptions(options);
   }
 
   try {
@@ -136,7 +145,7 @@ export async function ensureSession(): Promise<RestoredSession> {
   } catch (error) {
     if (isFrontendApiError(error) && error.code === "unauthorized") {
       clearSessionToken();
-      return createFreshSession();
+      return createFreshSessionWithOptions(options);
     }
     throw error;
   }

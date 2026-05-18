@@ -5,7 +5,7 @@ import type {
   ArchiveMode,
   CaptchaMode
 } from "../../domain/models/appConfig";
-import type { AiRuntimeConfigSummary, RuntimeVersionInfo } from "../../domain/models/health";
+import type { AiRuntimeConfigSummary, CaptchaRuntimeConfigSummary, RuntimeVersionInfo } from "../../domain/models/health";
 
 export interface RuntimeEnv {
   AI_MODE?: string;
@@ -19,6 +19,7 @@ export interface RuntimeEnv {
   GIT_COMMIT_SHA?: string;
   BUILD_ID?: string;
   RUNTIME_VERSION?: string;
+  TURNSTILE_SITE_KEY?: string;
 }
 
 function oneOf<T extends string>(value: string | undefined, allowed: readonly T[], fallback: T): T {
@@ -88,5 +89,13 @@ export function loadAiRuntimeConfigSummary(env: RuntimeEnv = {}): AiRuntimeConfi
     hasAiGatewayEndpoint: hasNonEmptyValue(env.AI_GATEWAY_ENDPOINT),
     hasAiGatewayApiKey: hasNonEmptyValue(env.AI_GATEWAY_API_KEY),
     hasAiGatewayByokAlias: hasNonEmptyValue(env.AI_GATEWAY_BYOK_ALIAS)
+  };
+}
+
+export function loadCaptchaRuntimeConfigSummary(env: RuntimeEnv = {}): CaptchaRuntimeConfigSummary {
+  const value = env.TURNSTILE_SITE_KEY?.trim() ?? "";
+  return {
+    hasTurnstileSiteKey: value.length > 0,
+    turnstileSiteKey: value.length > 0 ? value : null
   };
 }
