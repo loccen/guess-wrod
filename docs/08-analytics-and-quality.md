@@ -13,7 +13,8 @@
 1. D1 正式库：`guess-wrod-prod`（`35412c0c-e8b9-4a0b-bf89-ddcdc89b63b3`）。
 2. Pages 项目：`guess-wrod`（`guess-wrod.pages.dev`）。
 3. AI Gateway：`guess-wrod-gateway`（provider alias：`guess-word`，已存在）。
-4. R2 与 Turnstile 仍未可用，相关 live 数据链路暂不可验。
+4. R2 bucket：`guess-wrod-archive`（已创建，可用于 archive live sink）。
+5. Turnstile 仍未接通，相关风控 live 链路暂不可验。
 
 埋点只记录事实，分析机制负责把事实转成指标、排行和待处理样本。
 
@@ -69,7 +70,7 @@
 3. `session_created`、`game_created`、`guess_submitted`、`guess_reused`、`score_feedback_submitted`、`game_give_up`、`game_success`、`game_expired`、`ai_error` 已在关键 use case 中接入 best-effort 调用。
 4. 模型评分路径现在会写入 D1 `ai_call_logs` 最小镜像，并尝试把原始镜像交给 `ArchiveSink`。
 5. 默认本地模式仍是 `ANALYTICS_MODE=noop`，因此 `wrangler pages dev` 下不会自动产出真实事件文件；`JsonLineArchiveSink` 已可用于本地文件写入测试或后续 CLI/宿主注入。
-6. `ANALYTICS_MODE=live` 与 `ARCHIVE_MODE=live` 已有最小可用 sink（运行时输出事件与归档日志）；真实 Workers Analytics Engine、R2 归档对象和 AI Gateway token 成本字段仍未接通，当前还不能直接产出完整日报或线上成本报表。
+6. `ANALYTICS_MODE=live` 仍为最小占位 sink（运行时输出事件）；`ARCHIVE_MODE=live` 已接入真实 R2 写入（`guess_events`、`ai_call_logs`），但 Workers Analytics Engine 和 AI Gateway token 成本字段仍未接通，当前还不能直接产出完整日报或线上成本报表。
 
 ## 4. AI 调用观测
 
@@ -111,11 +112,11 @@ reports/YYYY-MM-DD/daily-report.md
 
 当前最小实现说明：
 
-1. `JsonLineArchiveSink` 使用按日 JSONL 目录约定：
+1. 本地 `JsonLineArchiveSink` 使用按日 JSONL 目录约定：
    - `events/YYYY-MM-DD/guess-events.jsonl`
    - `ai-calls/YYYY-MM-DD/ai-call-logs.jsonl`
-2. 该 adapter 通过抽象 writer 注入，已在单元测试中验证文件写入路径和内容。
-3. Pages 入口暂未绑定宿主文件 writer，因此默认运行时仍使用 noop archive sink。
+2. `LiveArchiveSink` 在 `ARCHIVE_MODE=live` 下会写入 R2 bucket，object key 采用 `guess_events/<ISO 时间>` 或 `ai_call_logs/<ISO 时间>`。
+3. 该 adapter 使用 Cloudflare `R2_LOG_BUCKET` binding，未配置时会在依赖装配阶段报错，避免运行时静默丢失归档。
 
 ## 5. 行为分析
 

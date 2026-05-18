@@ -15,5 +15,11 @@
       "database_name": "guess-wrod-local",
       "database_id": "local-development-only"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "R2_LOG_BUCKET",
+      "bucket_name": "guess-wrod-archive"
+    }
   ]
 }

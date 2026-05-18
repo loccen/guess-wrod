@@ -44,7 +44,9 @@ export function createAppServices(env: ApiRuntimeEnv): AppServices {
   const clock = new SystemClock();
   const scoringProfile = resolveScoringProfile(env, config.aiMode);
   const archiveSink =
-    config.archiveMode === "live" ? new LiveArchiveSink() : new NoopArchiveSink();
+    config.archiveMode === "live"
+      ? new LiveArchiveSink(requiredR2Bucket(env.R2_LOG_BUCKET))
+      : new NoopArchiveSink();
   const scoringClient =
     config.aiMode === "live"
       ? new DeepSeekAiGatewayScoringClient({
@@ -78,6 +80,13 @@ export function createAppServices(env: ApiRuntimeEnv): AppServices {
         : new NoopAnalyticsSink(),
     archiveSink
   };
+}
+
+function requiredR2Bucket(binding: R2Bucket | undefined): R2Bucket {
+  if (!binding) {
+    throw new Error("R2_LOG_BUCKET binding is required when ARCHIVE_MODE=live.");
+  }
+  return binding;
 }
 
 function optionalEnv(value: string | undefined): string | undefined {
