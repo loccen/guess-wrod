@@ -34,13 +34,12 @@ interface ChatCompletionResponse {
 
 const DEFAULT_MODEL = "deepseek-v4-flash";
 const RESPONSE_SUMMARY_PREFIX_MAX_LENGTH = 200;
-const GAME_BOOTSTRAP_TASK = "以下是这一局游戏的固定背景，请在整个多轮对话中保持一致理解，不要把其它游戏的信息混入当前对话。";
-const TURN_TASK = "请根据固定背景和此前所有轮次，评估这一轮猜词与答案的接近程度。若历史里已经出现宽泛或误导方向，请主动纠偏，不要重复放大。";
+const GAME_CONTEXT_NOTE = "以下是当前这局游戏的固定背景。只可用于当前对话，不要混入其它游戏的信息。";
 
 export const SCORING_SYSTEM_PROMPT = [
   "你是中文猜词游戏的评分裁判。目标是给玩家提供真实有效的接近度信号，帮助缩小答案空间，而不是为任何弱关联找理由。",
   "",
-  "你会收到：answer、answer_context、guess、guess_history、relation_caps。answer_context 只用于理解答案的核心类别、功能、部件、属性；guess_history 表示本局此前已经给过玩家的信号，你必须结合历史判断当前词是在纠偏还是在重复误导。",
+  "你会收到标准答案、答案上下文、当前猜词以及此前多轮猜词记录。答案上下文只用于理解答案的核心类别、功能、部件、属性；你必须结合此前轮次判断当前词是在纠偏还是在重复误导。",
   "",
   "输出要求：",
   "1. 只返回一个 JSON 对象，字段必须包含 score、relation_type、is_exact、reason、confidence。",
@@ -78,7 +77,7 @@ function isExactRelation(relationType: string) {
 function buildBootstrapMessage(request: AiScoringRequest) {
   return JSON.stringify({
     conversation_type: "guess_word_game",
-    task: GAME_BOOTSTRAP_TASK,
+    note: GAME_CONTEXT_NOTE,
     answer: request.answer,
     answer_context: request.answerContext,
     language: request.language,
@@ -87,12 +86,8 @@ function buildBootstrapMessage(request: AiScoringRequest) {
   });
 }
 
-function buildTurnUserMessage(turn: number, guess: string) {
-  return JSON.stringify({
-    turn,
-    guess,
-    task: TURN_TASK
-  });
+function buildTurnUserMessage(guess: string) {
+  return guess;
 }
 
 function buildTurnAssistantMessage(entry: AiScoringRequest["guessHistory"]["guesses"][number]) {
@@ -112,7 +107,7 @@ function buildMessages(request: AiScoringRequest) {
       content: SCORING_SYSTEM_PROMPT
     },
     {
-      role: "user",
+      role: "system",
       content: buildBootstrapMessage(request)
     }
   ];
@@ -120,7 +115,7 @@ function buildMessages(request: AiScoringRequest) {
   for (const entry of request.guessHistory.guesses) {
     messages.push({
       role: "user",
-      content: buildTurnUserMessage(entry.order, entry.guess)
+      content: buildTurnUserMessage(entry.guess)
     });
     messages.push({
       role: "assistant",
@@ -130,7 +125,7 @@ function buildMessages(request: AiScoringRequest) {
 
   messages.push({
     role: "user",
-    content: buildTurnUserMessage(request.guessHistory.totalPreviousGuesses + 1, request.guess)
+    content: buildTurnUserMessage(request.guess)
   });
 
   return messages;

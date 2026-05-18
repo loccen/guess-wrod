@@ -67,9 +67,10 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       messages: Array<{ role: string; content: string }>;
     };
     expect(payload.messages[0]?.content).toBe(SCORING_SYSTEM_PROMPT);
-    expect(payload.messages[1]?.role).toBe("user");
+    expect(payload.messages[1]?.role).toBe("system");
     expect(JSON.parse(payload.messages[1]?.content ?? "{}")).toMatchObject({
       conversation_type: "guess_word_game",
+      note: "以下是当前这局游戏的固定背景。只可用于当前对话，不要混入其它游戏的信息。",
       answer: "a",
       answer_context: {
         aliases: [],
@@ -196,11 +197,7 @@ describe("DeepSeekAiGatewayScoringClient", () => {
     expect(payload.messages.slice(2)).toEqual([
       {
         role: "user",
-        content: JSON.stringify({
-          turn: 1,
-          guess: "日用品",
-          task: "请根据固定背景和此前所有轮次，评估这一轮猜词与答案的接近程度。若历史里已经出现宽泛或误导方向，请主动纠偏，不要重复放大。"
-        })
+        content: "日用品"
       },
       {
         role: "assistant",
@@ -214,11 +211,7 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       },
       {
         role: "user",
-        content: JSON.stringify({
-          turn: 2,
-          guess: "名词",
-          task: "请根据固定背景和此前所有轮次，评估这一轮猜词与答案的接近程度。若历史里已经出现宽泛或误导方向，请主动纠偏，不要重复放大。"
-        })
+        content: "名词"
       },
       {
         role: "assistant",
@@ -232,11 +225,7 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       },
       {
         role: "user",
-        content: JSON.stringify({
-          turn: 3,
-          guess: "每天会用的",
-          task: "请根据固定背景和此前所有轮次，评估这一轮猜词与答案的接近程度。若历史里已经出现宽泛或误导方向，请主动纠偏，不要重复放大。"
-        })
+        content: "每天会用的"
       }
     ]);
   });
