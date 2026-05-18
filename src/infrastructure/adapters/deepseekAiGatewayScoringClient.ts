@@ -34,6 +34,8 @@ interface ChatCompletionResponse {
 
 const DEFAULT_MODEL = "deepseek-v4-flash";
 const RESPONSE_SUMMARY_PREFIX_MAX_LENGTH = 200;
+const GAME_BOOTSTRAP_TASK = "以下是这一局游戏的固定背景，请在整个多轮对话中保持一致理解，不要把其它游戏的信息混入当前对话。";
+const TURN_TASK = "请根据固定背景和此前所有轮次，评估这一轮猜词与答案的接近程度。若历史里已经出现宽泛或误导方向，请主动纠偏，不要重复放大。";
 
 export const SCORING_SYSTEM_PROMPT = [
   "你是中文猜词游戏的专业评分裁判，不是泛泛做语义联想的聊天助手。",
@@ -102,6 +104,71 @@ export const SCORING_SYSTEM_PROMPT = [
   "再次强调：宁可保守，也不要误导。只有真正能帮助缩小答案范围的猜词，才配拿中高分。"
 ].join("\n");
 
+function isExactRelation(relationType: string) {
+  return relationType === "exact" || relationType === "alias";
+}
+
+function buildBootstrapMessage(request: AiScoringRequest) {
+  return JSON.stringify({
+    conversation_type: "guess_word_game",
+    task: GAME_BOOTSTRAP_TASK,
+    answer: request.answer,
+    answer_context: request.answerContext,
+    language: request.language,
+    scoring_rules_version: request.scoringRulesVersion,
+    relation_caps: request.relationCaps
+  });
+}
+
+function buildTurnUserMessage(turn: number, guess: string) {
+  return JSON.stringify({
+    turn,
+    guess,
+    task: TURN_TASK
+  });
+}
+
+function buildTurnAssistantMessage(entry: AiScoringRequest["guessHistory"]["guesses"][number]) {
+  return JSON.stringify({
+    score: entry.score,
+    relation_type: entry.relationType,
+    is_exact: isExactRelation(entry.relationType),
+    reason: entry.reason ?? "历史回放：此前该轮评分结果已由业务侧记录。",
+    confidence: null
+  });
+}
+
+function buildMessages(request: AiScoringRequest) {
+  const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+    {
+      role: "system",
+      content: SCORING_SYSTEM_PROMPT
+    },
+    {
+      role: "user",
+      content: buildBootstrapMessage(request)
+    }
+  ];
+
+  for (const entry of request.guessHistory.guesses) {
+    messages.push({
+      role: "user",
+      content: buildTurnUserMessage(entry.order, entry.guess)
+    });
+    messages.push({
+      role: "assistant",
+      content: buildTurnAssistantMessage(entry)
+    });
+  }
+
+  messages.push({
+    role: "user",
+    content: buildTurnUserMessage(request.guessHistory.totalPreviousGuesses + 1, request.guess)
+  });
+
+  return messages;
+}
+
 function resolveChatCompletionsUrl(endpointUrl: string): string {
   const OPENAI_CHAT_COMPLETIONS_PATH = "/chat/completions";
   const normalizedEndpoint = endpointUrl.trim();
@@ -150,35 +217,7 @@ export class DeepSeekAiGatewayScoringClient implements AiScoringClient {
           model: this.model,
           response_format: { type: "json_object" },
           thinking: { type: "disabled" },
-          messages: [
-            {
-              role: "system",
-              content: SCORING_SYSTEM_PROMPT,
-            },
-            {
-              role: "user",
-              content: JSON.stringify({
-                answer: request.answer,
-                answer_context: request.answerContext,
-                guess: request.guess,
-                guess_history: {
-                  total_previous_guesses: request.guessHistory.totalPreviousGuesses,
-                  best_score: request.guessHistory.bestScore,
-                  best_guess: request.guessHistory.bestGuess,
-                  guesses: request.guessHistory.guesses.map((guess) => ({
-                    order: guess.order,
-                    guess: guess.guess,
-                    score: guess.score,
-                    relation_type: guess.relationType,
-                    source: guess.source,
-                  })),
-                },
-                language: request.language,
-                scoring_rules_version: request.scoringRulesVersion,
-                relation_caps: request.relationCaps,
-              }),
-            },
-          ],
+          messages: buildMessages(request),
         }),
       });
     } catch (error) {

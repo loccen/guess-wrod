@@ -208,6 +208,7 @@ export function postProcessAiScoringOutput(rawOutput, options = {}) {
       relationType: output.relation_type,
       isExact: Boolean(options.localExactMatch),
       aiClaimedExact: output.is_exact === true,
+      reason: normalizeReason(output.reason),
       confidence: normalizeConfidence(output.confidence),
       wasRuleAdjusted: finalScore !== roundedScore,
       adjustments: buildAdjustments(roundedScore, boundedScore, finalScore, relationCap),
@@ -281,6 +282,19 @@ function normalizeConfidence(value) {
   }
 
   return clamp(numericValue, 0, 1);
+}
+
+function normalizeReason(value) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim();
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  return normalized;
 }
 
 function buildAdjustments(roundedScore, boundedScore, finalScore, relationCap) {

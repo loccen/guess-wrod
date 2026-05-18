@@ -105,7 +105,8 @@ function buildGuessHistoryContext(guesses: Guess[]): AiGuessHistoryContext {
       guess: guess.guessRaw,
       score: guess.score ?? 0,
       relationType: guess.relationType ?? "invalid",
-      source: guess.source
+      source: guess.source,
+      reason: guess.reason
     }))
   };
 }
@@ -291,7 +292,7 @@ export class GuessService {
       score: scored.value.score,
       aiScore: scored.value.ai?.rawScore === undefined ? null : Number(scored.value.ai.rawScore),
       relationType: scored.value.relationType,
-      reason: scored.value.ai?.confidence === undefined ? null : null,
+      reason: scored.value.ai?.reason ?? null,
       source: "model",
       wasRuleAdjusted: scored.value.ai?.wasRuleAdjusted ?? false
     });
@@ -313,7 +314,7 @@ export class GuessService {
       score: scored.value.score,
       aiScore: scored.value.ai ? Number(scored.value.ai.rawScore) : null,
       relationType: scored.value.relationType,
-      reason: null,
+      reason: scored.value.ai?.reason ?? null,
       createdAt: this.services.clock.now().toISOString(),
       hitCount: 0,
       lastHitAt: null

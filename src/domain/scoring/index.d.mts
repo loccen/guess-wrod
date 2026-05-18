@@ -77,6 +77,7 @@ export interface AiPostProcessedScore {
   relationType: RelationType;
   isExact: boolean;
   aiClaimedExact: boolean;
+  reason: string | null;
   confidence?: number;
   wasRuleAdjusted: boolean;
   adjustments: Array<Record<string, unknown>>;

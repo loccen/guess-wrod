@@ -25,6 +25,7 @@ export interface AiGuessHistoryEntry {
   score: number;
   relationType: string;
   source: string;
+  reason?: string | null;
 }
 
 export interface AiGuessHistoryContext {

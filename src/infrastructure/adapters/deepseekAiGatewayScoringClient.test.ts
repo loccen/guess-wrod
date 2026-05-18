@@ -67,6 +67,17 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       messages: Array<{ role: string; content: string }>;
     };
     expect(payload.messages[0]?.content).toBe(SCORING_SYSTEM_PROMPT);
+    expect(payload.messages[1]?.role).toBe("user");
+    expect(JSON.parse(payload.messages[1]?.content ?? "{}")).toMatchObject({
+      conversation_type: "guess_word_game",
+      answer: "a",
+      answer_context: {
+        aliases: [],
+        categories: [],
+        tags: []
+      },
+      scoring_rules_version: "v0.2"
+    });
   });
 
   it("endpoint 已包含 chat completions 后缀时保持不变", async () => {
@@ -173,24 +184,61 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       messages: Array<{ role: string; content: string }>;
     };
     expect(JSON.parse(payload.messages[1]?.content ?? "{}")).toMatchObject({
+      conversation_type: "guess_word_game",
       answer: "日历",
       answer_context: {
         aliases: ["挂历"],
         categories: ["办公用品", "时间工具"],
         tags: ["日期", "月份"]
       },
-      guess: "每天会用的",
-      guess_history: {
-        total_previous_guesses: 2,
-        best_score: 75,
-        best_guess: "日用品",
-        guesses: [
-          { order: 1, guess: "日用品", score: 75, relation_type: "usage_context", source: "model" },
-          { order: 2, guess: "名词", score: 80, relation_type: "parent_category", source: "model" }
-        ]
-      },
       scoring_rules_version: "v0.2"
     });
+    expect(payload.messages.slice(2)).toEqual([
+      {
+        role: "user",
+        content: JSON.stringify({
+          turn: 1,
+          guess: "日用品",
+          task: "请根据固定背景和此前所有轮次，评估这一轮猜词与答案的接近程度。若历史里已经出现宽泛或误导方向，请主动纠偏，不要重复放大。"
+        })
+      },
+      {
+        role: "assistant",
+        content: JSON.stringify({
+          score: 75,
+          relation_type: "usage_context",
+          is_exact: false,
+          reason: "历史回放：此前该轮评分结果已由业务侧记录。",
+          confidence: null
+        })
+      },
+      {
+        role: "user",
+        content: JSON.stringify({
+          turn: 2,
+          guess: "名词",
+          task: "请根据固定背景和此前所有轮次，评估这一轮猜词与答案的接近程度。若历史里已经出现宽泛或误导方向，请主动纠偏，不要重复放大。"
+        })
+      },
+      {
+        role: "assistant",
+        content: JSON.stringify({
+          score: 80,
+          relation_type: "parent_category",
+          is_exact: false,
+          reason: "历史回放：此前该轮评分结果已由业务侧记录。",
+          confidence: null
+        })
+      },
+      {
+        role: "user",
+        content: JSON.stringify({
+          turn: 3,
+          guess: "每天会用的",
+          task: "请根据固定背景和此前所有轮次，评估这一轮猜词与答案的接近程度。若历史里已经出现宽泛或误导方向，请主动纠偏，不要重复放大。"
+        })
+      }
+    ]);
   });
 
   it("网关返回非 2xx 时抛出带最小诊断信息的错误", async () => {
