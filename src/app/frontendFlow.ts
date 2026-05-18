@@ -324,7 +324,7 @@ function compareGuessByScore(
 
 export function toGuessHistoryItems(
   guesses: GameStatusData["guesses"],
-  feedbackHrefBuilder: (guessId: string) => string
+  feedbackHrefBuilder?: (guessId: string) => string | null
 ): GuessHistoryItem[] {
   return [...guesses].sort(compareGuessByScore).map((guess, index) => ({
     guessId: guess.guess_id,
@@ -333,12 +333,12 @@ export function toGuessHistoryItems(
     score: guess.score ?? 0,
     relation: mapRelationLabel(guess.relation_type),
     counted: guess.counted,
-    feedbackHref: guess.counted && guess.score !== null ? feedbackHrefBuilder(guess.guess_id) : null
+    feedbackHref: guess.counted && guess.score !== null ? (feedbackHrefBuilder?.(guess.guess_id) ?? null) : null
   }));
 }
 
-export function toGamePageModel(game: GameStatusData, feedbackHrefBuilder: (guessId: string) => string): GamePageModel {
-  const guesses = toGuessHistoryItems(game.guesses, feedbackHrefBuilder);
+export function toGamePageModel(game: GameStatusData): GamePageModel {
+  const guesses = toGuessHistoryItems(game.guesses);
 
   return {
     gameId: game.game_id,
@@ -372,7 +372,11 @@ export function toGuessSubmitNotice(result: SubmitGuessData): GuessSubmitNotice 
   };
 }
 
-export function toResultPageModel(mode: ResultMode, game: GameStatusData): ResultPageModel {
+export function toResultPageModel(
+  mode: ResultMode,
+  game: GameStatusData,
+  feedbackHrefBuilder: (guessId: string) => string | null
+): ResultPageModel {
   const sortedGuesses = [...game.guesses].sort(compareGuessByScore);
   const reviewGuesses = (mode === "success" ? sortedGuesses.filter((guess) => (guess.score ?? 0) < 100) : sortedGuesses).slice(0, 3);
   const expiredReason = mapExpireReason(game.expire_reason);
@@ -385,6 +389,6 @@ export function toResultPageModel(mode: ResultMode, game: GameStatusData): Resul
     statCValue: mode === "success" ? `${game.best_guess?.score ?? 0}%` : mode === "give-up" ? "放弃" : "过期",
     expiredReasonTitle: expiredReason.title,
     expiredReasonDetail: expiredReason.detail,
-    guesses: toGuessHistoryItems(reviewGuesses, () => "#")
+    guesses: toGuessHistoryItems(reviewGuesses, feedbackHrefBuilder)
   };
 }

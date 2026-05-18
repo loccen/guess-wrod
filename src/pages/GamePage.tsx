@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiClient } from "../app/apiClient";
 import {
   ensureSession,
@@ -8,12 +8,10 @@ import {
   toGamePageModel,
   toGuessSubmitNotice
 } from "../app/frontendFlow";
-import { FeedbackSheet } from "../components/FeedbackSheet";
 import { GuessHistory } from "../components/GuessHistory";
 import { IconBadge } from "../components/IconBadge";
 import { ScoreRing } from "../components/ScoreRing";
-import { demoResultBase } from "../mock/game";
-import { buildGameFeedbackPath, buildGamePath, buildResultPath, toResultMode, type RouteState } from "../routes/routeState";
+import { buildResultPath, toResultMode, type RouteState } from "../routes/routeState";
 
 type GamePageProps = {
   route: Extract<RouteState, { page: "game" }>;
@@ -52,8 +50,6 @@ export function GamePage({ route, navigate }: GamePageProps) {
     showBottomButton: false
   });
   const historyScrollRef = useRef<HTMLDivElement | null>(null);
-
-  const showFeedback = route.feedback;
 
   useEffect(() => {
     let active = true;
@@ -106,7 +102,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
 
         setScreenState({
           status: "ready",
-          model: toGamePageModel(game, (guessId) => buildGameFeedbackPath(game.game_id, guessId))
+          model: toGamePageModel(game)
         });
       } catch (error) {
         if (!active) {
@@ -141,7 +137,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
 
     setScreenState({
       status: "ready",
-      model: toGamePageModel(game, (guessId) => buildGameFeedbackPath(game.game_id, guessId))
+      model: toGamePageModel(game)
     });
   }
 
@@ -210,24 +206,6 @@ export function GamePage({ route, navigate }: GamePageProps) {
       setGiveUpPending(false);
     }
   }
-
-  const feedbackGuesses = useMemo(() => {
-    if (screenState.status === "ready" && screenState.model.guesses.length > 0) {
-      return screenState.model.guesses;
-    }
-    return demoResultBase.guesses;
-  }, [screenState]);
-  const activeFeedbackGuess = useMemo(() => {
-    if (!showFeedback) {
-      return null;
-    }
-
-    if (route.feedbackGuessId) {
-      return feedbackGuesses.find((guess) => guess.guessId === route.feedbackGuessId) ?? feedbackGuesses[0] ?? null;
-    }
-
-    return feedbackGuesses[0] ?? null;
-  }, [feedbackGuesses, route.feedbackGuessId, showFeedback]);
 
   const bestGuess = screenState.status === "ready" ? screenState.model : null;
   const canSubmit = screenState.status === "ready" && guessText.trim().length > 0 && !submitPending && !giveUpPending;
@@ -301,28 +279,8 @@ export function GamePage({ route, navigate }: GamePageProps) {
     });
   }
 
-  async function handleSubmitFeedback(input: { guessId: string; note: string | null }) {
-    if (screenState.status !== "ready") {
-      throw new Error("当前游戏状态还没准备好，请稍后再试。");
-    }
-
-    try {
-      const token = await ensureSession().then((restored) => restored.token);
-      await apiClient.submitFeedback(token, screenState.model.gameId, {
-        guessId: input.guessId,
-        feedbackType: "score_unreasonable",
-        note: input.note
-      });
-    } catch (error) {
-      if (isFrontendApiError(error) && error.code === "game_ended") {
-        await refreshReadyGame(screenState.model.gameId);
-      }
-      throw error;
-    }
-  }
-
   return (
-    <main className={`phone-page game-page ${showFeedback ? "is-dimmed" : ""}`}>
+    <main className="phone-page game-page">
       <header className="game-header">
         <h1 data-ui-id="game-title">猜不到的词</h1>
         <p>猜一个词，看它离答案有多近</p>
@@ -439,13 +397,6 @@ export function GamePage({ route, navigate }: GamePageProps) {
         放弃看答案
       </button>
 
-      {showFeedback && activeFeedbackGuess && (
-        <FeedbackSheet
-          guess={activeFeedbackGuess}
-          gamePath={bestGuess ? buildGamePath(bestGuess.gameId) : "/games/demo-playing"}
-          submitFeedback={handleSubmitFeedback}
-        />
-      )}
     </main>
   );
 }

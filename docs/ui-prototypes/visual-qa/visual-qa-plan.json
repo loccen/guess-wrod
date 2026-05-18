@@ -39,7 +39,7 @@
     },
     {
       "id": "03-score-feedback",
-      "targetUrl": "http://localhost:8788/games/demo-playing?feedback=1",
+      "targetUrl": "http://localhost:8788/games/demo/result/success?feedback=demo_guess_2",
       "referenceImage": "../normalized/03-score-feedback/03-score-feedback.normalized.png",
       "normalization": "../normalized/03-score-feedback/prototype-normalization.json"
     },

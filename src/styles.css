@@ -918,6 +918,10 @@ button:disabled {
   background: rgba(255, 255, 255, 0.78);
 }
 
+.guess-row--no-feedback {
+  grid-template-columns: 36px 1fr 54px auto;
+}
+
 .guess-row + .guess-row {
   border-top: 1px solid rgba(36, 52, 71, 0.06);
 }
@@ -962,6 +966,10 @@ button:disabled {
   color: #0c9ca4;
   font-size: 12px;
   font-weight: 800;
+}
+
+.feedback-link--compact {
+  justify-self: end;
 }
 
 .feedback-link--disabled {
@@ -1445,7 +1453,7 @@ button:disabled {
 }
 
 .guess-row--compact {
-  grid-template-columns: 34px 1fr 54px 1fr 22px;
+  grid-template-columns: 34px 1fr 54px 1fr auto;
 }
 
 .mini-bar {

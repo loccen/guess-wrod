@@ -4,9 +4,9 @@ export type RouteState =
   | { page: "home" }
   | { page: "history" }
   | { page: "session" }
-  | { page: "game"; feedback: boolean; feedbackGuessId: string | null; gameId: string | null; demo: boolean }
+  | { page: "game"; gameId: string | null; demo: boolean }
   | { page: "rules" }
-  | { page: "result"; mode: ResultMode; gameId: string | null; demo: boolean };
+  | { page: "result"; mode: ResultMode; gameId: string | null; demo: boolean; feedback: boolean; feedbackGuessId: string | null };
 
 const GAME_PLAYING_PATH = /^\/games\/([^/]+)$/;
 const GAME_RESULT_PATH = /^\/games\/([^/]+)\/result\/(success|give-up|expired)$/;
@@ -27,27 +27,25 @@ export function readRoute(location: Location): RouteState {
   }
 
   if (path === "/games/demo-playing") {
-    return { page: "game", feedback, feedbackGuessId, gameId: null, demo: true };
+    return { page: "game", gameId: null, demo: true };
   }
 
   if (path === "/games/demo/result/success") {
-    return { page: "result", mode: "success", gameId: null, demo: true };
+    return { page: "result", mode: "success", gameId: null, demo: true, feedback, feedbackGuessId };
   }
 
   if (path === "/games/demo/result/give-up") {
-    return { page: "result", mode: "give-up", gameId: null, demo: true };
+    return { page: "result", mode: "give-up", gameId: null, demo: true, feedback, feedbackGuessId };
   }
 
   if (path === "/games/demo/result/expired") {
-    return { page: "result", mode: "expired", gameId: null, demo: true };
+    return { page: "result", mode: "expired", gameId: null, demo: true, feedback, feedbackGuessId };
   }
 
   const gameMatch = path.match(GAME_PLAYING_PATH);
   if (gameMatch) {
     return {
       page: "game",
-      feedback,
-      feedbackGuessId,
       gameId: decodeURIComponent(gameMatch[1]),
       demo: false
     };
@@ -59,7 +57,9 @@ export function readRoute(location: Location): RouteState {
       page: "result",
       gameId: decodeURIComponent(resultMatch[1]),
       mode: resultMatch[2] as ResultMode,
-      demo: false
+      demo: false,
+      feedback,
+      feedbackGuessId
     };
   }
 
@@ -74,16 +74,17 @@ export function buildGamePath(gameId: string): string {
   return `/games/${encodeURIComponent(gameId)}`;
 }
 
-export function buildGameFeedbackPath(gameId: string, guessId?: string | null): string {
-  if (!guessId) {
-    return `${buildGamePath(gameId)}?feedback=1`;
-  }
-
-  return `${buildGamePath(gameId)}?feedback=${encodeURIComponent(guessId)}`;
-}
-
 export function buildResultPath(gameId: string, mode: ResultMode): string {
   return `/games/${encodeURIComponent(gameId)}/result/${mode}`;
+}
+
+export function buildResultFeedbackPath(gameId: string, mode: ResultMode, guessId?: string | null): string {
+  const resultPath = buildResultPath(gameId, mode);
+  if (!guessId) {
+    return `${resultPath}?feedback=1`;
+  }
+
+  return `${resultPath}?feedback=${encodeURIComponent(guessId)}`;
 }
 
 export function buildHistoryPath(): string {

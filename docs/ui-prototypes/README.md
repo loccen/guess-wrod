@@ -43,7 +43,7 @@
 3. `/games/:gameId` 改为真实加载 `GET /api/games/{game_id}`。
 4. “放弃看答案”改为真实调用 `POST /api/games/{game_id}/give-up`，再跳转 `/games/:gameId/result/give-up`。
 5. `POST /api/games/{game_id}/guesses` 已接入真实提交、加载、历史刷新和猜中跳转。
-6. `POST /api/games/{game_id}/feedback` 已接入真实提交；游戏页会把历史行的“反馈”入口带到对应 guess 的弹层，并处理提交中、失败和成功提示。
+6. `POST /api/games/{game_id}/feedback` 已接入真实提交；结果页复盘列表会把“反馈”入口带到对应 guess 的弹层，并处理提交中、失败和成功提示。
 
 为兼容现有 visual QA runner，`/games/demo-playing` 和 `/games/demo/result/*` 这些旧目标 URL 仍保留。其中 `/games/demo-playing` 会尝试复用当前匿名会话的真实 active game；结果页 demo 路由仍用于视觉参考，不作为真实业务入口。
 
@@ -61,7 +61,7 @@
 | `/games/:gameId` | 真实游戏页 |
 | `/games/:gameId/result/:mode` | 真实结果页 |
 | `/games/demo-playing` | 游戏进行中 |
-| `/games/demo-playing?feedback=1` | 游戏页 + 评分反馈弹层 |
+| `/games/demo/result/success?feedback=demo_guess_2` | 结果页 + 评分反馈弹层 |
 | `/games/demo/result/success` | 猜中结果 |
 | `/games/demo/result/give-up` | 放弃结果 |
 | `/games/demo/result/expired` | 过期结果 |
@@ -85,7 +85,7 @@ node /Users/loccen/.codex/skills/image2code-skill/scripts/visual-qa-runner.mjs -
 1. 启动 / 恢复会话：进入 H5 后创建或恢复匿名会话；若 `GET /api/session` 返回 `active_game_id`，进入真实游戏页；无进行中游戏则进入首页。
 2. 首页：点击“开始一局”调用 `POST /api/games`，成功后跳转 `/games/:gameId`；玩法说明进入 `07-rules-privacy` 页面。
 3. 游戏页：页面加载时调用 `GET /api/games/{game_id}`，展示真实有效次数、最高分、历史和结束状态；提交猜词会调用 `POST /api/games/{game_id}/guesses`，并刷新历史、最高分和成功跳转。
-4. 评分反馈：历史里的“反馈”会打开对应 guess 的弹层，真实调用 `POST /api/games/{game_id}/feedback`；当前三种前端反馈方向都会落到 `score_unreasonable`，并把方向说明写入 `note`。
+4. 评分反馈：结果页复盘列表里的“反馈”会打开对应 guess 的弹层，真实调用 `POST /api/games/{game_id}/feedback`；当前三种前端反馈方向都会落到 `score_unreasonable`，并把方向说明写入 `note`。
 5. 放弃：点击“放弃看答案”调用 `POST /api/games/{game_id}/give-up`；成功后进入真实放弃结果页。
 6. 结果页：`success`、`give_up`、`expired` 页面都会通过 `GET /api/games/{game_id}` 加载答案与统计；demo 路由仅保留给视觉参考。
 7. 玩法与隐私：只展示说明，不收集表单信息；底部“知道了”返回上一页或首页。

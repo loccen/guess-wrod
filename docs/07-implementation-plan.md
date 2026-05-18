@@ -289,7 +289,7 @@ T12/T13 当前完成最小前置：
 4. 首页“最近成绩”已改为读取当前访客真实历史分页第一页，不再使用演示数据。
 5. 已新增 `/history` 历史记录页，支持分页查看、单条删除与全部删除。
 6. `POST /api/games/{id}/guesses` 已接入前端真实提交链路，页面会处理加载、重复猜词提示、历史刷新和猜中跳转。
-7. `POST /api/games/{id}/feedback` 已接入前端真实提交流程；历史列表中的反馈入口会携带 `guess_id` 打开弹层，并处理提交中、失败和成功状态。
+7. `POST /api/games/{id}/feedback` 已接入前端真实提交流程；反馈入口位于结果页复盘列表，会携带 `guess_id` 打开弹层，并处理提交中、失败和成功状态。
 8. 旧的 `/games/demo-playing` 与 `/games/demo/result/*` 路由仍保留给 visual QA；真实业务入口使用 `/games/:gameId`、`/games/:gameId/result/:mode` 与 `/history`。
 
 ## 12.3 基础分析写入当前进度
