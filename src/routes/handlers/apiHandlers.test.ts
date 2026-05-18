@@ -990,7 +990,7 @@ describe("session and game handlers", () => {
     services.scoringGateway.score = async () => {
       throw new AiGatewayRequestError("gateway failed", {
         responseStatus: 502,
-        requestUrl: "https://gateway.example.com/chat/completions?token=secret",
+        requestUrl: "https://gateway.example.com/chat/completions?token=[redacted]",
         requestPath: "/chat/completions",
         responseSummaryPrefix: "bad gateway",
         hasGatewayAuth: true,
@@ -1033,10 +1033,10 @@ describe("session and game handlers", () => {
     services.scoringGateway.score = async () => {
       throw new AiGatewayRequestError("gateway failed", {
         responseStatus: 502,
-        requestUrl: "https://gateway.example.com/chat/completions?token=secret",
+        requestUrl: "https://gateway.example.com/chat/completions?token=[redacted]",
         requestPath: "/chat/completions",
         responseSummaryPrefix:
-          "upstream failed: https://gateway.example.com/chat/completions?token=secret Authorization=Bearer abcdefghijklmnopqrstuvwxyz0123456789",
+          "upstream failed: https://gateway.example.com/chat/completions?token=[redacted] Authorization=Bearer [redacted]",
         hasGatewayAuth: true,
         hasByokAlias: false
       });
