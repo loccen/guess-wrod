@@ -199,10 +199,12 @@ AI Gateway -> DeepSeek V4 Flash
 当前默认发布链路改为 GitHub Actions + `wrangler pages deploy`：
 
 1. `main` 分支 push 后，Actions 先执行 `npm run ci:check`，再发布 production。
-2. 指向 `main` 的 Pull Request 会在同一套校验通过后发布 preview。
-3. 流水线使用仓库内 `.github/workflows/pages-deploy.yml`，不再依赖本地手动构建后上传。
-4. Pages 项目名固定为 `guess-wrod`，production branch 固定为 `main`。
-5. GitHub 仓库需配置 `CLOUDFLARE_ACCOUNT_ID` 与 `CLOUDFLARE_API_TOKEN` 两个 Actions secrets；业务侧 `TURNSTILE_SECRET_KEY`、`TURNSTILE_SITE_KEY`、`AI_GATEWAY_API_KEY` 仍保留在 Cloudflare Pages 环境里，不写入仓库。
+2. 指向 `main` 的 Pull Request 默认只做校验，不再每次自动发布 preview。
+3. preview 发布改为 GitHub Actions `workflow_dispatch` 手动触发，默认从当前选中的分支与 commit 发布。
+4. 流水线使用仓库内 `.github/workflows/pages-deploy.yml`，不再依赖本地手动构建后上传。
+5. Pages 项目名固定为 `guess-wrod`，production branch 固定为 `main`。
+6. GitHub 仓库需配置 `CLOUDFLARE_ACCOUNT_ID` 与 `CLOUDFLARE_API_TOKEN` 两个 Actions secrets；业务侧 `TURNSTILE_SECRET_KEY`、`TURNSTILE_SITE_KEY`、`AI_GATEWAY_API_KEY` 仍保留在 Cloudflare Pages 环境里，不写入仓库。
+7. 建议把 `main` 设为受保护分支，至少要求通过 `Pages Deploy / 校验` 后才能合并，这样 production 发布只会发生在经过合并审查的提交上。
 
 ## 7. 配置项
 
