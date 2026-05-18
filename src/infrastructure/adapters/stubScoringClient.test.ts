@@ -13,9 +13,20 @@ describe("StubScoringClient", () => {
     await expect(
       client.score({
         answer: "手机",
+        answerContext: {
+          aliases: [],
+          categories: [],
+          tags: [],
+        },
         guess: "维修",
+        guessHistory: {
+          totalPreviousGuesses: 0,
+          bestScore: null,
+          bestGuess: null,
+          guesses: [],
+        },
         language: "zh-CN",
-        scoringRulesVersion: "v0.1",
+        scoringRulesVersion: "v0.2",
         relationCaps: {},
       }),
     ).resolves.toEqual({ score: 72, relation_type: "service_context", confidence: 0.8 });
@@ -27,9 +38,20 @@ describe("StubScoringClient", () => {
     await expect(
       client.score({
         answer: "手机",
+        answerContext: {
+          aliases: [],
+          categories: [],
+          tags: [],
+        },
         guess: "石头",
+        guessHistory: {
+          totalPreviousGuesses: 0,
+          bestScore: null,
+          bestGuess: null,
+          guesses: [],
+        },
         language: "zh-CN",
-        scoringRulesVersion: "v0.1",
+        scoringRulesVersion: "v0.2",
         relationCaps: {},
       }),
     ).resolves.toMatchObject({

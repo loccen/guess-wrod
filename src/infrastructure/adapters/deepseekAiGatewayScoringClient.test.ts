@@ -1,5 +1,27 @@
 import { describe, expect, it, vi } from "vitest";
-import { DeepSeekAiGatewayScoringClient } from "./deepseekAiGatewayScoringClient";
+import { DeepSeekAiGatewayScoringClient, SCORING_SYSTEM_PROMPT } from "./deepseekAiGatewayScoringClient";
+
+function buildAiRequest(overrides: Partial<Parameters<DeepSeekAiGatewayScoringClient["score"]>[0]> = {}) {
+  return {
+    answer: "a",
+    answerContext: {
+      aliases: [],
+      categories: [],
+      tags: []
+    },
+    guess: "b",
+    guessHistory: {
+      totalPreviousGuesses: 0,
+      bestScore: null,
+      bestGuess: null,
+      guesses: []
+    },
+    language: "zh-CN",
+    scoringRulesVersion: "v0.2",
+    relationCaps: { synonym: 20, same_category: 20 },
+    ...overrides
+  };
+}
 
 describe("DeepSeekAiGatewayScoringClient", () => {
   it("未显式注入 fetch 时，使用 runtime fetch 的正确 this 绑定", async () => {
@@ -19,13 +41,7 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       const client = new DeepSeekAiGatewayScoringClient({
         endpointUrl: "https://example.com/v1/acct/gateway/provider"
       });
-      await client.score({
-        answer: "a",
-        guess: "b",
-        language: "zh-CN",
-        scoringRulesVersion: "v1",
-        relationCaps: { synonym: 20, same_category: 20 }
-      });
+      await client.score(buildAiRequest());
       expect(guardedFetch).toHaveBeenCalledTimes(1);
     } finally {
       globalThis.fetch = originalFetch;
@@ -41,18 +57,16 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       endpointUrl: "https://example.com/v1/acct/gateway/provider",
       fetch: fetchMock
     });
-    await client.score({
-      answer: "a",
-      guess: "b",
-      language: "zh-CN",
-      scoringRulesVersion: "v1",
-      relationCaps: { synonym: 20, same_category: 20 }
-    });
+    await client.score(buildAiRequest());
     const url = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0];
     const init = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
     expect(url).toBe("https://example.com/v1/acct/gateway/provider/chat/completions");
     expect((init.headers as Record<string, string>)["cf-aig-authorization"]).toBeUndefined();
     expect((init.headers as Record<string, string>).authorization).toBeUndefined();
+    const payload = JSON.parse(String(init.body)) as {
+      messages: Array<{ role: string; content: string }>;
+    };
+    expect(payload.messages[0]?.content).toBe(SCORING_SYSTEM_PROMPT);
   });
 
   it("endpoint 已包含 chat completions 后缀时保持不变", async () => {
@@ -65,13 +79,7 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       fetch: fetchMock
     });
 
-    await client.score({
-      answer: "a",
-      guess: "b",
-      language: "zh-CN",
-      scoringRulesVersion: "v1",
-      relationCaps: { synonym: 20, same_category: 20 }
-    });
+    await client.score(buildAiRequest());
 
     const url = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(url).toBe("https://example.com/v1/acct/gateway/provider/chat/completions");
@@ -88,13 +96,7 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       fetch: fetchMock
     });
 
-    await client.score({
-      answer: "a",
-      guess: "b",
-      language: "zh-CN",
-      scoringRulesVersion: "v1",
-      relationCaps: { synonym: 20, same_category: 20 }
-    });
+    await client.score(buildAiRequest());
 
     const init = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
     expect((init.headers as Record<string, string>)["cf-aig-authorization"]).toBe("Bearer cf-token");
@@ -112,13 +114,7 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       fetch: fetchMock
     });
 
-    await client.score({
-      answer: "a",
-      guess: "b",
-      language: "zh-CN",
-      scoringRulesVersion: "v1",
-      relationCaps: { synonym: 20, same_category: 20 }
-    });
+    await client.score(buildAiRequest());
 
     const init = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
     expect((init.headers as Record<string, string>)["cf-aig-byok-alias"]).toBe("guess-word");
@@ -135,16 +131,66 @@ describe("DeepSeekAiGatewayScoringClient", () => {
       fetch: fetchMock
     });
 
-    await client.score({
-      answer: "a",
-      guess: "b",
-      language: "zh-CN",
-      scoringRulesVersion: "v1",
-      relationCaps: { synonym: 20, same_category: 20 }
-    });
+    await client.score(buildAiRequest());
 
     const init = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
     expect((init.headers as Record<string, string>)["cf-aig-byok-alias"]).toBeUndefined();
+  });
+
+  it("请求体包含答案上下文与完整猜词历史", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: "{}" } }] })
+    })) as unknown as typeof fetch;
+    const client = new DeepSeekAiGatewayScoringClient({
+      endpointUrl: "https://example.com/v1/acct/gateway/provider",
+      fetch: fetchMock
+    });
+
+    await client.score(
+      buildAiRequest({
+        answer: "日历",
+        answerContext: {
+          aliases: ["挂历"],
+          categories: ["办公用品", "时间工具"],
+          tags: ["日期", "月份"]
+        },
+        guess: "每天会用的",
+        guessHistory: {
+          totalPreviousGuesses: 2,
+          bestScore: 75,
+          bestGuess: "日用品",
+          guesses: [
+            { order: 1, guess: "日用品", score: 75, relationType: "usage_context", source: "model" },
+            { order: 2, guess: "名词", score: 80, relationType: "parent_category", source: "model" }
+          ]
+        }
+      })
+    );
+
+    const init = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
+    const payload = JSON.parse(String(init.body)) as {
+      messages: Array<{ role: string; content: string }>;
+    };
+    expect(JSON.parse(payload.messages[1]?.content ?? "{}")).toMatchObject({
+      answer: "日历",
+      answer_context: {
+        aliases: ["挂历"],
+        categories: ["办公用品", "时间工具"],
+        tags: ["日期", "月份"]
+      },
+      guess: "每天会用的",
+      guess_history: {
+        total_previous_guesses: 2,
+        best_score: 75,
+        best_guess: "日用品",
+        guesses: [
+          { order: 1, guess: "日用品", score: 75, relation_type: "usage_context", source: "model" },
+          { order: 2, guess: "名词", score: 80, relation_type: "parent_category", source: "model" }
+        ]
+      },
+      scoring_rules_version: "v0.2"
+    });
   });
 
   it("网关返回非 2xx 时抛出带最小诊断信息的错误", async () => {
@@ -162,11 +208,7 @@ describe("DeepSeekAiGatewayScoringClient", () => {
 
     await expect(
       client.score({
-        answer: "a",
-        guess: "b",
-        language: "zh-CN",
-        scoringRulesVersion: "v1",
-        relationCaps: { synonym: 20, same_category: 20 }
+        ...buildAiRequest()
       })
     ).rejects.toMatchObject({
       name: "AiGatewayRequestError",

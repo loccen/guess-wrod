@@ -4,6 +4,7 @@ import { findLocalExactMatch, type RelationType } from "../../domain/scoring/ind
 import { AiGatewayRequestError } from "../../infrastructure/adapters/deepseekAiGatewayScoringClient";
 import { ObservabilityService } from "./observabilityService";
 import type { AppServices } from "./platformPorts";
+import type { AiGuessHistoryContext } from "../scoring/scoringGateway";
 import type { AuthenticatedSession } from "./sessionService";
 import { GameRuleService } from "./gameRuleService";
 
@@ -85,6 +86,27 @@ function toBestGuessSummary(guess: Guess | null): SubmitGuessResult["bestGuess"]
     guessId: guess.id,
     guess: guess.guessRaw,
     score: guess.score
+  };
+}
+
+function buildGuessHistoryContext(guesses: Guess[]): AiGuessHistoryContext {
+  const countedGuesses = guesses.filter((guess) => guess.counted && guess.score !== null);
+  const bestGuess =
+    countedGuesses.length === 0
+      ? null
+      : countedGuesses.reduce((best, current) => ((best.score ?? -1) >= (current.score ?? -1) ? best : current));
+
+  return {
+    totalPreviousGuesses: countedGuesses.length,
+    bestScore: bestGuess?.score ?? null,
+    bestGuess: bestGuess?.guessRaw ?? null,
+    guesses: countedGuesses.map((guess, index) => ({
+      order: index + 1,
+      guess: guess.guessRaw,
+      score: guess.score ?? 0,
+      relationType: guess.relationType ?? "invalid",
+      source: guess.source
+    }))
   };
 }
 
@@ -213,12 +235,16 @@ export class GuessService {
     }
 
     const startedAt = Date.now();
+    const guessHistory = buildGuessHistoryContext(await this.services.storage.guesses.listGuessesByGame(game.id, { limit: GAME_MAX_GUESSES }));
     let scored;
     try {
       scored = await this.services.scoringGateway.score({
         answer: answer.word,
         aliases: answer.aliases,
-        guess: normalizedGuess
+        answerCategories: answer.categories,
+        answerTags: answer.tags,
+        guess: normalizedGuess,
+        guessHistory
       });
     } catch (error) {
       const latencyMs = Date.now() - startedAt;
