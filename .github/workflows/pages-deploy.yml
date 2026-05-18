@@ -2,6 +2,7 @@ name: Pages Deploy
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  CLOUDFLARE_ACCOUNT_ID: 656612e8bac6e750ae630a5ad3320858
 
 on:
   push:
@@ -78,7 +79,6 @@ jobs:
       - name: 发布到 Cloudflare Pages Preview
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: >-
           npx wrangler pages deploy dist
           --project-name=guess-wrod
@@ -106,10 +106,14 @@ jobs:
       - name: 构建产物
         run: npm run build
 
+      - name: 确认 Cloudflare 账号
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx wrangler whoami
+
       - name: 发布到 Cloudflare Pages Production
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: >-
           npx wrangler pages deploy dist
           --project-name=guess-wrod
