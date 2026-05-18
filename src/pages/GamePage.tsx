@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { apiClient } from "../app/apiClient";
 import {
   ensureSession,
@@ -46,6 +46,12 @@ export function GamePage({ route, navigate }: GamePageProps) {
   const [giveUpPending, setGiveUpPending] = useState(false);
   const [inlineError, setInlineError] = useState<string | null>(null);
   const [submitNotice, setSubmitNotice] = useState<{ tone: "success" | "warning"; text: string } | null>(null);
+  const [historyScrollState, setHistoryScrollState] = useState({
+    canScroll: false,
+    showTopButton: false,
+    showBottomButton: false
+  });
+  const historyScrollRef = useRef<HTMLDivElement | null>(null);
 
   const showFeedback = route.feedback;
 
@@ -225,6 +231,75 @@ export function GamePage({ route, navigate }: GamePageProps) {
 
   const bestGuess = screenState.status === "ready" ? screenState.model : null;
   const canSubmit = screenState.status === "ready" && guessText.trim().length > 0 && !submitPending && !giveUpPending;
+  const historyGuesses = screenState.status === "ready" ? screenState.model.guesses : [];
+
+  useEffect(() => {
+    function syncHistoryScrollState() {
+      const container = historyScrollRef.current;
+      if (!container) {
+        setHistoryScrollState({
+          canScroll: false,
+          showTopButton: false,
+          showBottomButton: false
+        });
+        return;
+      }
+
+      const overflowGap = container.scrollHeight - container.clientHeight;
+      const canScroll = overflowGap > 8;
+      const showTopButton = canScroll && container.scrollTop > 12;
+      const showBottomButton = canScroll && container.scrollTop < overflowGap - 12;
+
+      setHistoryScrollState((current) => {
+        if (
+          current.canScroll === canScroll &&
+          current.showTopButton === showTopButton &&
+          current.showBottomButton === showBottomButton
+        ) {
+          return current;
+        }
+
+        return {
+          canScroll,
+          showTopButton,
+          showBottomButton
+        };
+      });
+    }
+
+    syncHistoryScrollState();
+    window.addEventListener("resize", syncHistoryScrollState);
+    return () => {
+      window.removeEventListener("resize", syncHistoryScrollState);
+    };
+  }, [historyGuesses]);
+
+  function handleHistoryScroll() {
+    const container = historyScrollRef.current;
+    if (!container) {
+      return;
+    }
+
+    const overflowGap = container.scrollHeight - container.clientHeight;
+    const canScroll = overflowGap > 8;
+    setHistoryScrollState({
+      canScroll,
+      showTopButton: canScroll && container.scrollTop > 12,
+      showBottomButton: canScroll && container.scrollTop < overflowGap - 12
+    });
+  }
+
+  function scrollHistoryTo(position: "top" | "bottom") {
+    const container = historyScrollRef.current;
+    if (!container) {
+      return;
+    }
+
+    container.scrollTo({
+      top: position === "top" ? 0 : container.scrollHeight,
+      behavior: "smooth"
+    });
+  }
 
   async function handleSubmitFeedback(input: { guessId: string; note: string | null }) {
     if (screenState.status !== "ready") {
@@ -297,7 +372,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
             ? "正在加载本局状态"
             : submitPending
               ? "AI 评分中，通常约 2 秒"
-              : submitNotice?.text ?? "输入一个词，提交后会显示真实分数与历史"}
+              : "输入一个词，提交后会显示真实分数与历史"}
         </p>
         {submitNotice && (
           <p className={`inline-note inline-note--${submitNotice.tone}`} data-ui-id="guess-submit-note">
@@ -320,7 +395,41 @@ export function GamePage({ route, navigate }: GamePageProps) {
             </button>
           </div>
         ) : screenState.status === "ready" && screenState.model.guesses.length > 0 ? (
-          <GuessHistory guesses={screenState.model.guesses} />
+          <div className="history-list-shell">
+            <div className="history-scroll-fade history-scroll-fade--top" aria-hidden={!historyScrollState.showTopButton} />
+            <div
+              ref={historyScrollRef}
+              className="history-scroll-area"
+              onScroll={handleHistoryScroll}
+            >
+              <GuessHistory guesses={screenState.model.guesses} />
+            </div>
+            <div className="history-scroll-fade history-scroll-fade--bottom" aria-hidden={!historyScrollState.showBottomButton} />
+            {historyScrollState.canScroll && (
+              <div className="history-scroll-actions">
+                {historyScrollState.showTopButton && (
+                  <button
+                    className="history-scroll-button"
+                    type="button"
+                    onClick={() => scrollHistoryTo("top")}
+                    aria-label="滚动到历史顶部"
+                  >
+                    到顶
+                  </button>
+                )}
+                {historyScrollState.showBottomButton && (
+                  <button
+                    className="history-scroll-button"
+                    type="button"
+                    onClick={() => scrollHistoryTo("bottom")}
+                    aria-label="滚动到历史底部"
+                  >
+                    到底
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         ) : (
           <p className="empty-hint">还没有有效猜词。提交后，这里会显示真实历史。</p>
         )}

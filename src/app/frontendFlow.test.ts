@@ -44,9 +44,18 @@ describe("frontendFlow helpers", () => {
     const guesses = toGuessHistoryItems(
       [
         {
+          guess_id: "guess_2",
+          guess: "文具盒",
+          score: 76,
+          relation_type: "same_category",
+          source: "model",
+          counted: true,
+          created_at: "2026-05-18T00:01:00.000Z"
+        },
+        {
           guess_id: "guess_1",
           guess: "平板",
-          score: 76,
+          score: 92,
           relation_type: "same_category",
           source: "model",
           counted: true,
@@ -61,10 +70,19 @@ describe("frontendFlow helpers", () => {
         guessId: "guess_1",
         rank: 1,
         word: "平板",
-        score: 76,
+        score: 92,
         relation: "同类",
         counted: true,
         feedbackHref: "/feedback/guess_1"
+      },
+      {
+        guessId: "guess_2",
+        rank: 2,
+        word: "文具盒",
+        score: 76,
+        relation: "同类",
+        counted: true,
+        feedbackHref: "/feedback/guess_2"
       }
     ]);
   });

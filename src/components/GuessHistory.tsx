@@ -9,7 +9,7 @@ export function GuessHistory({ guesses, compact = false }: GuessHistoryProps) {
   return (
     <div className="guess-list">
       {guesses.map((guess) => (
-        <div className={`guess-row ${compact ? "guess-row--compact" : ""}`} data-ui-id={`guess-row-${guess.rank}`} key={guess.rank}>
+        <div className={`guess-row ${compact ? "guess-row--compact" : ""}`} data-ui-id={`guess-row-${guess.rank}`} key={guess.guessId}>
           <span className="guess-rank">{guess.rank}</span>
           <span className="guess-word">{guess.word}</span>
           <span className="guess-score">{guess.score}%</span>

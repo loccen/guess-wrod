@@ -310,11 +310,23 @@ export function mapRelationLabel(relationType: string | null): string {
   }
 }
 
+function compareGuessByScore(
+  left: Pick<GameStatusData["guesses"][number], "score" | "created_at">,
+  right: Pick<GameStatusData["guesses"][number], "score" | "created_at">
+): number {
+  const scoreDiff = (right.score ?? 0) - (left.score ?? 0);
+  if (scoreDiff !== 0) {
+    return scoreDiff;
+  }
+
+  return new Date(right.created_at).getTime() - new Date(left.created_at).getTime();
+}
+
 export function toGuessHistoryItems(
   guesses: GameStatusData["guesses"],
   feedbackHrefBuilder: (guessId: string) => string
 ): GuessHistoryItem[] {
-  return guesses.map((guess, index) => ({
+  return [...guesses].sort(compareGuessByScore).map((guess, index) => ({
     guessId: guess.guess_id,
     rank: index + 1,
     word: guess.guess,
@@ -361,7 +373,7 @@ export function toGuessSubmitNotice(result: SubmitGuessData): GuessSubmitNotice 
 }
 
 export function toResultPageModel(mode: ResultMode, game: GameStatusData): ResultPageModel {
-  const sortedGuesses = [...game.guesses].sort((left, right) => (right.score ?? 0) - (left.score ?? 0));
+  const sortedGuesses = [...game.guesses].sort(compareGuessByScore);
   const reviewGuesses = (mode === "success" ? sortedGuesses.filter((guess) => (guess.score ?? 0) < 100) : sortedGuesses).slice(0, 3);
   const expiredReason = mapExpireReason(game.expire_reason);
 
