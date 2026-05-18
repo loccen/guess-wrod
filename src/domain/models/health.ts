@@ -11,6 +11,11 @@ export interface AiRuntimeConfigSummary {
   hasAiGatewayByokAlias: boolean;
 }
 
+export interface CaptchaRuntimeConfigSummary {
+  hasTurnstileSiteKey: boolean;
+  turnstileSiteKey: string | null;
+}
+
 export interface HealthStatus {
   service: "guess-wrod-api";
   status: "ok";
@@ -18,4 +23,5 @@ export interface HealthStatus {
   modes: AppConfig;
   runtime: RuntimeVersionInfo;
   aiRuntime: AiRuntimeConfigSummary;
+  captchaRuntime: CaptchaRuntimeConfigSummary;
 }

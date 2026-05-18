@@ -253,6 +253,27 @@ button:disabled {
   font-weight: 800;
 }
 
+.captcha-panel {
+  margin: 12px 0 2px;
+  width: min(100%, 314px);
+  border-radius: 18px;
+  border: 1px solid rgba(27, 154, 170, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 12px 12px;
+}
+
+.captcha-title {
+  margin: 0 0 8px;
+  color: #425261;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.turnstile-widget {
+  display: grid;
+  justify-content: center;
+}
+
 .secondary-pill {
   display: inline-flex;
   width: 130px;

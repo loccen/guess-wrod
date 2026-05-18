@@ -19,6 +19,10 @@ describe("getHealthStatus", () => {
         hasAiGatewayApiKey: false,
         hasAiGatewayByokAlias: true
       },
+      {
+        hasTurnstileSiteKey: true,
+        turnstileSiteKey: "1x00000000000000000000AA"
+      },
       new Date("2026-05-17T00:00:00.000Z")
     );
 
@@ -40,6 +44,10 @@ describe("getHealthStatus", () => {
         hasAiGatewayEndpoint: true,
         hasAiGatewayApiKey: false,
         hasAiGatewayByokAlias: true
+      },
+      captchaRuntime: {
+        hasTurnstileSiteKey: true,
+        turnstileSiteKey: "1x00000000000000000000AA"
       }
     });
   });

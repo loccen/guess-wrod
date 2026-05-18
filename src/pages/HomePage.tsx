@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "../app/apiClient";
-import { ensureSession, getErrorMessage } from "../app/frontendFlow";
+import { ensureSessionWithOptions, getErrorMessage } from "../app/frontendFlow";
 import { IconBadge } from "../components/IconBadge";
+import { TurnstileWidget } from "../components/TurnstileWidget";
 import { buildGamePath } from "../routes/routeState";
 
 type HomePageProps = {
@@ -11,10 +12,19 @@ type HomePageProps = {
 export function HomePage({ navigate }: HomePageProps) {
   const [createPending, setCreatePending] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
+  const [captchaMode, setCaptchaMode] = useState<"bypass" | "live">("bypass");
+  const [turnstileSiteKey, setTurnstileSiteKey] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   useEffect(() => {
-    void ensureSession().catch(() => {});
-    void apiClient.getHealth().catch(() => {});
+    void apiClient
+      .getHealth()
+      .then((health) => {
+        const mode = health.modes?.captchaMode === "live" ? "live" : "bypass";
+        setCaptchaMode(mode);
+        setTurnstileSiteKey(health.captchaRuntime?.turnstileSiteKey ?? null);
+      })
+      .catch(() => {});
   }, []);
 
   async function handleStartGame() {
@@ -22,7 +32,13 @@ export function HomePage({ navigate }: HomePageProps) {
     setErrorText(null);
 
     try {
-      const restored = await ensureSession();
+      if (captchaMode === "live" && !turnstileToken) {
+        throw new Error("请先完成安全验证。");
+      }
+
+      const restored = await ensureSessionWithOptions({
+        turnstileToken: captchaMode === "live" ? turnstileToken : null
+      });
       const game = await apiClient.createGame(restored.token);
       navigate(buildGamePath(game.game_id));
     } catch (error) {
@@ -47,6 +63,15 @@ export function HomePage({ navigate }: HomePageProps) {
         >
           <span>开始一局</span>
         </button>
+        {captchaMode === "live" && turnstileSiteKey && (
+          <div className="captcha-panel">
+            <p className="captcha-title">先完成安全验证，再开始本局</p>
+            <TurnstileWidget siteKey={turnstileSiteKey} onTokenChange={setTurnstileToken} />
+          </div>
+        )}
+        {captchaMode === "live" && !turnstileSiteKey && (
+          <p className="inline-error inline-error--hero">当前环境缺少 TURNSTILE_SITE_KEY，无法创建会话。</p>
+        )}
         <a className="secondary-pill" data-ui-id="random-pill" href="/session">
           随机局
         </a>

@@ -1,10 +1,16 @@
 import type { AppConfig } from "../../domain/models/appConfig";
-import type { AiRuntimeConfigSummary, HealthStatus, RuntimeVersionInfo } from "../../domain/models/health";
+import type {
+  AiRuntimeConfigSummary,
+  CaptchaRuntimeConfigSummary,
+  HealthStatus,
+  RuntimeVersionInfo
+} from "../../domain/models/health";
 
 export function getHealthStatus(
   config: AppConfig,
   runtime: RuntimeVersionInfo,
   aiRuntime: AiRuntimeConfigSummary,
+  captchaRuntime: CaptchaRuntimeConfigSummary,
   now = new Date()
 ): HealthStatus {
   return {
@@ -13,6 +19,7 @@ export function getHealthStatus(
     timestamp: now.toISOString(),
     modes: config,
     runtime,
-    aiRuntime
+    aiRuntime,
+    captchaRuntime
   };
 }
