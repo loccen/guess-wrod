@@ -4,6 +4,7 @@ import type { StorageRepositories } from "../../../usecases/repositories/storage
 
 export interface StorageBindings {
   DB?: SqlExecutor;
+  R2_LOG_BUCKET?: R2Bucket;
 }
 
 export function createStorageRepositories(env: StorageBindings): StorageRepositories {

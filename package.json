@@ -10,7 +10,9 @@
     "dev:pages": "npm run build && wrangler pages dev dist --port 8788",
     "typecheck": "tsc -b",
     "test": "vitest run",
-    "cf:check": "wrangler pages functions build --outdir .wrangler/functions-build"
+    "cf:check": "wrangler pages functions build --outdir .wrangler/functions-build",
+    "ci:check": "npm run typecheck && npm run test && npm run build && npm run cf:check",
+    "deploy:pages": "wrangler pages deploy dist --project-name=guess-wrod"
   },
   "dependencies": {
     "react": "^19.1.0",

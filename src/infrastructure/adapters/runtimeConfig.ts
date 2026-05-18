@@ -5,13 +5,14 @@ import type {
   ArchiveMode,
   CaptchaMode
 } from "../../domain/models/appConfig";
-import type { AiRuntimeConfigSummary, RuntimeVersionInfo } from "../../domain/models/health";
+import type { AiRuntimeConfigSummary, CaptchaRuntimeConfigSummary, RuntimeVersionInfo } from "../../domain/models/health";
 
 export interface RuntimeEnv {
   AI_MODE?: string;
   CAPTCHA_MODE?: string;
   ANALYTICS_MODE?: string;
   ARCHIVE_MODE?: string;
+  AI_GATEWAY_ENDPOINT_URL?: string;
   AI_GATEWAY_ENDPOINT?: string;
   AI_GATEWAY_API_KEY?: string;
   AI_GATEWAY_BYOK_ALIAS?: string;
@@ -19,6 +20,7 @@ export interface RuntimeEnv {
   GIT_COMMIT_SHA?: string;
   BUILD_ID?: string;
   RUNTIME_VERSION?: string;
+  TURNSTILE_SITE_KEY?: string;
 }
 
 function oneOf<T extends string>(value: string | undefined, allowed: readonly T[], fallback: T): T {
@@ -83,10 +85,22 @@ function hasNonEmptyValue(value: string | undefined): boolean {
   return Boolean(value && value.trim().length > 0);
 }
 
+function hasAnyNonEmptyValue(...values: Array<string | undefined>): boolean {
+  return values.some((value) => hasNonEmptyValue(value));
+}
+
 export function loadAiRuntimeConfigSummary(env: RuntimeEnv = {}): AiRuntimeConfigSummary {
   return {
-    hasAiGatewayEndpoint: hasNonEmptyValue(env.AI_GATEWAY_ENDPOINT),
+    hasAiGatewayEndpoint: hasAnyNonEmptyValue(env.AI_GATEWAY_ENDPOINT_URL, env.AI_GATEWAY_ENDPOINT),
     hasAiGatewayApiKey: hasNonEmptyValue(env.AI_GATEWAY_API_KEY),
     hasAiGatewayByokAlias: hasNonEmptyValue(env.AI_GATEWAY_BYOK_ALIAS)
+  };
+}
+
+export function loadCaptchaRuntimeConfigSummary(env: RuntimeEnv = {}): CaptchaRuntimeConfigSummary {
+  const value = env.TURNSTILE_SITE_KEY?.trim() ?? "";
+  return {
+    hasTurnstileSiteKey: value.length > 0,
+    turnstileSiteKey: value.length > 0 ? value : null
   };
 }

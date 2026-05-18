@@ -15,11 +15,11 @@
 3. Pages 项目：`guess-wrod`（项目 ID：`3bd20fb8-15fd-443f-ac81-792fa3cfdd62`，默认子域：`guess-wrod.pages.dev`）
 4. D1 正式库：`guess-wrod-prod`（UUID：`35412c0c-e8b9-4a0b-bf89-ddcdc89b63b3`）
 5. AI Gateway：`guess-wrod-gateway`（provider alias：`guess-word`，已存在）
+6. R2 bucket：`guess-wrod-archive`（已创建，用于原始归档）
 
 当前受限项：
 
-1. R2 API 当前返回需先在 Dashboard 启用，暂未创建 bucket。
-2. Turnstile API 当前认证报错，暂未创建 widget。
+1. Turnstile API 当前认证报错，暂未创建 widget。
 
 ## 2. 系统组成
 
@@ -194,6 +194,18 @@ AI Gateway -> DeepSeek V4 Flash
 
 同域方案能减少跨域、Cookie 和浏览器风控成本，也更适合 Turnstile 和 WAF 规则统一管理。
 
+### 6.3 发布链路
+
+当前默认发布链路改为 GitHub Actions + `wrangler pages deploy`：
+
+1. `main` 分支 push 后，Actions 先执行 `npm run ci:check`，再发布 production。
+2. 指向 `main` 的 Pull Request 默认只做校验，不再每次自动发布 preview。
+3. preview 发布改为 GitHub Actions `workflow_dispatch` 手动触发，默认从当前选中的分支与 commit 发布。
+4. 流水线使用仓库内 `.github/workflows/pages-deploy.yml`，不再依赖本地手动构建后上传。
+5. Pages 项目名固定为 `guess-wrod`，production branch 固定为 `main`。
+6. GitHub 仓库需配置 `CLOUDFLARE_ACCOUNT_ID` 与 `CLOUDFLARE_API_TOKEN` 两个 Actions secrets；业务侧 `TURNSTILE_SECRET_KEY`、`TURNSTILE_SITE_KEY`、`AI_GATEWAY_API_KEY` 仍保留在 Cloudflare Pages 环境里，不写入仓库。
+7. 建议把 `main` 设为受保护分支，至少要求通过 `Pages Deploy / 校验` 后才能合并，这样 production 发布只会发生在经过合并审查的提交上。
+
 ## 7. 配置项
 
 | 配置 | 说明 |
@@ -215,6 +227,12 @@ AI Gateway -> DeepSeek V4 Flash
 | `SESSION_TOKEN_TTL_DAYS` | 匿名会话有效期 |
 | `GAME_TTL_HOURS` | 游戏有效时长 |
 | `MAX_VALID_GUESSES_PER_GAME` | 单局有效猜词上限 |
+
+`wrangler.jsonc` 当前有两层含义：
+
+1. 顶层配置只服务本地开发，默认保持 `AI_MODE=stub`、`CAPTCHA_MODE=bypass`、`ANALYTICS_MODE=noop`、`ARCHIVE_MODE=file`，并继续使用本地 D1 占位 binding。
+2. `env.preview` 与 `env.production` 明确写出 Pages 发布时要使用的非本地配置，避免 GitHub Actions 发布时把线上环境覆盖回本地 stub。
+3. 由于 Pages 的 `vars`、`d1_databases`、`r2_buckets` 属于非继承配置，只要在某个环境里覆盖其中之一，就必须在该环境里把这几项一起写全。
 
 ## 8. 可迁移实现约束
 

@@ -7,9 +7,20 @@ export class LiveAnalyticsSink implements AnalyticsSink {
 }
 
 export class LiveArchiveSink implements ArchiveSink {
+  constructor(private readonly bucket: R2Bucket) {}
+
   async append(record: ArchiveRecord): Promise<ArchiveWriteResult> {
     const objectKey = `${record.stream}/${record.createdAt}`;
-    console.log("[archive]", objectKey, JSON.stringify(record.payload));
+    const body = JSON.stringify({
+      stream: record.stream,
+      created_at: record.createdAt,
+      payload: record.payload
+    });
+    await this.bucket.put(objectKey, body, {
+      httpMetadata: {
+        contentType: "application/json"
+      }
+    });
     return { objectKey };
   }
 }
