@@ -2,7 +2,7 @@
 
 - Task ID: `202605171630-development-orchestration`
 - Created At: `2026-05-17T23:22:27+08:00`
-- Updated At: `2026-05-18T09:17:27+08:00`
+- Updated At: `2026-05-18T10:17:20+08:00`
 - Status: `active`
 
 ## 目标
@@ -36,38 +36,28 @@
   - `aiRuntime.hasAiGatewayApiKey = true`
   - `aiRuntime.hasAiGatewayByokAlias = true`
 - 已完成：无 token 直接调用 `POST /api/sessions` 时，公网真实返回 `403 turnstile_required`。
+- 已完成：production 真实浏览器链路已走通一局，首页 -> Turnstile 自动成功 -> 开局 -> 猜词 `phone` -> give-up 结果页 -> 再来一局全部成功。
+- 已完成：真实公网猜词已触发 live archive，R2 bucket `guess-wrod-archive` 中出现 `ai_call_logs/2026-05-18T01:57:56.962Z`。
+- 已完成：`main` 已合入 health 摘要修正，后续部署后 `hasAiGatewayEndpoint` 将优先读取 `AI_GATEWAY_ENDPOINT_URL`。
 
 ## 未完成
 
-- 公网 `POST /api/games/{id}/guesses` 仍返回 `500 system_error`，反馈链路无法真实触发。
-- 当前最新公网 `guess` 调试摘要已固定为：
-  - `response_status = 401`
-  - `request_path = /v1/656612e8bac6e750ae630a5ad3320858/guess-wrod-gateway/custom-guessword-deepseek/v1/chat/completions`
-  - `response_summary_prefix = Authentication Fails (governor)`
-  - `has_gateway_auth = false`
-  - `has_byok_alias = true`
-  - `runtime.version = bdc5cb5a287b`
-- 外部探针已证明两条控制面链路都未打通：
-  - 使用浏览器新建并写入 `/tmp/cf_aig_token.txt` 的 Authenticated Gateway token，直接请求 `/openai/chat/completions` 与 custom provider 路径都返回 Cloudflare `2009 Unauthorized`
-  - 连续新建两把新的 DeepSeek API key，直接请求 `https://api.deepseek.com/chat/completions` 与 `https://api.deepseek.com/v1/chat/completions` 也都返回 `401 authentication_error`
-- 现有 provider key `Guess Wrod DeepSeek` 的 alias 为 `guess-word`，且在 Dashboard 编辑界面：
-  - alias 输入框禁用，无法直接改成 `default`
-  - 未见“设为默认”“复制配置为默认”“测试连接”入口
-  - 若要继续编辑，只能重新提供明文 `API 密钥`
+- `M4 质量与内测` 仍未完成，当前主缺口在 T22/T23/T27/T28/T29。
+- `ANALYTICS_MODE=live` 仍是最小占位实现：`LiveAnalyticsSink` 只做 `console.log`，还没有真实 Workers Analytics Engine dataset 写入与 binding。
+- `ai_call_logs` 虽已写入 D1 与 R2，但仍缺 `input_tokens`、`output_tokens`、`cache_status`、`estimated_cost_usd`、`gateway_request_id`、`provider_request_id` 等观测字段。
+- 行为漏斗所需事件仍不完整：缺 `page_view`、`session_restored`、`replay_started`，`guess_submitted` 也还缺 `latency_ms`。
+- 仓库里还没有 `daily_behavior_metrics`、`daily_scoring_quality`、`daily_ai_cost` 聚合脚本，也没有 `reports/YYYY-MM-DD/daily-report.md` 生成链路。
 
 ## 当前阻塞
 
-- 当前主阻塞已经从“应用代码实现”收敛到“上游 DeepSeek key 与 Cloudflare 控制面边界”：
-  - Authenticated Gateway token 经过外部探针不被接受
-  - 当前从 DeepSeek 控制台新建并复制出来的 key，本机直打官方 API 也被判定无效
-  - 现有 custom provider key 既不是 `default`，也无法在没有明文 key 的情况下改成 `default`
-- 次级阻塞：
-  - 虽然 `ARCHIVE_MODE=live` 已上线，但 `guess-wrod-archive` 仍为空，说明还没拿到一次真实会触发归档的线上流量样本。
-  - live captcha 已在首页展示并返回“先完成安全验证”，但目前缺少一条“通过 Turnstile 后成功进入游戏页”的稳定浏览器证据。
-- 在这个边界没打破前，继续追公网猜词 500 的应用层代码价值很低。
+- 当前不再存在“公网主流程不可玩”的 P0 阻塞。
+- 当前阻塞已经转成内测验收缺口：
+  - 没有真实 Workers Analytics Engine 写入，行为事件仍不可查询。
+  - `ai_call_logs` 缺 token/cache/cost 元数据，无法做完整 AI 成本报表。
+  - 日报脚本和报表产物还没接起来，T33 里的“日报均通过”暂时不满足。
 
 ## 下一步
 
-- 1. 继续补 live captcha / live archive 的真实流量证据，例如成功通过 Turnstile 创建会话并观察 R2 是否出现对象。
-- 2. 并行继续确认 DeepSeek 控制台当前是否能产出一把真正可用的 API key；若拿到可用 key，再回到 provider config/default 路线。
-- 3. 只有公网 `POST /guesses` 恢复成功后，才继续补公网反馈提交和完整实玩证据。
+- 1. 先补 T22：接通真实 Workers Analytics Engine dataset 写入、binding 和相应测试。
+- 2. 再补 T23/T27/T29 所需原始数据：AI Gateway 观测字段、缺失行为事件、归档目录结构。
+- 3. 最后补日报聚合脚本与人工可读日报，完成 M4 / T33 的剩余验收项。

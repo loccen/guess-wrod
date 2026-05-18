@@ -3,7 +3,7 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T09:17:27+08:00",
+  "updated_at": "2026-05-18T10:17:20+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
@@ -16,12 +16,12 @@
     "docs/08-analytics-and-quality.md",
     "docs/ui-prototypes/images"
   ],
-  "next_step": "继续补 live captcha / live archive 的真实流量证据，并并行确认 DeepSeek 上游 key 来源是否真正可用。",
+  "next_step": "在公网已完整游玩一局的基线上，继续补齐 T22/T23/T27/T28/T29：真实 Analytics Engine 写入、AI 调用观测字段和日报链路。",
   "blockers": [
-    "公网 POST /api/games/{id}/guesses 仍返回 500 system_error，当前错误已收敛为 custom provider 401。",
-    "最新外部探针使用新建 gateway token 直接请求 /openai 和 custom provider 路径，均返回 Cloudflare 2009 Unauthorized。",
-    "最新两把从 DeepSeek 控制台新建并复制的 API key，直接请求官方 API 也返回 401 authentication_error。",
-    "现有 provider key alias=guess-word 且无法在没有明文 API key 的情况下改成 default。"
+    "ANALYTICS_MODE=live 仍未写入真实 Workers Analytics Engine dataset，T22 未完成。",
+    "ai_call_logs 仍缺 input/output tokens、cache_status、estimated_cost_usd、gateway/provider request id 等观测字段，T23 未完成。",
+    "行为漏斗仍缺 page_view、session_restored、replay_started 与 guess_submitted.latency_ms，导致 T27/T33 无法按文档验收。",
+    "仓库中仍缺 daily_behavior_metrics、daily_scoring_quality、daily_ai_cost 与 daily-report 生成脚本。"
   ],
   "evidence_paths": [
     ".agent-handoff/tasks/202605171630-development-orchestration/evidence/dispatch-plan.md"

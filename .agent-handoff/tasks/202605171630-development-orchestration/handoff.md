@@ -14,45 +14,38 @@
   - `modes.captchaMode = live`
   - `modes.archiveMode = live`
   - `captchaRuntime.hasTurnstileSiteKey = true`
+- 当前 production 真实浏览器链路已验证可完整游玩一局：
+  - 首页正常渲染，Turnstile 自动成功。
+  - “开始一局”可进入真实 game 页面。
+  - 提交猜词 `phone` 成功返回 `55% / 弱相关`。
+  - “放弃看答案”成功进入 give-up 结果页，答案显示 `肥皂 / 香皂`。
+  - “再来一局”后回到首页。
+- live archive 已收到真实公网样本：`guess-wrod-archive` 中出现 `ai_call_logs/2026-05-18T01:57:56.962Z`。
+- `main` 已合入 health 摘要修正提交，后续部署后 `hasAiGatewayEndpoint` 会优先读取 `AI_GATEWAY_ENDPOINT_URL`。
 
 ## 未完成
 
-- 公网 `POST /api/games/{id}/guesses` 仍返回 `500 system_error`，反馈链路无法真实触发。
-- 最新公网错误响应已能直接返回：
-  - `response_status = 401`
-  - `request_path = /v1/656612e8bac6e750ae630a5ad3320858/guess-wrod-gateway/custom-guessword-deepseek/v1/chat/completions`
-  - `response_summary_prefix = Authentication Fails (governor)`
-  - `has_gateway_auth = false`
-  - `has_byok_alias = true`
-  - `runtime.version = bdc5cb5a287b`
-- 使用浏览器新建并写入 `/tmp/cf_aig_token.txt` 的 gateway token 做外部探针时，不论是 `/openai/chat/completions` 还是 custom provider 路径，都返回 Cloudflare `2009 Unauthorized`。
-- 使用浏览器登录态到 DeepSeek 控制台后，连续新建两把新的 API key，并通过本机 shell 直接请求官方 API：
-  - `https://api.deepseek.com/chat/completions`
-  - `https://api.deepseek.com/v1/chat/completions`
-  两条都返回 `401 authentication_error`，摘要为 `Authentication Fails, Your api key: ****ined is invalid`。
-- Turnstile 与 R2 的最新事实：
-  - Turnstile widget 已创建，且 site key / secret 已可见；`TURNSTILE_SITE_KEY` 和 `TURNSTILE_SECRET_KEY` 已保存到 Pages Production 变量列表。
-  - 无 token 调用公网 `POST /api/sessions` 真实返回 `403 turnstile_required`。
-  - R2 订阅已开通，bucket `guess-wrod-archive` 已创建，但当前列对象仍为空。
-- Dashboard 当前 provider key 控制面边界：
-  - 现有 key `Guess Wrod DeepSeek` 的 alias 为 `guess-word`
-  - alias 输入框禁用，无法直接改成 `default`
-  - 未见“设为默认”“复制配置为默认”“测试连接”
-  - 要继续编辑，只能重新输入明文 `API 密钥`
+- 当前 `M3 前端主流程` 与 `T32 Cloudflare 部署配置` 已有真实公网证据，可视为已满足“手机浏览器可完整游玩”“公网可访问”的要求。
+- 当前主要未完成项转为 `M4 质量与内测`：
+  - T22：真实 Workers Analytics Engine 事件写入仍未接通。
+  - T23：`ai_call_logs` 仍缺 token/cache/cost/request-id 等 AI Gateway 观测字段。
+  - T27/T28/T29：日报聚合、评分质量分析、成本分析脚本与产物尚未实现。
+  - T33：上线前检查里的“日报均通过”尚未满足。
+- 当前 production 仍是 `analyticsMode=noop`，所以即使公网主流程可用，也还不能按文档口径说“可邀请小范围试玩”。
 
 ## 第一步该做什么
 
-- 当前主仓基线已提升到 `10e2068`。
+- 当前主仓基线已提升到 `16faa1f`。
 - 下一步优先级：
-  1. 先确认 DeepSeek 控制台当前是否能产出一把真正可用的 API key；这是现在的最高优先级。
-  2. 若能拿到可用 key，再回到 Cloudflare provider config/default 路线继续推进。
-  3. 若不能拿到可用 key，则当前“公网可玩”目标在现有控制面能力下存在上游实质阻塞，应保留现场并等待新的密钥来源。
+  1. 先补 T22：把 `LiveAnalyticsSink` 从 `console.log` 升到真实 Workers Analytics Engine dataset 写入，并把 binding 配进代码与 Cloudflare 配置。
+  2. 再补 T23：让 AI 评分链路把 `input_tokens`、`output_tokens`、`cache_status`、`estimated_cost_usd`、`gateway_request_id`、`provider_request_id` 等观测字段写进 `ai_call_logs` / archive。
+  3. 最后补 T27/T28/T29：新增日报聚合脚本和 `daily-report.md` 生成链路，把内测前最低要求补齐。
 
 ## 风险
 
-- 当前还不是可公网完整游玩的一局：猜词仍失败，反馈链路无法真实触发。
-- 现有控制面边界已经比较清楚，继续在没有可用上游 key 的前提下重复尝试 Cloudflare token / alias 调整，产出很可能极低。
-- live captcha / live archive 已上线，但还缺少一条“真实用户流量穿过它们并留下证据”的稳定验收。
+- 旧的“公网 guess 500 / 上游 key 阻塞”结论已经失效，不应再作为主线判断。
+- 当前最大的真实风险不是玩法可用性，而是观测数据不足，导致 M4 / T33 无法按文档验收。
+- `guess_events` 事件模型还不完整，缺 `page_view`、`session_restored`、`replay_started` 与 `guess_submitted.latency_ms`，会影响漏斗和 P90 耗时统计。
 - 当前保留现场：
   - `/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`
   - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v5`
