@@ -2,24 +2,23 @@ import { describe, expect, it } from "vitest";
 import { formatDurationText, formatExpiresText, getErrorMessage, mapRelationLabel, toGuessHistoryItems, toGuessSubmitNotice, toResultPageModel } from "./frontendFlow";
 import { buildFeedbackNote, validateFeedbackNote } from "./feedbackFlow";
 import { FrontendApiError } from "./apiClient";
-import { buildGamePath, buildResultPath, readRoute, toResultMode } from "../routes/routeState";
+import { buildGamePath, buildResultFeedbackPath, buildResultPath, readRoute, toResultMode } from "../routes/routeState";
 
 describe("routeState", () => {
   it("parses real game and result routes", () => {
     const gameRoute = readRoute(new URL("https://example.com/games/game_42?feedback=guess_9") as unknown as Location);
-    const resultRoute = readRoute(new URL("https://example.com/games/game_42/result/give-up") as unknown as Location);
+    const resultRoute = readRoute(new URL("https://example.com/games/game_42/result/give-up?feedback=guess_9") as unknown as Location);
 
-    expect(gameRoute).toEqual({ page: "game", feedback: true, feedbackGuessId: "guess_9", gameId: "game_42", demo: false });
-    expect(resultRoute).toEqual({ page: "result", gameId: "game_42", mode: "give-up", demo: false });
+    expect(gameRoute).toEqual({ page: "game", gameId: "game_42", demo: false });
+    expect(resultRoute).toEqual({ page: "result", gameId: "game_42", mode: "give-up", demo: false, feedback: true, feedbackGuessId: "guess_9" });
   });
 
   it("builds game and result paths", () => {
     expect(buildGamePath("game_1")).toBe("/games/game_1");
     expect(buildResultPath("game_1", "expired")).toBe("/games/game_1/result/expired");
+    expect(buildResultFeedbackPath("game_1", "success", "guess_1")).toBe("/games/game_1/result/success?feedback=guess_1");
     expect(readRoute(new URL("https://example.com/games/demo-playing?feedback=1") as unknown as Location)).toEqual({
       page: "game",
-      feedback: true,
-      feedbackGuessId: null,
       gameId: null,
       demo: true
     });
@@ -44,9 +43,18 @@ describe("frontendFlow helpers", () => {
     const guesses = toGuessHistoryItems(
       [
         {
+          guess_id: "guess_2",
+          guess: "文具盒",
+          score: 76,
+          relation_type: "same_category",
+          source: "model",
+          counted: true,
+          created_at: "2026-05-18T00:01:00.000Z"
+        },
+        {
           guess_id: "guess_1",
           guess: "平板",
-          score: 76,
+          score: 92,
           relation_type: "same_category",
           source: "model",
           counted: true,
@@ -61,10 +69,19 @@ describe("frontendFlow helpers", () => {
         guessId: "guess_1",
         rank: 1,
         word: "平板",
-        score: 76,
+        score: 92,
         relation: "同类",
         counted: true,
         feedbackHref: "/feedback/guess_1"
+      },
+      {
+        guessId: "guess_2",
+        rank: 2,
+        word: "文具盒",
+        score: 76,
+        relation: "同类",
+        counted: true,
+        feedbackHref: "/feedback/guess_2"
       }
     ]);
   });
@@ -165,7 +182,7 @@ describe("frontendFlow helpers", () => {
       ended_at: "2026-05-18T01:00:00.000Z",
       answer: "智能手机",
       answer_aliases: ["手机"]
-    });
+    }, (guessId) => `/results/feedback/${guessId}`);
 
     expect(model.expiredReasonTitle).toBe("超过 24 小时未完成");
     expect(model.expiredReasonDetail).toBe("本局已触发时长上限。");

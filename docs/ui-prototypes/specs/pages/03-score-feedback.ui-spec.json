@@ -9,7 +9,7 @@
     ],
     "normalization": "../../normalized/03-score-feedback/prototype-normalization.json",
     "analysisAt": "2026-05-17T00:00:00.000+08:00",
-    "notes": "评分反馈弹层叠加在游戏页上，reference 已包含遮罩后的整页状态。"
+    "notes": "评分反馈弹层叠加在结果页上，reference 已包含遮罩后的整页状态。"
   },
   "target": {
     "platform": "mobile-web",
@@ -18,7 +18,7 @@
   },
   "page": {
     "name": "评分反馈弹层",
-    "route": "/games/:gameId?feedback=guessId",
+    "route": "/games/:gameId/result/:mode?feedback=guessId",
     "viewport": {
       "width": 390,
       "height": 844,
@@ -329,7 +329,7 @@
   "validation": {
     "visualQa": {
       "referenceImage": "../../normalized/03-score-feedback/03-score-feedback.normalized.png",
-      "targetUrl": "http://localhost:8788/games/demo-playing?feedback=demo_guess_2",
+      "targetUrl": "http://localhost:8788/games/demo/result/success?feedback=demo_guess_2",
       "allowNoReference": false,
       "allowNoNormalization": false,
       "viewport": {

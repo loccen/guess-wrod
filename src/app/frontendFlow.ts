@@ -310,23 +310,35 @@ export function mapRelationLabel(relationType: string | null): string {
   }
 }
 
+function compareGuessByScore(
+  left: Pick<GameStatusData["guesses"][number], "score" | "created_at">,
+  right: Pick<GameStatusData["guesses"][number], "score" | "created_at">
+): number {
+  const scoreDiff = (right.score ?? 0) - (left.score ?? 0);
+  if (scoreDiff !== 0) {
+    return scoreDiff;
+  }
+
+  return new Date(right.created_at).getTime() - new Date(left.created_at).getTime();
+}
+
 export function toGuessHistoryItems(
   guesses: GameStatusData["guesses"],
-  feedbackHrefBuilder: (guessId: string) => string
+  feedbackHrefBuilder?: (guessId: string) => string | null
 ): GuessHistoryItem[] {
-  return guesses.map((guess, index) => ({
+  return [...guesses].sort(compareGuessByScore).map((guess, index) => ({
     guessId: guess.guess_id,
     rank: index + 1,
     word: guess.guess,
     score: guess.score ?? 0,
     relation: mapRelationLabel(guess.relation_type),
     counted: guess.counted,
-    feedbackHref: guess.counted && guess.score !== null ? feedbackHrefBuilder(guess.guess_id) : null
+    feedbackHref: guess.counted && guess.score !== null ? (feedbackHrefBuilder?.(guess.guess_id) ?? null) : null
   }));
 }
 
-export function toGamePageModel(game: GameStatusData, feedbackHrefBuilder: (guessId: string) => string): GamePageModel {
-  const guesses = toGuessHistoryItems(game.guesses, feedbackHrefBuilder);
+export function toGamePageModel(game: GameStatusData): GamePageModel {
+  const guesses = toGuessHistoryItems(game.guesses);
 
   return {
     gameId: game.game_id,
@@ -360,8 +372,12 @@ export function toGuessSubmitNotice(result: SubmitGuessData): GuessSubmitNotice 
   };
 }
 
-export function toResultPageModel(mode: ResultMode, game: GameStatusData): ResultPageModel {
-  const sortedGuesses = [...game.guesses].sort((left, right) => (right.score ?? 0) - (left.score ?? 0));
+export function toResultPageModel(
+  mode: ResultMode,
+  game: GameStatusData,
+  feedbackHrefBuilder: (guessId: string) => string | null
+): ResultPageModel {
+  const sortedGuesses = [...game.guesses].sort(compareGuessByScore);
   const reviewGuesses = (mode === "success" ? sortedGuesses.filter((guess) => (guess.score ?? 0) < 100) : sortedGuesses).slice(0, 3);
   const expiredReason = mapExpireReason(game.expire_reason);
 
@@ -373,6 +389,6 @@ export function toResultPageModel(mode: ResultMode, game: GameStatusData): Resul
     statCValue: mode === "success" ? `${game.best_guess?.score ?? 0}%` : mode === "give-up" ? "放弃" : "过期",
     expiredReasonTitle: expiredReason.title,
     expiredReasonDetail: expiredReason.detail,
-    guesses: toGuessHistoryItems(reviewGuesses, () => "#")
+    guesses: toGuessHistoryItems(reviewGuesses, feedbackHrefBuilder)
   };
 }

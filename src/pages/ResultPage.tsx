@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "../app/apiClient";
 import { demoResultBase } from "../mock/game";
 import { ensureSession, getErrorMessage, toResultPageModel, type ResultPageModel } from "../app/frontendFlow";
+import { FeedbackSheet } from "../components/FeedbackSheet";
 import { GuessHistory } from "../components/GuessHistory";
 import { IconBadge } from "../components/IconBadge";
-import { buildGamePath, buildResultPath, toResultMode, type ResultMode, type RouteState } from "../routes/routeState";
+import { buildGamePath, buildResultFeedbackPath, buildResultPath, toResultMode, type ResultMode, type RouteState } from "../routes/routeState";
 
 type ResultPageProps = {
   route: Extract<RouteState, { page: "result" }>;
@@ -58,6 +59,7 @@ type ResultScreenState =
 export function ResultPage({ route, navigate }: ResultPageProps) {
   const mode = route.mode;
   const copy = modeCopy[mode];
+  const showFeedback = route.feedback;
   const [screenState, setScreenState] = useState<ResultScreenState>(route.demo ? {
     status: "ready",
       model: {
@@ -71,6 +73,17 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
       guesses: demoResultBase.guesses
     }
   } : { status: "loading" });
+
+  const resultPath = route.demo ? `/games/demo/result/${mode}` : route.gameId ? buildResultPath(route.gameId, mode) : "/";
+
+  const demoGuesses = useMemo(
+    () =>
+      demoResultBase.guesses.map((guess) => ({
+        ...guess,
+        feedbackHref: `${resultPath}?feedback=${encodeURIComponent(guess.guessId)}`
+      })),
+    [resultPath]
+  );
 
   useEffect(() => {
     if (route.demo || !route.gameId) {
@@ -93,7 +106,10 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
         }
 
         if (actualMode !== route.mode) {
-          navigate(buildResultPath(game.game_id, actualMode), { replace: true });
+          navigate(
+            showFeedback ? buildResultFeedbackPath(game.game_id, actualMode, route.feedbackGuessId) : buildResultPath(game.game_id, actualMode),
+            { replace: true }
+          );
           return;
         }
 
@@ -103,7 +119,7 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
 
         setScreenState({
           status: "ready",
-          model: toResultPageModel(route.mode, game)
+          model: toResultPageModel(route.mode, game, (guessId) => buildResultFeedbackPath(game.game_id, route.mode, guessId))
         });
       } catch (error) {
         if (!active) {
@@ -116,10 +132,36 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
     return () => {
       active = false;
     };
-  }, [navigate, route.demo, route.gameId, route.mode]);
+  }, [navigate, route.demo, route.feedbackGuessId, route.gameId, route.mode, showFeedback]);
+
+  const reviewGuesses = route.demo ? demoGuesses : screenState.status === "ready" ? screenState.model.guesses : demoGuesses;
+  const activeFeedbackGuess = useMemo(() => {
+    if (!showFeedback) {
+      return null;
+    }
+
+    if (route.feedbackGuessId) {
+      return reviewGuesses.find((guess) => guess.guessId === route.feedbackGuessId) ?? reviewGuesses[0] ?? null;
+    }
+
+    return reviewGuesses[0] ?? null;
+  }, [reviewGuesses, route.feedbackGuessId, showFeedback]);
+
+  async function handleSubmitFeedback(input: { guessId: string; note: string | null }) {
+    if (route.demo || !route.gameId) {
+      return;
+    }
+
+    const token = await ensureSession().then((restored) => restored.token);
+    await apiClient.submitFeedback(token, route.gameId, {
+      guessId: input.guessId,
+      feedbackType: "score_unreasonable",
+      note: input.note
+    });
+  }
 
   return (
-    <main className={`phone-page result-page result-page--${copy.tone}`}>
+    <main className={`phone-page result-page result-page--${copy.tone} ${showFeedback ? "is-dimmed" : ""}`}>
       {mode === "expired" && <div className="expired-top-decor" aria-hidden="true" />}
       <header className="result-header">
         <IconBadge label={copy.icon} size="lg" tone={copy.tone === "danger" ? "danger" : "primary"} />
@@ -158,21 +200,8 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
           <div className="inline-panel">
             <p className="inline-error">{screenState.message}</p>
           </div>
-        ) : mode === "expired" ? (
-          <ol className="best-path-list">
-            {(screenState.status === "ready" ? screenState.model.guesses : demoResultBase.guesses)
-              .slice(0, 3)
-              .map((item) => (
-                <li key={item.guessId}>
-                  <span className="best-path-word">{item.word}</span>
-                  <span className="best-path-score">{item.score}%</span>
-                  <span className="best-path-bar" style={{ "--bar": `${item.score}%` } as React.CSSProperties} />
-                  <span className="best-path-dot" aria-hidden="true">···</span>
-                </li>
-              ))}
-          </ol>
         ) : (
-          <GuessHistory guesses={screenState.status === "ready" ? screenState.model.guesses : demoResultBase.guesses} compact />
+          <GuessHistory guesses={reviewGuesses} compact showFeedback />
         )}
         {copy.extraText && <p className="hint-strip">{copy.extraText}</p>}
       </section>
@@ -181,6 +210,14 @@ export function ResultPage({ route, navigate }: ResultPageProps) {
         再来一局
       </a>
       <a className="home-link" href="/">⌂ 返回首页 ›</a>
+
+      {showFeedback && activeFeedbackGuess && (
+        <FeedbackSheet
+          guess={activeFeedbackGuess}
+          returnPath={resultPath}
+          submitFeedback={handleSubmitFeedback}
+        />
+      )}
     </main>
   );
 }

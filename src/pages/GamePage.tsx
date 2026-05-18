@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiClient } from "../app/apiClient";
 import {
   ensureSession,
@@ -8,12 +8,10 @@ import {
   toGamePageModel,
   toGuessSubmitNotice
 } from "../app/frontendFlow";
-import { FeedbackSheet } from "../components/FeedbackSheet";
 import { GuessHistory } from "../components/GuessHistory";
 import { IconBadge } from "../components/IconBadge";
 import { ScoreRing } from "../components/ScoreRing";
-import { demoResultBase } from "../mock/game";
-import { buildGameFeedbackPath, buildGamePath, buildResultPath, toResultMode, type RouteState } from "../routes/routeState";
+import { buildResultPath, toResultMode, type RouteState } from "../routes/routeState";
 
 type GamePageProps = {
   route: Extract<RouteState, { page: "game" }>;
@@ -46,8 +44,12 @@ export function GamePage({ route, navigate }: GamePageProps) {
   const [giveUpPending, setGiveUpPending] = useState(false);
   const [inlineError, setInlineError] = useState<string | null>(null);
   const [submitNotice, setSubmitNotice] = useState<{ tone: "success" | "warning"; text: string } | null>(null);
-
-  const showFeedback = route.feedback;
+  const [historyScrollState, setHistoryScrollState] = useState({
+    canScroll: false,
+    showTopButton: false,
+    showBottomButton: false
+  });
+  const historyScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -100,7 +102,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
 
         setScreenState({
           status: "ready",
-          model: toGamePageModel(game, (guessId) => buildGameFeedbackPath(game.game_id, guessId))
+          model: toGamePageModel(game)
         });
       } catch (error) {
         if (!active) {
@@ -135,7 +137,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
 
     setScreenState({
       status: "ready",
-      model: toGamePageModel(game, (guessId) => buildGameFeedbackPath(game.game_id, guessId))
+      model: toGamePageModel(game)
     });
   }
 
@@ -205,49 +207,80 @@ export function GamePage({ route, navigate }: GamePageProps) {
     }
   }
 
-  const feedbackGuesses = useMemo(() => {
-    if (screenState.status === "ready" && screenState.model.guesses.length > 0) {
-      return screenState.model.guesses;
-    }
-    return demoResultBase.guesses;
-  }, [screenState]);
-  const activeFeedbackGuess = useMemo(() => {
-    if (!showFeedback) {
-      return null;
-    }
-
-    if (route.feedbackGuessId) {
-      return feedbackGuesses.find((guess) => guess.guessId === route.feedbackGuessId) ?? feedbackGuesses[0] ?? null;
-    }
-
-    return feedbackGuesses[0] ?? null;
-  }, [feedbackGuesses, route.feedbackGuessId, showFeedback]);
-
   const bestGuess = screenState.status === "ready" ? screenState.model : null;
   const canSubmit = screenState.status === "ready" && guessText.trim().length > 0 && !submitPending && !giveUpPending;
+  const historyGuesses = screenState.status === "ready" ? screenState.model.guesses : [];
 
-  async function handleSubmitFeedback(input: { guessId: string; note: string | null }) {
-    if (screenState.status !== "ready") {
-      throw new Error("当前游戏状态还没准备好，请稍后再试。");
-    }
-
-    try {
-      const token = await ensureSession().then((restored) => restored.token);
-      await apiClient.submitFeedback(token, screenState.model.gameId, {
-        guessId: input.guessId,
-        feedbackType: "score_unreasonable",
-        note: input.note
-      });
-    } catch (error) {
-      if (isFrontendApiError(error) && error.code === "game_ended") {
-        await refreshReadyGame(screenState.model.gameId);
+  useEffect(() => {
+    function syncHistoryScrollState() {
+      const container = historyScrollRef.current;
+      if (!container) {
+        setHistoryScrollState({
+          canScroll: false,
+          showTopButton: false,
+          showBottomButton: false
+        });
+        return;
       }
-      throw error;
+
+      const overflowGap = container.scrollHeight - container.clientHeight;
+      const canScroll = overflowGap > 8;
+      const showTopButton = canScroll && container.scrollTop > 12;
+      const showBottomButton = canScroll && container.scrollTop < overflowGap - 12;
+
+      setHistoryScrollState((current) => {
+        if (
+          current.canScroll === canScroll &&
+          current.showTopButton === showTopButton &&
+          current.showBottomButton === showBottomButton
+        ) {
+          return current;
+        }
+
+        return {
+          canScroll,
+          showTopButton,
+          showBottomButton
+        };
+      });
     }
+
+    syncHistoryScrollState();
+    window.addEventListener("resize", syncHistoryScrollState);
+    return () => {
+      window.removeEventListener("resize", syncHistoryScrollState);
+    };
+  }, [historyGuesses]);
+
+  function handleHistoryScroll() {
+    const container = historyScrollRef.current;
+    if (!container) {
+      return;
+    }
+
+    const overflowGap = container.scrollHeight - container.clientHeight;
+    const canScroll = overflowGap > 8;
+    setHistoryScrollState({
+      canScroll,
+      showTopButton: canScroll && container.scrollTop > 12,
+      showBottomButton: canScroll && container.scrollTop < overflowGap - 12
+    });
+  }
+
+  function scrollHistoryTo(position: "top" | "bottom") {
+    const container = historyScrollRef.current;
+    if (!container) {
+      return;
+    }
+
+    container.scrollTo({
+      top: position === "top" ? 0 : container.scrollHeight,
+      behavior: "smooth"
+    });
   }
 
   return (
-    <main className={`phone-page game-page ${showFeedback ? "is-dimmed" : ""}`}>
+    <main className="phone-page game-page">
       <header className="game-header">
         <h1 data-ui-id="game-title">猜不到的词</h1>
         <p>猜一个词，看它离答案有多近</p>
@@ -297,7 +330,7 @@ export function GamePage({ route, navigate }: GamePageProps) {
             ? "正在加载本局状态"
             : submitPending
               ? "AI 评分中，通常约 2 秒"
-              : submitNotice?.text ?? "输入一个词，提交后会显示真实分数与历史"}
+              : "输入一个词，提交后会显示真实分数与历史"}
         </p>
         {submitNotice && (
           <p className={`inline-note inline-note--${submitNotice.tone}`} data-ui-id="guess-submit-note">
@@ -320,7 +353,41 @@ export function GamePage({ route, navigate }: GamePageProps) {
             </button>
           </div>
         ) : screenState.status === "ready" && screenState.model.guesses.length > 0 ? (
-          <GuessHistory guesses={screenState.model.guesses} />
+          <div className="history-list-shell">
+            <div className="history-scroll-fade history-scroll-fade--top" aria-hidden={!historyScrollState.showTopButton} />
+            <div
+              ref={historyScrollRef}
+              className="history-scroll-area"
+              onScroll={handleHistoryScroll}
+            >
+              <GuessHistory guesses={screenState.model.guesses} />
+            </div>
+            <div className="history-scroll-fade history-scroll-fade--bottom" aria-hidden={!historyScrollState.showBottomButton} />
+            {historyScrollState.canScroll && (
+              <div className="history-scroll-actions">
+                {historyScrollState.showTopButton && (
+                  <button
+                    className="history-scroll-button"
+                    type="button"
+                    onClick={() => scrollHistoryTo("top")}
+                    aria-label="滚动到历史顶部"
+                  >
+                    到顶
+                  </button>
+                )}
+                {historyScrollState.showBottomButton && (
+                  <button
+                    className="history-scroll-button"
+                    type="button"
+                    onClick={() => scrollHistoryTo("bottom")}
+                    aria-label="滚动到历史底部"
+                  >
+                    到底
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         ) : (
           <p className="empty-hint">还没有有效猜词。提交后，这里会显示真实历史。</p>
         )}
@@ -330,13 +397,6 @@ export function GamePage({ route, navigate }: GamePageProps) {
         放弃看答案
       </button>
 
-      {showFeedback && activeFeedbackGuess && (
-        <FeedbackSheet
-          guess={activeFeedbackGuess}
-          gamePath={bestGuess ? buildGamePath(bestGuess.gameId) : "/games/demo-playing"}
-          submitFeedback={handleSubmitFeedback}
-        />
-      )}
     </main>
   );
 }

@@ -5,11 +5,11 @@ import { IconBadge } from "./IconBadge";
 
 type FeedbackSheetProps = {
   guess: GuessHistoryItem;
-  gamePath: string;
+  returnPath: string;
   submitFeedback: (input: { guessId: string; note: string | null }) => Promise<void>;
 };
 
-export function FeedbackSheet({ guess, gamePath, submitFeedback }: FeedbackSheetProps) {
+export function FeedbackSheet({ guess, returnPath, submitFeedback }: FeedbackSheetProps) {
   const [selectedOption, setSelectedOption] = useState<FeedbackOptionId>("score-high");
   const [note, setNote] = useState("");
   const [submitPending, setSubmitPending] = useState(false);
@@ -57,7 +57,7 @@ export function FeedbackSheet({ guess, gamePath, submitFeedback }: FeedbackSheet
 
   return (
     <div className="feedback-layer">
-      <a className="feedback-backdrop" data-ui-id="feedback-backdrop" href={gamePath} aria-label="关闭反馈" />
+      <a className="feedback-backdrop" data-ui-id="feedback-backdrop" href={returnPath} aria-label="关闭反馈" />
       <section
         className="feedback-sheet"
         data-ui-id="feedback-sheet"
@@ -66,7 +66,7 @@ export function FeedbackSheet({ guess, gamePath, submitFeedback }: FeedbackSheet
         role="dialog"
       >
         <span className="sheet-handle" />
-        <a className="sheet-close" href={gamePath} aria-label="关闭反馈">×</a>
+        <a className="sheet-close" href={returnPath} aria-label="关闭反馈">×</a>
         <div className="sheet-title-row">
           <IconBadge label="☵" />
           <div>
@@ -126,7 +126,7 @@ export function FeedbackSheet({ guess, gamePath, submitFeedback }: FeedbackSheet
         {submitError && <p className="inline-error" data-ui-id="feedback-submit-error">{submitError}</p>}
         {submitSuccess && <p className="inline-note inline-note--success" data-ui-id="feedback-submit-success">{submitSuccess}</p>}
         <div className="sheet-actions">
-          <a href={gamePath}>{submitSuccess ? "返回游戏" : "取消"}</a>
+          <a href={returnPath}>{submitSuccess ? "返回复盘" : "取消"}</a>
           <button data-ui-id="feedback-submit" type="button" onClick={handleSubmit} disabled={!canSubmit}>
             {submitPending ? "提交中" : submitSuccess ? "已提交" : "提交反馈"}
           </button>

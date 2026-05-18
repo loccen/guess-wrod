@@ -823,9 +823,89 @@ button:disabled {
 .guess-list {
   display: grid;
   margin-top: 8px;
-  overflow: hidden;
   border: 1px solid rgba(36, 52, 71, 0.06);
   border-radius: 16px;
+}
+
+.history-list-shell {
+  position: relative;
+  margin-top: 8px;
+}
+
+.history-scroll-area {
+  max-height: min(44vh, 320px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+  padding-bottom: 46px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(12, 156, 164, 0.55) rgba(216, 246, 237, 0.55);
+}
+
+.history-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.history-scroll-area::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(216, 246, 237, 0.55);
+}
+
+.history-scroll-area::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(12, 156, 164, 0.7);
+}
+
+.history-scroll-fade {
+  position: absolute;
+  left: 0;
+  right: 8px;
+  z-index: 1;
+  height: 24px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.history-scroll-fade[aria-hidden="false"] {
+  opacity: 1;
+}
+
+.history-scroll-fade--top {
+  top: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0));
+}
+
+.history-scroll-fade--bottom {
+  bottom: 0;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0));
+}
+
+.history-scroll-actions {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 2;
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
+.history-scroll-button {
+  min-width: 52px;
+  min-height: 32px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 12px;
+  background: rgba(12, 156, 164, 0.94);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(12, 156, 164, 0.22);
+}
+
+.history-scroll-button:active {
+  transform: translateY(1px);
 }
 
 .guess-row {
@@ -836,6 +916,10 @@ button:disabled {
   min-height: 36px;
   padding: 4px 10px;
   background: rgba(255, 255, 255, 0.78);
+}
+
+.guess-row--no-feedback {
+  grid-template-columns: 36px 1fr 54px auto;
 }
 
 .guess-row + .guess-row {
@@ -882,6 +966,10 @@ button:disabled {
   color: #0c9ca4;
   font-size: 12px;
   font-weight: 800;
+}
+
+.feedback-link--compact {
+  justify-self: end;
 }
 
 .feedback-link--disabled {
@@ -1365,7 +1453,7 @@ button:disabled {
 }
 
 .guess-row--compact {
-  grid-template-columns: 34px 1fr 54px 1fr 22px;
+  grid-template-columns: 34px 1fr 54px 1fr auto;
 }
 
 .mini-bar {
