@@ -26,7 +26,16 @@ import type { AnalyticsEvent, AnalyticsSink, ArchiveRecord, ArchiveSink, Archive
 import { ScoringGateway } from "../../usecases/scoring/scoringGateway";
 import type { StorageRepositories } from "../../usecases/repositories/storageRepositories";
 import type { AppServices, CaptchaVerificationResult, Clock, IdGenerator, RandomSource } from "../../usecases/services/platformPorts";
-import { createGameResponse, getGameResponse, giveUpGameResponse, submitFeedbackResponse, submitGuessResponse } from "./gameHandlers";
+import {
+  clearGameHistoryResponse,
+  createGameResponse,
+  deleteGameHistoryResponse,
+  getGameResponse,
+  giveUpGameResponse,
+  listGameHistoryResponse,
+  submitFeedbackResponse,
+  submitGuessResponse
+} from "./gameHandlers";
 import { createSessionResponse, getSessionResponse } from "./sessionHandlers";
 
 class FixedClock implements Clock {
@@ -183,11 +192,32 @@ class MemoryStorageRepositories implements StorageRepositories {
       });
     },
     findGameById: async (gameId: string) => this.gameStore.get(gameId) ?? null,
-    listGamesByVisitor: async (visitorId: string, options?: { status?: Game["status"]; limit?: number }) =>
+    listGamesByVisitor: async (
+      visitorId: string,
+      options?: { status?: Game["status"]; statuses?: Game["status"][]; limit?: number; offset?: number }
+    ) =>
       Array.from(this.gameStore.values())
-        .filter((game) => game.visitorId === visitorId && (!options?.status || game.status === options.status))
+        .filter((game) => {
+          if (game.visitorId !== visitorId) {
+            return false;
+          }
+          if (options?.statuses && options.statuses.length > 0) {
+            return options.statuses.includes(game.status);
+          }
+          return !options?.status || game.status === options.status;
+        })
         .sort((left, right) => right.startedAt.localeCompare(left.startedAt))
-        .slice(0, options?.limit ?? 20),
+        .slice(options?.offset ?? 0, (options?.offset ?? 0) + (options?.limit ?? 20)),
+    countGamesByVisitor: async (visitorId: string, options?: { status?: Game["status"]; statuses?: Game["status"][] }) =>
+      Array.from(this.gameStore.values()).filter((game) => {
+        if (game.visitorId !== visitorId) {
+          return false;
+        }
+        if (options?.statuses && options.statuses.length > 0) {
+          return options.statuses.includes(game.status);
+        }
+        return !options?.status || game.status === options.status;
+      }).length,
     incrementGuessCount: async (gameId: string, amount = 1) => {
       const game = this.gameStore.get(gameId);
       if (game) {
@@ -205,6 +235,31 @@ class MemoryStorageRepositories implements StorageRepositories {
       if (game) {
         this.gameStore.set(gameId, { ...game, status, endedAt, expireReason: expireReason ?? null });
       }
+    },
+    deleteGameById: async (visitorId: string, gameId: string) => {
+      const game = this.gameStore.get(gameId);
+      if (!game || game.visitorId !== visitorId) {
+        return false;
+      }
+      this.gameStore.delete(gameId);
+      return true;
+    },
+    deleteGamesByVisitor: async (visitorId: string, options?: { status?: Game["status"]; statuses?: Game["status"][] }) => {
+      let deleted = 0;
+      for (const [gameId, game] of this.gameStore.entries()) {
+        if (game.visitorId !== visitorId) {
+          continue;
+        }
+        if (options?.statuses && options.statuses.length > 0 && !options.statuses.includes(game.status)) {
+          continue;
+        }
+        if (options?.status && game.status !== options.status) {
+          continue;
+        }
+        this.gameStore.delete(gameId);
+        deleted += 1;
+      }
+      return deleted;
     }
   } satisfies StorageRepositories["games"];
 
@@ -1545,5 +1600,127 @@ describe("session and game handlers", () => {
     expect(response.status).toBe(200);
     expect(payload.data.source).toBe("model");
     expect(payload.data.guess_count).toBe(1);
+  });
+
+  it("lists paginated history for the current visitor", async () => {
+    const services = await createServices({ now: "2026-05-17T10:00:00.000Z" });
+    const { authorization, visitorId } = await createAuthorizedRequest(services);
+
+    const successGameId = await createStoredGame(services, visitorId, {
+      id: "game_success",
+      status: "success",
+      guessCount: 12,
+      bestGuessId: "guess_best",
+      startedAt: "2026-05-17T09:00:00.000Z",
+      endedAt: "2026-05-17T09:10:00.000Z"
+    });
+    await services.storage.guesses.createGuess({
+      id: "guess_best",
+      gameId: successGameId,
+      visitorId,
+      guessRaw: "平板",
+      guessNormalized: "平板",
+      score: 88,
+      source: "model",
+      counted: true,
+      wasRuleAdjusted: false,
+      createdAt: "2026-05-17T09:05:00.000Z"
+    });
+    await createStoredGame(services, visitorId, {
+      id: "game_give_up",
+      status: "give_up",
+      guessCount: 5,
+      startedAt: "2026-05-17T08:00:00.000Z",
+      endedAt: "2026-05-17T08:08:00.000Z"
+    });
+    await createStoredGame(services, visitorId, {
+      id: "game_expired",
+      status: "expired",
+      expireReason: "ttl",
+      guessCount: 9,
+      startedAt: "2026-05-17T07:00:00.000Z",
+      endedAt: "2026-05-17T07:30:00.000Z"
+    });
+    await createStoredGame(services, visitorId, {
+      id: "game_playing",
+      status: "playing",
+      guessCount: 1,
+      startedAt: "2026-05-17T11:00:00.000Z"
+    });
+
+    const response = await listGameHistoryResponse(
+      new Request("https://example.com/api/games?page=1&page_size=2", {
+        headers: { authorization }
+      }),
+      services
+    );
+    const payload = (await response.json()) as Record<string, any>;
+
+    expect(response.status).toBe(200);
+    expect(payload.data.total).toBe(3);
+    expect(payload.data.page).toBe(1);
+    expect(payload.data.page_size).toBe(2);
+    expect(payload.data.has_more).toBe(true);
+    expect(payload.data.items.map((item: Record<string, any>) => item.game_id)).toEqual(["game_success", "game_give_up"]);
+    expect(payload.data.items[0].best_guess).toMatchObject({
+      guess_id: "guess_best",
+      guess: "平板",
+      score: 88
+    });
+  });
+
+  it("deletes one ended history game and can clear all remaining history", async () => {
+    const services = await createServices({ now: "2026-05-17T10:00:00.000Z" });
+    const { authorization, visitorId } = await createAuthorizedRequest(services);
+
+    await createStoredGame(services, visitorId, {
+      id: "game_delete_one",
+      status: "success",
+      guessCount: 2,
+      startedAt: "2026-05-17T08:00:00.000Z",
+      endedAt: "2026-05-17T08:05:00.000Z"
+    });
+    await createStoredGame(services, visitorId, {
+      id: "game_delete_two",
+      status: "expired",
+      expireReason: "guess_limit",
+      guessCount: 100,
+      startedAt: "2026-05-17T07:00:00.000Z",
+      endedAt: "2026-05-17T07:50:00.000Z"
+    });
+    await createStoredGame(services, visitorId, {
+      id: "game_keep_playing",
+      status: "playing",
+      guessCount: 1,
+      startedAt: "2026-05-17T11:00:00.000Z"
+    });
+
+    const deleteOneResponse = await deleteGameHistoryResponse(
+      new Request("https://example.com/api/games/game_delete_one", {
+        method: "DELETE",
+        headers: { authorization }
+      }),
+      services,
+      "game_delete_one"
+    );
+    const deleteOnePayload = (await deleteOneResponse.json()) as Record<string, any>;
+
+    expect(deleteOneResponse.status).toBe(200);
+    expect(deleteOnePayload.data.success).toBe(true);
+    expect(await services.storage.games.findGameById("game_delete_one")).toBeNull();
+
+    const clearResponse = await clearGameHistoryResponse(
+      new Request("https://example.com/api/games", {
+        method: "DELETE",
+        headers: { authorization }
+      }),
+      services
+    );
+    const clearPayload = (await clearResponse.json()) as Record<string, any>;
+
+    expect(clearResponse.status).toBe(200);
+    expect(clearPayload.data.deleted_count).toBe(1);
+    expect(await services.storage.games.findGameById("game_delete_two")).toBeNull();
+    expect(await services.storage.games.findGameById("game_keep_playing")).not.toBeNull();
   });
 });

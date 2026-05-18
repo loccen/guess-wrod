@@ -74,6 +74,7 @@ Cloudflare Pages Functions / Workers API
 | 首页 | `/` | 开始游戏、玩法说明、最近成绩 |
 | 游戏页 | `/games/:gameId` | 输入猜词、展示历史 |
 | 结果页 | `/games/:gameId/result` | 展示答案、次数、再来一局 |
+| 历史记录页 | `/history` | 分页查看已结束对局、删除历史记录 |
 
 ### 3.3 前端职责
 
@@ -205,6 +206,7 @@ AI Gateway -> DeepSeek V4 Flash
 5. Pages 项目名固定为 `guess-wrod`，production branch 固定为 `main`。
 6. GitHub 仓库需配置 `CLOUDFLARE_ACCOUNT_ID` 与 `CLOUDFLARE_API_TOKEN` 两个 Actions secrets；业务侧 `TURNSTILE_SECRET_KEY`、`TURNSTILE_SITE_KEY`、`AI_GATEWAY_API_KEY` 仍保留在 Cloudflare Pages 环境里，不写入仓库。
 7. 建议把 `main` 设为受保护分支，至少要求通过 `Pages Deploy / 校验` 后才能合并，这样 production 发布只会发生在经过合并审查的提交上。
+8. 只有命中运行时相关路径时才会继续跑完整校验与发布；当前命中范围包括 `functions/`、`src/`、`data/`、`migrations/`、`index.html`、`package.json`、`package-lock.json`、`tsconfig*.json`、`vite.config.ts`、`wrangler.jsonc`。纯文档、测试、说明类改动只保留一个快速 `校验` 结果，不触发发布。
 
 ## 7. 配置项
 

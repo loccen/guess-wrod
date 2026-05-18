@@ -2,6 +2,7 @@ export type ResultMode = "success" | "give-up" | "expired";
 
 export type RouteState =
   | { page: "home" }
+  | { page: "history" }
   | { page: "session" }
   | { page: "game"; feedback: boolean; feedbackGuessId: string | null; gameId: string | null; demo: boolean }
   | { page: "rules" }
@@ -19,6 +20,10 @@ export function readRoute(location: Location): RouteState {
 
   if (path === "/session") {
     return { page: "session" };
+  }
+
+  if (path === "/history") {
+    return { page: "history" };
   }
 
   if (path === "/games/demo-playing") {
@@ -79,6 +84,10 @@ export function buildGameFeedbackPath(gameId: string, guessId?: string | null): 
 
 export function buildResultPath(gameId: string, mode: ResultMode): string {
   return `/games/${encodeURIComponent(gameId)}/result/${mode}`;
+}
+
+export function buildHistoryPath(): string {
+  return "/history";
 }
 
 export function toResultMode(status: string): ResultMode | null {

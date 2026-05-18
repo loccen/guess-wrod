@@ -1,6 +1,13 @@
-import { apiClient, FrontendApiError, type GameStatusData, type SessionData, type SubmitGuessData } from "./apiClient";
+import {
+  apiClient,
+  FrontendApiError,
+  type GameHistoryItemData,
+  type GameStatusData,
+  type SessionData,
+  type SubmitGuessData
+} from "./apiClient";
 import { clearSessionToken, readSessionToken, writeSessionToken } from "./sessionTokenStore";
-import type { ResultMode } from "../routes/routeState";
+import { buildResultPath, type ResultMode } from "../routes/routeState";
 
 export type RestoredSession = {
   token: string;
@@ -36,6 +43,15 @@ export type ResultPageModel = {
   expiredReasonTitle: string;
   expiredReasonDetail: string;
   guesses: GuessHistoryItem[];
+};
+
+export type HistoryListItem = {
+  gameId: string;
+  title: string;
+  meta: string;
+  statusText: string;
+  statusTone: "success" | "warning" | "muted";
+  resultHref: string;
 };
 
 function mapExpireReason(reason: GameStatusData["expire_reason"]): { title: string; detail: string } {
@@ -196,6 +212,70 @@ export function formatDurationText(startedAt: string, endedAt: string | null): s
   }
 
   return `${seconds}秒`;
+}
+
+export function formatDateTimeText(value: string | null): string {
+  if (!value) {
+    return "未结束";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  const hour = `${date.getHours()}`.padStart(2, "0");
+  const minute = `${date.getMinutes()}`.padStart(2, "0");
+  return `${month}-${day} ${hour}:${minute}`;
+}
+
+function toHistoryStatusMeta(item: GameHistoryItemData): {
+  title: string;
+  statusText: string;
+  statusTone: "success" | "warning" | "muted";
+  mode: ResultMode;
+} {
+  if (item.status === "success") {
+    return {
+      title: `${item.guess_count} 次猜中`,
+      statusText: "已完成",
+      statusTone: "success",
+      mode: "success"
+    };
+  }
+
+  if (item.status === "give_up") {
+    return {
+      title: `${item.guess_count} 次后放弃`,
+      statusText: "已放弃",
+      statusTone: "warning",
+      mode: "give-up"
+    };
+  }
+
+  return {
+    title: item.expire_reason === "guess_limit" ? `${item.guess_count} 次未命中` : "超时过期",
+    statusText: "已过期",
+    statusTone: "muted",
+    mode: "expired"
+  };
+}
+
+export function toHistoryListItems(items: GameHistoryItemData[]): HistoryListItem[] {
+  return items.map((item) => {
+    const statusMeta = toHistoryStatusMeta(item);
+    const bestGuessText = item.best_guess?.score !== null && item.best_guess?.score !== undefined ? `最高 ${item.best_guess.score}%` : "无有效高分";
+    return {
+      gameId: item.game_id,
+      title: statusMeta.title,
+      meta: `${formatDateTimeText(item.ended_at ?? item.started_at)} · ${bestGuessText}`,
+      statusText: statusMeta.statusText,
+      statusTone: statusMeta.statusTone,
+      resultHref: buildResultPath(item.game_id, statusMeta.mode)
+    };
+  });
 }
 
 export function mapRelationLabel(relationType: string | null): string {

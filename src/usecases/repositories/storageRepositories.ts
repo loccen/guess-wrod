@@ -40,10 +40,16 @@ export interface WordRepository {
 export interface GameRepository {
   createGame(game: NewGame): Promise<void>;
   findGameById(gameId: string): Promise<Game | null>;
-  listGamesByVisitor(visitorId: string, options?: { status?: GameStatus; limit?: number }): Promise<Game[]>;
+  listGamesByVisitor(
+    visitorId: string,
+    options?: { status?: GameStatus; statuses?: GameStatus[]; limit?: number; offset?: number }
+  ): Promise<Game[]>;
+  countGamesByVisitor(visitorId: string, options?: { status?: GameStatus; statuses?: GameStatus[] }): Promise<number>;
   incrementGuessCount(gameId: string, amount?: number): Promise<void>;
   updateBestGuess(gameId: string, bestGuessId: string | null): Promise<void>;
   finishGame(gameId: string, status: Exclude<GameStatus, "playing">, endedAt: string, expireReason?: GameExpireReason | null): Promise<void>;
+  deleteGameById(visitorId: string, gameId: string): Promise<boolean>;
+  deleteGamesByVisitor(visitorId: string, options?: { status?: GameStatus; statuses?: GameStatus[] }): Promise<number>;
 }
 
 export interface GuessRepository {

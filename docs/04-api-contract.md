@@ -240,6 +240,87 @@ Response:
 2. `guesses` 在还没有历史记录时返回空数组。
 3. 读取状态时若发现该局已达到 24 小时 TTL 或有效猜词已满 100 次，服务端会先把该局更新为 `expired`，再返回结果。
 
+### 3.2A 历史记录分页
+
+```http
+GET /api/games?page=1&page_size=10
+```
+
+说明：
+
+1. 只返回当前匿名访客自己的已结束对局：`success`、`give_up`、`expired`。
+2. `page` 默认 `1`，`page_size` 默认 `20`，最大 `50`。
+
+Response:
+
+```json
+{
+  "data": {
+    "items": [
+      {
+        "game_id": "game_xxx",
+        "status": "success",
+        "guess_count": 12,
+        "started_at": "2026-05-17T10:00:00+08:00",
+        "ended_at": "2026-05-17T10:08:00+08:00",
+        "best_guess": {
+          "guess_id": "guess_012",
+          "guess": "平板",
+          "score": 88
+        }
+      }
+    ],
+    "total": 21,
+    "page": 1,
+    "page_size": 10,
+    "has_more": true
+  }
+}
+```
+
+### 3.2B 删除单条历史记录
+
+```http
+DELETE /api/games/{game_id}
+```
+
+说明：
+
+1. 仅允许删除当前匿名访客自己的已结束对局。
+2. `playing` 状态不允许通过该接口删除。
+
+Response:
+
+```json
+{
+  "data": {
+    "success": true
+  }
+}
+```
+
+### 3.2C 清空全部历史记录
+
+```http
+DELETE /api/games
+```
+
+说明：
+
+1. 仅清空当前匿名访客自己的已结束对局。
+2. 不影响进行中的 `playing` 游戏。
+
+Response:
+
+```json
+{
+  "data": {
+    "success": true,
+    "deleted_count": 3
+  }
+}
+```
+
 结束状态追加：
 
 ```json

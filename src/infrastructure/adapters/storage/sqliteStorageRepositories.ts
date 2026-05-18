@@ -84,6 +84,12 @@ async function run(db: SqlExecutor, sql: string, values: SqlValue[]): Promise<vo
   await db.prepare(sql).bind(...values).run();
 }
 
+async function runWithChanges(db: SqlExecutor, sql: string, values: SqlValue[]): Promise<number> {
+  const result = await db.prepare(sql).bind(...values).run();
+  const meta = result.meta as { changes?: number } | undefined;
+  return Number(meta?.changes ?? 0);
+}
+
 function mapVisitor(row: Row): Visitor {
   return {
     id: rowString(row, "id"),
@@ -217,6 +223,30 @@ function mapAiCallLog(row: Row): AiCallLog {
     hasByokAlias: hasByokAliasValue === null ? null : hasByokAliasValue === 1,
     archiveObjectKey: rowNullableString(row, "archive_object_key"),
     createdAt: rowString(row, "created_at")
+  };
+}
+
+function buildGameStatusClauses(options?: {
+  status?: Game["status"];
+  statuses?: Game["status"][];
+}): { clauses: string[]; values: SqlValue[] } {
+  if (options?.statuses && options.statuses.length > 0) {
+    return {
+      clauses: [`status IN (${options.statuses.map(() => "?").join(", ")})`],
+      values: options.statuses
+    };
+  }
+
+  if (options?.status) {
+    return {
+      clauses: ["status = ?"],
+      values: [options.status]
+    };
+  }
+
+  return {
+    clauses: [],
+    values: []
   };
 }
 
@@ -364,20 +394,32 @@ class SqliteGameRepository implements GameRepository {
     return first(this.db, "SELECT * FROM games WHERE id = ?", [gameId], mapGame);
   }
 
-  listGamesByVisitor(visitorId: string, options: { status?: Game["status"]; limit?: number } = {}): Promise<Game[]> {
+  listGamesByVisitor(
+    visitorId: string,
+    options: { status?: Game["status"]; statuses?: Game["status"][]; limit?: number; offset?: number } = {}
+  ): Promise<Game[]> {
     const values: SqlValue[] = [visitorId];
     const clauses = ["visitor_id = ?"];
-    if (options.status) {
-      clauses.push("status = ?");
-      values.push(options.status);
-    }
-    values.push(options.limit ?? 20);
+    const statusFilters = buildGameStatusClauses(options);
+    clauses.push(...statusFilters.clauses);
+    values.push(...statusFilters.values);
+    values.push(options.limit ?? 20, options.offset ?? 0);
     return all(
       this.db,
-      `SELECT * FROM games WHERE ${clauses.join(" AND ")} ORDER BY started_at DESC, id DESC LIMIT ?`,
+      `SELECT * FROM games WHERE ${clauses.join(" AND ")} ORDER BY started_at DESC, id DESC LIMIT ? OFFSET ?`,
       values,
       mapGame
     );
+  }
+
+  async countGamesByVisitor(visitorId: string, options: { status?: Game["status"]; statuses?: Game["status"][] } = {}): Promise<number> {
+    const values: SqlValue[] = [visitorId];
+    const clauses = ["visitor_id = ?"];
+    const statusFilters = buildGameStatusClauses(options);
+    clauses.push(...statusFilters.clauses);
+    values.push(...statusFilters.values);
+    const row = await this.db.prepare(`SELECT COUNT(*) AS total FROM games WHERE ${clauses.join(" AND ")}`).bind(...values).first<Row>();
+    return row ? rowNumber(row, "total") : 0;
   }
 
   async incrementGuessCount(gameId: string, amount = 1): Promise<void> {
@@ -395,6 +437,20 @@ class SqliteGameRepository implements GameRepository {
       expireReason,
       gameId
     ]);
+  }
+
+  async deleteGameById(visitorId: string, gameId: string): Promise<boolean> {
+    const changes = await runWithChanges(this.db, "DELETE FROM games WHERE visitor_id = ? AND id = ?", [visitorId, gameId]);
+    return changes > 0;
+  }
+
+  async deleteGamesByVisitor(visitorId: string, options: { status?: Game["status"]; statuses?: Game["status"][] } = {}): Promise<number> {
+    const values: SqlValue[] = [visitorId];
+    const clauses = ["visitor_id = ?"];
+    const statusFilters = buildGameStatusClauses(options);
+    clauses.push(...statusFilters.clauses);
+    values.push(...statusFilters.values);
+    return runWithChanges(this.db, `DELETE FROM games WHERE ${clauses.join(" AND ")}`, values);
   }
 }
 
