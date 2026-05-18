@@ -6,11 +6,14 @@
 - 主仓本地验证仍通过：`npm run typecheck`、`npm test`、`npm run build`、`npm run cf:check`、handoff validate。
 - D1 正式库 `guess-wrod-prod` 已建表并导入 50 条 `words`。
 - 当前主域名 `https://guess-wrod.pages.dev/api/health` 已确认命中最新 worker，且包含：
-  - `runtime.version = bdc5cb5a287b`
+  - `runtime.version = 03670e15b594`
   - `runtime.source = cf_pages_commit_sha`
-  - `aiRuntime.hasAiGatewayEndpoint = true`
-  - `aiRuntime.hasAiGatewayApiKey = false`
+  - `aiRuntime.hasAiGatewayEndpoint = false`
+  - `aiRuntime.hasAiGatewayApiKey = true`
   - `aiRuntime.hasAiGatewayByokAlias = true`
+  - `modes.captchaMode = live`
+  - `modes.archiveMode = live`
+  - `captchaRuntime.hasTurnstileSiteKey = true`
 
 ## 未完成
 
@@ -27,6 +30,10 @@
   - `https://api.deepseek.com/chat/completions`
   - `https://api.deepseek.com/v1/chat/completions`
   两条都返回 `401 authentication_error`，摘要为 `Authentication Fails, Your api key: ****ined is invalid`。
+- Turnstile 与 R2 的最新事实：
+  - Turnstile widget 已创建，且 site key / secret 已可见；`TURNSTILE_SITE_KEY` 和 `TURNSTILE_SECRET_KEY` 已保存到 Pages Production 变量列表。
+  - 无 token 调用公网 `POST /api/sessions` 真实返回 `403 turnstile_required`。
+  - R2 订阅已开通，bucket `guess-wrod-archive` 已创建，但当前列对象仍为空。
 - Dashboard 当前 provider key 控制面边界：
   - 现有 key `Guess Wrod DeepSeek` 的 alias 为 `guess-word`
   - alias 输入框禁用，无法直接改成 `default`
@@ -45,6 +52,7 @@
 
 - 当前还不是可公网完整游玩的一局：猜词仍失败，反馈链路无法真实触发。
 - 现有控制面边界已经比较清楚，继续在没有可用上游 key 的前提下重复尝试 Cloudflare token / alias 调整，产出很可能极低。
+- live captcha / live archive 已上线，但还缺少一条“真实用户流量穿过它们并留下证据”的稳定验收。
 - 当前保留现场：
   - `/Users/loccen/Documents/guess-wrod-worktrees/expired-visual-qa`
   - `/Users/loccen/Documents/guess-wrod-worktrees/prod-deploy-v5`

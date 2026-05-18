@@ -3,7 +3,7 @@
   "title": "实际开发阶段编排",
   "status": "active",
   "created_at": "2026-05-17T23:22:27+08:00",
-  "updated_at": "2026-05-18T07:20:09+08:00",
+  "updated_at": "2026-05-18T09:17:27+08:00",
   "owners": ["codex-main"],
   "branch": "main",
   "worktree": "/Users/loccen/Documents/guess-wrod",
@@ -16,7 +16,7 @@
     "docs/08-analytics-and-quality.md",
     "docs/ui-prototypes/images"
   ],
-  "next_step": "优先确认 DeepSeek 控制台当前是否能产出一把真正可用的上游 API key；若不能，则当前公网可玩目标存在上游实质阻塞。",
+  "next_step": "继续补 live captcha / live archive 的真实流量证据，并并行确认 DeepSeek 上游 key 来源是否真正可用。",
   "blockers": [
     "公网 POST /api/games/{id}/guesses 仍返回 500 system_error，当前错误已收敛为 custom provider 401。",
     "最新外部探针使用新建 gateway token 直接请求 /openai 和 custom provider 路径，均返回 Cloudflare 2009 Unauthorized。",

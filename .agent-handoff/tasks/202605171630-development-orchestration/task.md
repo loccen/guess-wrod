@@ -2,7 +2,7 @@
 
 - Task ID: `202605171630-development-orchestration`
 - Created At: `2026-05-17T23:22:27+08:00`
-- Updated At: `2026-05-18T07:20:09+08:00`
+- Updated At: `2026-05-18T09:17:27+08:00`
 - Status: `active`
 
 ## 目标
@@ -26,6 +26,16 @@
   - `aiRuntime.hasAiGatewayByokAlias = true`
 - 已完成：公网 `POST /api/sessions`、`POST /api/games`、`POST /api/games/{id}/give-up`、`GET /api/games/{id}` 已可跑通。
 - 已完成：公网 `guess` 失败时，响应会返回最小非敏感 debug 摘要。
+- 已完成：Turnstile widget 已创建，site key 与 secret key 已可见；Production 变量中已保存 `TURNSTILE_SITE_KEY` 与 `TURNSTILE_SECRET_KEY`。
+- 已完成：R2 订阅已启用，bucket `guess-wrod-archive` 已创建；R2 live archive sink 代码、绑定和测试已合入 `main`。
+- 已完成：通过 Wrangler 重新发布后，现网 `https://guess-wrod.pages.dev/api/health` 当前返回：
+  - `modes.captchaMode = live`
+  - `modes.archiveMode = live`
+  - `captchaRuntime.hasTurnstileSiteKey = true`
+  - `aiRuntime.hasAiGatewayEndpoint = false`
+  - `aiRuntime.hasAiGatewayApiKey = true`
+  - `aiRuntime.hasAiGatewayByokAlias = true`
+- 已完成：无 token 直接调用 `POST /api/sessions` 时，公网真实返回 `403 turnstile_required`。
 
 ## 未完成
 
@@ -51,10 +61,13 @@
   - Authenticated Gateway token 经过外部探针不被接受
   - 当前从 DeepSeek 控制台新建并复制出来的 key，本机直打官方 API 也被判定无效
   - 现有 custom provider key 既不是 `default`，也无法在没有明文 key 的情况下改成 `default`
+- 次级阻塞：
+  - 虽然 `ARCHIVE_MODE=live` 已上线，但 `guess-wrod-archive` 仍为空，说明还没拿到一次真实会触发归档的线上流量样本。
+  - live captcha 已在首页展示并返回“先完成安全验证”，但目前缺少一条“通过 Turnstile 后成功进入游戏页”的稳定浏览器证据。
 - 在这个边界没打破前，继续追公网猜词 500 的应用层代码价值很低。
 
 ## 下一步
 
-- 1. 先确认 DeepSeek 控制台当前是否能产出一把真正可用的 API key；这是现在的最高优先级。
-- 2. 只有在拿到可用上游 key 后，才值得继续回到 Cloudflare provider config/default 路线。
+- 1. 继续补 live captcha / live archive 的真实流量证据，例如成功通过 Turnstile 创建会话并观察 R2 是否出现对象。
+- 2. 并行继续确认 DeepSeek 控制台当前是否能产出一把真正可用的 API key；若拿到可用 key，再回到 provider config/default 路线。
 - 3. 只有公网 `POST /guesses` 恢复成功后，才继续补公网反馈提交和完整实玩证据。
