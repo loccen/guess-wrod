@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "../app/apiClient";
-import { ensureSessionWithOptions, getErrorMessage } from "../app/frontendFlow";
+import { ensureSession, ensureSessionWithOptions, getErrorMessage, toHistoryListItems, type HistoryListItem } from "../app/frontendFlow";
 import { IconBadge } from "../components/IconBadge";
 import { TurnstileWidget } from "../components/TurnstileWidget";
-import { buildGamePath } from "../routes/routeState";
+import { buildGamePath, buildHistoryPath } from "../routes/routeState";
 
 type HomePageProps = {
   navigate: (to: string, options?: { replace?: boolean }) => void;
@@ -15,6 +15,8 @@ export function HomePage({ navigate }: HomePageProps) {
   const [captchaMode, setCaptchaMode] = useState<"bypass" | "live">("bypass");
   const [turnstileSiteKey, setTurnstileSiteKey] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [historyItems, setHistoryItems] = useState<HistoryListItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
 
   useEffect(() => {
     void apiClient
@@ -25,6 +27,35 @@ export function HomePage({ navigate }: HomePageProps) {
         setTurnstileSiteKey(health.captchaRuntime?.turnstileSiteKey ?? null);
       })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    void (async () => {
+      setHistoryLoading(true);
+      try {
+        const token = await ensureSession().then((restored) => restored.token);
+        const history = await apiClient.listGameHistory(token, { page: 1, pageSize: 3 });
+        if (!active) {
+          return;
+        }
+        setHistoryItems(toHistoryListItems(history.items));
+      } catch {
+        if (!active) {
+          return;
+        }
+        setHistoryItems([]);
+      } finally {
+        if (active) {
+          setHistoryLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function handleStartGame() {
@@ -116,22 +147,30 @@ export function HomePage({ navigate }: HomePageProps) {
           <h2>最近成绩</h2>
         </div>
         <div className="recent-list">
-          <div className="recent-row">
-            <span>第 3 局 · 12 次猜中</span>
-            <em className="status-pill status-pill--success">已完成</em>
-            <b aria-hidden="true">›</b>
-          </div>
-          <div className="recent-row">
-            <span>第 2 局 · 放弃</span>
-            <em className="status-pill status-pill--warning">已放弃</em>
-            <b aria-hidden="true">›</b>
-          </div>
-          <div className="recent-row">
-            <span>第 1 局 · 过期</span>
-            <em className="status-pill status-pill--muted">已过期</em>
-            <b aria-hidden="true">›</b>
-          </div>
+          {historyLoading && <p className="recent-helper">正在读取最近成绩</p>}
+          {!historyLoading &&
+            historyItems.map((item) => (
+              <button
+                key={item.gameId}
+                type="button"
+                className="recent-row recent-row--button"
+                onClick={() => navigate(item.resultHref)}
+              >
+                <span>{item.title}</span>
+                <em className={`status-pill status-pill--${item.statusTone}`}>{item.statusText}</em>
+                <b aria-hidden="true">›</b>
+              </button>
+            ))}
+          {!historyLoading && historyItems.length === 0 && (
+            <div className="recent-row recent-row--placeholder">
+              <span>还没有已结束对局</span>
+              <em className="status-pill status-pill--muted">空</em>
+            </div>
+          )}
         </div>
+        <button type="button" className="secondary-pill secondary-pill--button" onClick={() => navigate(buildHistoryPath())}>
+          查看全部历史
+        </button>
       </section>
 
       <a className="privacy-link" data-ui-id="privacy-link" href="/rules">

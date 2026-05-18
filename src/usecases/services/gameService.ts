@@ -53,6 +53,47 @@ export interface GiveUpGameResult {
   endedAt: string;
 }
 
+export interface ListGameHistoryInput {
+  page?: number | null;
+  pageSize?: number | null;
+}
+
+export interface GameHistoryItem {
+  gameId: string;
+  status: Exclude<Game["status"], "playing">;
+  guessCount: number;
+  startedAt: string;
+  endedAt: string | null;
+  expireReason: Game["expireReason"];
+  bestGuess: {
+    guessId: string;
+    guess: string;
+    score: number | null;
+  } | null;
+}
+
+export interface ListGameHistoryResult {
+  items: GameHistoryItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
+
+export interface DeleteGameHistoryResult {
+  success: true;
+}
+
+export interface ClearGameHistoryResult {
+  success: true;
+  deletedCount: number;
+}
+
+const HISTORY_STATUSES: Exclude<Game["status"], "playing">[] = ["success", "give_up", "expired"];
+const DEFAULT_HISTORY_PAGE = 1;
+const DEFAULT_HISTORY_PAGE_SIZE = 20;
+const MAX_HISTORY_PAGE_SIZE = 50;
+
 function plusMilliseconds(base: Date, ms: number): Date {
   return new Date(base.getTime() + ms);
 }
@@ -220,6 +261,87 @@ export class GameService {
       answer: answer.word,
       guessCount: game.guessCount,
       endedAt: nowIso
+    };
+  }
+
+  async listGameHistory(session: AuthenticatedSession, input: ListGameHistoryInput): Promise<ListGameHistoryResult> {
+    const page = Number.isInteger(input.page) && Number(input.page) > 0 ? Number(input.page) : DEFAULT_HISTORY_PAGE;
+    const requestedPageSize =
+      Number.isInteger(input.pageSize) && Number(input.pageSize) > 0 ? Number(input.pageSize) : DEFAULT_HISTORY_PAGE_SIZE;
+    const pageSize = Math.min(MAX_HISTORY_PAGE_SIZE, requestedPageSize);
+    const offset = (page - 1) * pageSize;
+
+    const [games, total] = await Promise.all([
+      this.services.storage.games.listGamesByVisitor(session.visitorId, {
+        statuses: HISTORY_STATUSES,
+        limit: pageSize,
+        offset
+      }),
+      this.services.storage.games.countGamesByVisitor(session.visitorId, {
+        statuses: HISTORY_STATUSES
+      })
+    ]);
+
+    const bestGuessIds = Array.from(new Set(games.map((game) => game.bestGuessId).filter((value): value is string => Boolean(value))));
+    const bestGuessEntries = await Promise.all(bestGuessIds.map((guessId) => this.services.storage.guesses.findGuessById(guessId)));
+    const bestGuessMap = new Map(bestGuessEntries.filter((value): value is Guess => value !== null).map((guess) => [guess.id, guess]));
+
+    return {
+      items: games.map((game) => {
+        const bestGuess = game.bestGuessId ? bestGuessMap.get(game.bestGuessId) ?? null : null;
+        return {
+          gameId: game.id,
+          status: game.status as Exclude<Game["status"], "playing">,
+          guessCount: game.guessCount,
+          startedAt: game.startedAt,
+          endedAt: game.endedAt,
+          expireReason: game.expireReason,
+          bestGuess: bestGuess
+            ? {
+                guessId: bestGuess.id,
+                guess: bestGuess.guessRaw,
+                score: bestGuess.score
+              }
+            : null
+        };
+      }),
+      total,
+      page,
+      pageSize,
+      hasMore: offset + games.length < total
+    };
+  }
+
+  async deleteHistoryGame(session: AuthenticatedSession, gameId: string): Promise<DeleteGameHistoryResult> {
+    const gameRuleService = new GameRuleService(this.services);
+    const game = await gameRuleService.readOwnedGame(session.visitorId, gameId);
+    if (game.status === "playing") {
+      throw new ApiError({
+        code: "invalid_request",
+        status: 400,
+        message: "进行中的游戏不能从历史记录中删除。"
+      });
+    }
+
+    const deleted = await this.services.storage.games.deleteGameById(session.visitorId, gameId);
+    if (!deleted) {
+      throw new ApiError({
+        code: "game_not_found",
+        status: 404,
+        message: "历史记录不存在。"
+      });
+    }
+
+    return { success: true };
+  }
+
+  async clearGameHistory(session: AuthenticatedSession): Promise<ClearGameHistoryResult> {
+    const deletedCount = await this.services.storage.games.deleteGamesByVisitor(session.visitorId, {
+      statuses: HISTORY_STATUSES
+    });
+    return {
+      success: true,
+      deletedCount
     };
   }
 }

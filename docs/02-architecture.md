@@ -74,6 +74,7 @@ Cloudflare Pages Functions / Workers API
 | 首页 | `/` | 开始游戏、玩法说明、最近成绩 |
 | 游戏页 | `/games/:gameId` | 输入猜词、展示历史 |
 | 结果页 | `/games/:gameId/result` | 展示答案、次数、再来一局 |
+| 历史记录页 | `/history` | 分页查看已结束对局、删除历史记录 |
 
 ### 3.3 前端职责
 

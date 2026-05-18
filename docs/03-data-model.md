@@ -104,6 +104,12 @@ guesses 1 ── n ai_call_logs
 | `expires_at` | datetime nullable | 计划过期时间 |
 | `expire_reason` | string nullable | `guess_limit/ttl` |
 
+历史记录读取与删除约束：
+
+1. 首页“最近成绩”和 `/history` 历史记录页都基于 `games` 表读取当前访客自己的已结束对局：`success`、`give_up`、`expired`。
+2. `playing` 状态不进入历史列表，仍通过 `GET /api/session` 的 `active_game_id` 单独恢复。
+3. 用户删除单条或全部历史记录时，当前实现直接删除 `games` 行，并依赖外键级联清理关联 `guesses`、`score_feedback` 与 `ai_call_logs`。
+
 默认不保存 `answer_word` 明文快照。展示答案时按 `answer_id` 查询词库。
 
 ### 4.5 `guesses`

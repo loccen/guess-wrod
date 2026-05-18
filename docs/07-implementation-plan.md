@@ -286,9 +286,11 @@ T12/T13 当前完成最小前置：
 1. 已接通 `POST /api/sessions`、`GET /api/session`、`POST /api/games`、`GET /api/games/{id}`、`POST /api/games/{id}/give-up`。
 2. 前端已保存并恢复本地 `session_token`，`401 unauthorized` 时会清理后自动重建匿名会话。
 3. 首页、启动页、游戏页、放弃结果页已经改为真实数据或真实请求驱动。
-4. `POST /api/games/{id}/guesses` 已接入前端真实提交链路，页面会处理加载、重复猜词提示、历史刷新和猜中跳转。
-5. `POST /api/games/{id}/feedback` 已接入前端真实提交流程；历史列表中的反馈入口会携带 `guess_id` 打开弹层，并处理提交中、失败和成功状态。
-5. 旧的 `/games/demo-playing` 与 `/games/demo/result/*` 路由仍保留给 visual QA；真实业务入口使用 `/games/:gameId` 与 `/games/:gameId/result/:mode`。
+4. 首页“最近成绩”已改为读取当前访客真实历史分页第一页，不再使用演示数据。
+5. 已新增 `/history` 历史记录页，支持分页查看、单条删除与全部删除。
+6. `POST /api/games/{id}/guesses` 已接入前端真实提交链路，页面会处理加载、重复猜词提示、历史刷新和猜中跳转。
+7. `POST /api/games/{id}/feedback` 已接入前端真实提交流程；历史列表中的反馈入口会携带 `guess_id` 打开弹层，并处理提交中、失败和成功状态。
+8. 旧的 `/games/demo-playing` 与 `/games/demo/result/*` 路由仍保留给 visual QA；真实业务入口使用 `/games/:gameId`、`/games/:gameId/result/:mode` 与 `/history`。
 
 ## 12.3 基础分析写入当前进度
 

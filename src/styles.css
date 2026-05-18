@@ -380,6 +380,14 @@ button:disabled {
   font-weight: 800;
 }
 
+.recent-row--button {
+  width: 100%;
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
 .recent-row--placeholder {
   color: #61707f;
 }
@@ -390,6 +398,62 @@ button:disabled {
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
+}
+
+.history-page {
+  min-height: 100vh;
+}
+
+.history-card {
+  margin-top: 24px;
+  padding: 18px 16px;
+}
+
+.history-summary,
+.history-total,
+.history-page-indicator {
+  color: #6c7a87;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.history-toolbar,
+.history-pagination,
+.history-record-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history-toolbar {
+  margin-top: 10px;
+}
+
+.history-record + .history-record {
+  margin-top: 4px;
+}
+
+.history-record-footer {
+  padding: 0 0 8px;
+}
+
+.danger-link {
+  border: 0;
+  background: transparent;
+  color: #d06f6f;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.history-pagination {
+  margin-top: 14px;
+}
+
+.secondary-pill--button,
+.home-link--button {
+  border: 0;
+  background: transparent;
 }
 
 .status-pill {
@@ -427,6 +491,10 @@ button:disabled {
   color: #108f98;
   font-size: 15px;
   font-weight: 800;
+}
+
+.home-link--button {
+  width: auto;
 }
 
 .privacy-link::before {

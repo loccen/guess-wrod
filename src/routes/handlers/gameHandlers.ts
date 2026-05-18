@@ -42,6 +42,45 @@ export async function createGameResponse(request: Request, services: AppServices
   }
 }
 
+export async function listGameHistoryResponse(request: Request, services: AppServices): Promise<Response> {
+  try {
+    const sessionService = new SessionService(services);
+    const authenticated = await sessionService.authenticate(request.headers.get("authorization"));
+    const gameService = new GameService(services);
+    const url = new URL(request.url);
+    const page = Number.parseInt(url.searchParams.get("page") ?? "", 10);
+    const pageSize = Number.parseInt(url.searchParams.get("page_size") ?? "", 10);
+    const result = await gameService.listGameHistory(authenticated, {
+      page: Number.isNaN(page) ? null : page,
+      pageSize: Number.isNaN(pageSize) ? null : pageSize
+    });
+
+    return createDataResponse({
+      items: result.items.map((item) => ({
+        game_id: item.gameId,
+        status: item.status,
+        guess_count: item.guessCount,
+        started_at: item.startedAt,
+        ended_at: item.endedAt,
+        ...(item.expireReason ? { expire_reason: item.expireReason } : {}),
+        best_guess: item.bestGuess
+          ? {
+              guess_id: item.bestGuess.guessId,
+              guess: item.bestGuess.guess,
+              score: item.bestGuess.score
+            }
+          : null
+      })),
+      total: result.total,
+      page: result.page,
+      page_size: result.pageSize,
+      has_more: result.hasMore
+    });
+  } catch (error) {
+    return createErrorResponse(error);
+  }
+}
+
 export async function getGameResponse(request: Request, services: AppServices, gameId: string): Promise<Response> {
   try {
     const sessionService = new SessionService(services);
@@ -78,6 +117,21 @@ export async function getGameResponse(request: Request, services: AppServices, g
             answer_aliases: result.answerAliases ?? []
           }
         : {})
+    });
+  } catch (error) {
+    return createErrorResponse(error);
+  }
+}
+
+export async function deleteGameHistoryResponse(request: Request, services: AppServices, gameId: string): Promise<Response> {
+  try {
+    const sessionService = new SessionService(services);
+    const authenticated = await sessionService.authenticate(request.headers.get("authorization"));
+    const gameService = new GameService(services);
+    const result = await gameService.deleteHistoryGame(authenticated, gameId);
+
+    return createDataResponse({
+      success: result.success
     });
   } catch (error) {
     return createErrorResponse(error);
@@ -153,6 +207,22 @@ export async function submitFeedbackResponse(request: Request, services: AppServ
 
     return createDataResponse({
       success: result.success
+    });
+  } catch (error) {
+    return createErrorResponse(error);
+  }
+}
+
+export async function clearGameHistoryResponse(request: Request, services: AppServices): Promise<Response> {
+  try {
+    const sessionService = new SessionService(services);
+    const authenticated = await sessionService.authenticate(request.headers.get("authorization"));
+    const gameService = new GameService(services);
+    const result = await gameService.clearGameHistory(authenticated);
+
+    return createDataResponse({
+      success: result.success,
+      deleted_count: result.deletedCount
     });
   } catch (error) {
     return createErrorResponse(error);

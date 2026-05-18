@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { GamePage } from "./pages/GamePage";
+import { HistoryPage } from "./pages/HistoryPage";
 import { HomePage } from "./pages/HomePage";
 import { ResultPage } from "./pages/ResultPage";
 import { RulesPage } from "./pages/RulesPage";
@@ -32,6 +33,10 @@ export default function App() {
 
   if (route.page === "session") {
     return <SessionPage navigate={navigate} />;
+  }
+
+  if (route.page === "history") {
+    return <HistoryPage navigate={navigate} />;
   }
 
   if (route.page === "game") {

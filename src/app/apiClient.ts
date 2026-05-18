@@ -95,8 +95,39 @@ export type GiveUpGameData = {
   ended_at: string;
 };
 
+export type GameHistoryItemData = {
+  game_id: string;
+  status: "success" | "give_up" | "expired";
+  expire_reason?: "ttl" | "guess_limit";
+  guess_count: number;
+  started_at: string;
+  ended_at: string | null;
+  best_guess: {
+    guess_id: string;
+    guess: string;
+    score: number | null;
+  } | null;
+};
+
+export type GameHistoryPageData = {
+  items: GameHistoryItemData[];
+  total: number;
+  page: number;
+  page_size: number;
+  has_more: boolean;
+};
+
 export type SubmitFeedbackData = {
   success: true;
+};
+
+export type DeleteGameHistoryData = {
+  success: true;
+};
+
+export type ClearGameHistoryData = {
+  success: true;
+  deleted_count: number;
 };
 
 export type HealthData = {
@@ -165,11 +196,34 @@ export const apiClient = {
   getGame(token: string, gameId: string): Promise<GameStatusData> {
     return requestJson(`/api/games/${encodeURIComponent(gameId)}`, { token });
   },
+  listGameHistory(token: string, input: { page?: number; pageSize?: number } = {}): Promise<GameHistoryPageData> {
+    const search = new URLSearchParams();
+    if (input.page) {
+      search.set("page", String(input.page));
+    }
+    if (input.pageSize) {
+      search.set("page_size", String(input.pageSize));
+    }
+    const suffix = search.size > 0 ? `?${search.toString()}` : "";
+    return requestJson(`/api/games${suffix}`, { token });
+  },
   submitGuess(token: string, gameId: string, guess: string): Promise<SubmitGuessData> {
     return requestJson(`/api/games/${encodeURIComponent(gameId)}/guesses`, {
       method: "POST",
       token,
       body: JSON.stringify({ guess })
+    });
+  },
+  deleteHistoryGame(token: string, gameId: string): Promise<DeleteGameHistoryData> {
+    return requestJson(`/api/games/${encodeURIComponent(gameId)}`, {
+      method: "DELETE",
+      token
+    });
+  },
+  clearGameHistory(token: string): Promise<ClearGameHistoryData> {
+    return requestJson("/api/games", {
+      method: "DELETE",
+      token
     });
   },
   giveUpGame(token: string, gameId: string): Promise<GiveUpGameData> {
