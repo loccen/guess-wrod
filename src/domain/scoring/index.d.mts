@@ -1,4 +1,4 @@
-export const SCORING_RULES_VERSION: "v0.1";
+export const SCORING_RULES_VERSION: "v0.2";
 
 export const SCORING_LIMITS: Readonly<{
   minLength: number;
@@ -77,6 +77,7 @@ export interface AiPostProcessedScore {
   relationType: RelationType;
   isExact: boolean;
   aiClaimedExact: boolean;
+  reason: string | null;
   confidence?: number;
   wasRuleAdjusted: boolean;
   adjustments: Array<Record<string, unknown>>;

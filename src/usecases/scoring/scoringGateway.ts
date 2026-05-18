@@ -12,16 +12,41 @@ import {
 export interface ScoringGatewayRequest {
   answer: string;
   aliases?: string[];
+  answerCategories?: string[];
+  answerTags?: string[];
   guess: string;
   language?: string;
+  guessHistory?: AiGuessHistoryContext;
+}
+
+export interface AiGuessHistoryEntry {
+  order: number;
+  guess: string;
+  score: number;
+  relationType: string;
+  source: string;
+  reason?: string | null;
+}
+
+export interface AiGuessHistoryContext {
+  totalPreviousGuesses: number;
+  bestScore: number | null;
+  bestGuess: string | null;
+  guesses: AiGuessHistoryEntry[];
 }
 
 export interface AiScoringRequest {
   answer: string;
+  answerContext: {
+    aliases: string[];
+    categories: string[];
+    tags: string[];
+  };
   guess: string;
   language: string;
   scoringRulesVersion: string;
   relationCaps: Partial<Record<RelationType, number>>;
+  guessHistory: AiGuessHistoryContext;
 }
 
 export interface AiScoringClient {
@@ -110,10 +135,21 @@ export class ScoringGateway {
 
     const aiRequest: AiScoringRequest = {
       answer: request.answer,
+      answerContext: {
+        aliases: request.aliases ?? [],
+        categories: request.answerCategories ?? [],
+        tags: request.answerTags ?? [],
+      },
       guess: localMatch.guessNormalized,
       language: request.language ?? DEFAULT_LANGUAGE,
       scoringRulesVersion: SCORING_RULES_VERSION,
       relationCaps: RELATION_SCORE_CAPS,
+      guessHistory: request.guessHistory ?? {
+        totalPreviousGuesses: 0,
+        bestScore: null,
+        bestGuess: null,
+        guesses: [],
+      },
     };
 
     let lastError: ScoringError | undefined;

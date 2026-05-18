@@ -53,9 +53,59 @@ describe("ScoringGateway", () => {
     });
     expect(client.requests[0]).toMatchObject({
       answer: "手机",
+      answerContext: {
+        aliases: [],
+        categories: [],
+        tags: [],
+      },
       guess: "维修",
       language: "zh-CN",
-      scoringRulesVersion: "v0.1",
+      scoringRulesVersion: "v0.2",
+      guessHistory: {
+        totalPreviousGuesses: 0,
+        bestScore: null,
+        bestGuess: null,
+        guesses: [],
+      },
+    });
+  });
+
+  it("passes answer metadata and guess history into AI requests", async () => {
+    const client = new QueueScoringClient([{ score: 60, relation_type: "function" }]);
+    const gateway = new ScoringGateway(client);
+
+    await gateway.score({
+      answer: "日历",
+      aliases: ["挂历"],
+      answerCategories: ["办公用品", "时间工具"],
+      answerTags: ["日期", "月份"],
+      guess: "查看日期",
+      guessHistory: {
+        totalPreviousGuesses: 2,
+        bestScore: 75,
+        bestGuess: "日用品",
+        guesses: [
+          { order: 1, guess: "日用品", score: 75, relationType: "usage_context", source: "model" },
+          { order: 2, guess: "每天会用的", score: 78, relationType: "service_context", source: "model" },
+        ],
+      },
+    });
+
+    expect(client.requests[0]).toMatchObject({
+      answerContext: {
+        aliases: ["挂历"],
+        categories: ["办公用品", "时间工具"],
+        tags: ["日期", "月份"],
+      },
+      guessHistory: {
+        totalPreviousGuesses: 2,
+        bestScore: 75,
+        bestGuess: "日用品",
+        guesses: [
+          { order: 1, guess: "日用品", score: 75, relationType: "usage_context", source: "model" },
+          { order: 2, guess: "每天会用的", score: 78, relationType: "service_context", source: "model" },
+        ],
+      },
     });
   });
 

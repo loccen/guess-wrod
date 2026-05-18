@@ -468,7 +468,7 @@ async function createStoredGame(
     visitorId,
     answerId: overrides.answerId ?? "word_1",
     status: overrides.status ?? "playing",
-    ruleVersion: overrides.ruleVersion ?? "v0.1",
+    ruleVersion: overrides.ruleVersion ?? "v0.2",
     modelName: overrides.modelName ?? services.scoringProfile.modelName,
     thinkingMode: overrides.thinkingMode ?? services.scoringProfile.thinkingMode,
     guessCount: overrides.guessCount ?? 0,
