@@ -15,11 +15,11 @@
 3. Pages 项目：`guess-wrod`（项目 ID：`3bd20fb8-15fd-443f-ac81-792fa3cfdd62`，默认子域：`guess-wrod.pages.dev`）
 4. D1 正式库：`guess-wrod-prod`（UUID：`35412c0c-e8b9-4a0b-bf89-ddcdc89b63b3`）
 5. AI Gateway：`guess-wrod-gateway`（provider alias：`guess-word`，已存在）
+6. R2 bucket：`guess-wrod-archive`（已创建，用于原始归档）
 
 当前受限项：
 
-1. R2 API 当前返回需先在 Dashboard 启用，暂未创建 bucket。
-2. Turnstile API 当前认证报错，暂未创建 widget。
+1. Turnstile API 当前认证报错，暂未创建 widget。
 
 ## 2. 系统组成
 
