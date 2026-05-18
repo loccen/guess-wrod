@@ -251,7 +251,7 @@ T01 项目骨架使用 React + Vite + TypeScript + Cloudflare Pages Functions。
 | `ARCHIVE_MODE` | `file` | 本地默认预留文件归档 adapter |
 | `DB` | `guess-wrod-local` | 本地 D1 binding，默认用于 `wrangler pages dev` / 本地 migration 验证 |
 
-当前健康检查地址为 `GET /api/health`。该接口用于验证 Pages Functions、routes handler、use case 和运行时配置 adapter 的最小链路；不包含业务主流程、数据库、词库 seed、评分规则或真实 AI 调用。返回值除模式配置外，还包含 `runtime.version` 与 `runtime.source`（从 `CF_PAGES_COMMIT_SHA`、`GIT_COMMIT_SHA`、`BUILD_ID`、`RUNTIME_VERSION` 按优先级选取并做安全清洗）以及 `aiRuntime` 布尔摘要（`hasAiGatewayEndpoint`、`hasAiGatewayApiKey`、`hasAiGatewayByokAlias`），用于判断 production alias/preview alias 是否吃到 AI 网关相关 env，同时避免暴露密钥与原始配置值。
+当前健康检查地址为 `GET /api/health`。该接口用于验证 Pages Functions、routes handler、use case 和运行时配置 adapter 的最小链路；不包含业务主流程、数据库、词库 seed、评分规则或真实 AI 调用。返回值除模式配置外，还包含 `runtime.version` 与 `runtime.source`（从 `CF_PAGES_COMMIT_SHA`、`GIT_COMMIT_SHA`、`BUILD_ID`、`RUNTIME_VERSION` 按优先级选取并做安全清洗）以及 `aiRuntime` 布尔摘要（`hasAiGatewayEndpoint`、`hasAiGatewayApiKey`、`hasAiGatewayByokAlias`），用于判断 production alias/preview alias 是否吃到 AI 网关相关 env，同时避免暴露密钥与原始配置值。其中 `hasAiGatewayEndpoint` 以当前部署使用的 `AI_GATEWAY_ENDPOINT_URL` 为主，也兼容旧的 `AI_GATEWAY_ENDPOINT`，避免健康检查因历史变量名差异误报。
 
 ## 12.1 评分客户端当前边界
 

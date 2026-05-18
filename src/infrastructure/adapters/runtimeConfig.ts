@@ -12,6 +12,7 @@ export interface RuntimeEnv {
   CAPTCHA_MODE?: string;
   ANALYTICS_MODE?: string;
   ARCHIVE_MODE?: string;
+  AI_GATEWAY_ENDPOINT_URL?: string;
   AI_GATEWAY_ENDPOINT?: string;
   AI_GATEWAY_API_KEY?: string;
   AI_GATEWAY_BYOK_ALIAS?: string;
@@ -84,9 +85,13 @@ function hasNonEmptyValue(value: string | undefined): boolean {
   return Boolean(value && value.trim().length > 0);
 }
 
+function hasAnyNonEmptyValue(...values: Array<string | undefined>): boolean {
+  return values.some((value) => hasNonEmptyValue(value));
+}
+
 export function loadAiRuntimeConfigSummary(env: RuntimeEnv = {}): AiRuntimeConfigSummary {
   return {
-    hasAiGatewayEndpoint: hasNonEmptyValue(env.AI_GATEWAY_ENDPOINT),
+    hasAiGatewayEndpoint: hasAnyNonEmptyValue(env.AI_GATEWAY_ENDPOINT_URL, env.AI_GATEWAY_ENDPOINT),
     hasAiGatewayApiKey: hasNonEmptyValue(env.AI_GATEWAY_API_KEY),
     hasAiGatewayByokAlias: hasNonEmptyValue(env.AI_GATEWAY_BYOK_ALIAS)
   };
